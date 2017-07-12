@@ -1,0 +1,35 @@
+<div class="row">
+	<div class="col s12 m8 l8 offset-l2 offset-m2">
+		<h2 class="header">Edit Profile</h2>
+		<div class="card horizontal">
+			<div class="card-stacked">
+				<div class="card-content">
+					<form {{ form1.arguments }} method="POST" action="{{ maple.url.root }}" data-handle="change-password">
+						<div class="input-field col s12 tooltipped" data-position="top" data-delay="50" data-tooltip="Cannot be changed"><i class="material-icons prefix">perm_identity</i> {{ form1.name|raw }} <label for="name">Name</label></div>
+						<div class="input-field col s12 tooltipped" data-position="top" data-delay="50" data-tooltip="Cannot be changed"><i class="material-icons prefix">person</i> {{ form1.username|raw }} <label for="username">Username</label></div>
+						<div class="input-field col s12 tooltipped" data-position="top" data-delay="50" data-tooltip="Enter Current password"><i class="material-icons prefix">lock</i> {{ form1.previous_password|raw }} <label for="prev-password">Old Password</label></div>
+						<div class="input-field col s12 tooltipped" data-position="top" data-delay="50" data-tooltip="Enter new password"><i class="material-icons prefix">lock_open</i> {{ form1.password|raw }} <label for="password">New Password</label></div>
+						<div class="input-field col s12 tooltipped" data-position="top" data-delay="50" data-tooltip="Confirm new Password"><i class="material-icons prefix">lock_outline</i> {{ form1.confirm_password|raw }} <label for="con-password">Confirm Password</label></div>
+						{{ form1.nonce|raw }}
+						{{ form1.submit|raw }}
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="card horizontal">
+			<div class="card-stacked">
+				<div class="card-content">
+					<form {{ form2.arguments }} method="POST" action="{{ maple.url.root }}" data-handle="change-password">
+						<div class="input-field col s12 tooltipped" data-position="top" data-delay="50" data-tooltip="E-Mail Id is available"><i class="material-icons prefix">mail_outline</i> {{ form2.email|raw }} <label for="email">E-Mail</label></div>
+						<div class="input-field col s12 tooltipped" data-position="top" data-delay="50" data-tooltip="Your available Phone Number"><i class="material-icons prefix">call</i> {{ form2.phone|raw }} <label for="phone">Phone No.*</label></div>
+						{{ form2.address|raw }}
+						{{ form2.nonce|raw }}
+					<p>* Required Feilds</p>
+						{{ form2.submit|raw }}
+					</form>
+				</div>
+			</div>
+		</div>
+		{{ filter.user_setting_content|raw }}
+	</div>
+</div>

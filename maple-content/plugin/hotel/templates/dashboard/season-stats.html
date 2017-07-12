@@ -1,0 +1,13 @@
+<h5 class="card-title blue-text">Seasons</h5>
+<div class="timeline one-column">
+	{% for season in seasons %}
+	<div class="timeline-event">
+		<div class="timeline-content">
+			<p class="card-title blue-text center">
+				{{ season.starts }} <i class="material-icons center">arrow_forward</i> {{ season.ends }}
+			</p>
+		</div>
+		<div class="timeline-badge blue white-text"><i class="material-icons">language</i></div>
+	</div>
+	{% endfor %}
+</div>

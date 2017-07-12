@@ -1,0 +1,14 @@
+{
+    "use": false,
+    "web-root": "\/app",
+    "base-folder": "app-content",
+    "environments": [],
+    "themes": [],
+    "apps": [],
+    "optimisation": [],
+    "credentials": {
+        "url": "\/settings",
+        "username": "root",
+        "password": "41a3d23e04b4c8c17cf049d608295fdf"
+    }
+}

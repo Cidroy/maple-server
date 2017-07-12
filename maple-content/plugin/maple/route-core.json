@@ -1,0 +1,23 @@
+{
+	"namespace" : "maple\/core",
+	"app-route" : [
+		{
+			"name" 		 : "settings",
+			"description": "",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "%ADMIN%",
+			"route" 	 : "/settings",
+			"handler"	 : ""
+		},
+		{
+			"parent"	 : "settings",
+			"name" 		 : "plugins",
+			"description": "",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"route" 	 : "/plugins",
+			"handler"	 : ""
+		}
+	]
+}

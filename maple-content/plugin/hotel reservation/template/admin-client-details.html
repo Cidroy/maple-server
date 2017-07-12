@@ -1,0 +1,29 @@
+<h4 class="header">Client Details</h4>
+{% if client %}
+<div class="card">
+	<div class="card-content">
+			<p><strong>Name : </strong>{{ client.name }}</p>
+			<p><strong>Phone : </strong>{{ client.phone }}</p>
+			<p><strong>Email : </strong>{{ client.email }}</p>
+			<p><strong>Address : </strong>{{ client.address }}</p>
+			<p><strong>City : </strong>{{ client.city }}</p>
+			<p><strong>State : </strong>{{ client.state }}</p>
+			<p><strong>Zip : </strong>{{ client.zip }}</p>
+			<p><strong>Passport : </strong>{{ client.passport }}</p>
+	</div>
+</div>
+<h5 class="header blue-text">Orders</h5>
+{% for r in orders %}
+	<div class="card">
+		<div class="card-content">
+			<p><strong> From : </strong>{{ r.start }}</p>
+			<p><strong> To : </strong>{{ r.end }}</p>
+			<p><strong> Room : </strong>{{ r.room }}</p>			
+		</div>
+	</div>
+{% else %}
+	This Client has no Booking History
+{% endfor %}
+{% else %}
+	Sorry No Client Found
+{% endif %}

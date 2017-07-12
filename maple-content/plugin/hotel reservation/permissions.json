@@ -1,0 +1,20 @@
+{
+	"permission" : {
+		"view-reservation-dashboard":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"view-rooms-types":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"view-reservations":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"view-available":{
+			"description":"",
+			"default" : "Administrator+"
+		}
+	}
+}

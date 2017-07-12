@@ -1,0 +1,50 @@
+<div class="parallax-container" style="height : 40vh; padding: 20px">
+	<div class="parallax">
+		<img src="{{ image }}">
+	</div>
+	{% if permission["hotel-client-edit"] %}
+	<a href="{{ client.url.edit }}" style="bottom:30px;right:20px;position:absolute;" class="btn btn-floating btn-large blue right"> <i class="material-icons">edit</i> </a>
+	{% endif %}
+	<h1 class="white-text black" style="bottom:0px;position:absolute;padding: 5px 15px;"> Client Details </h1>
+</div>
+<div class="card">
+	<div class="card-content">
+		<table>
+			<tbody>
+				<tr> <td><strong>Name : </strong></td> <td>{{ client.name }}</td> </tr>
+				<tr> <td><strong>Email : </strong></td> <td>{{ client.email }}</td> </tr>
+				<tr> <td><strong>Gender : </strong></td> <td>{{ client.gender }}</td> </tr>
+				<tr> <td><strong>Age : </strong></td> <td>{{ client.age }}</td> </tr>
+				<tr> <td><strong>Phone : </strong></td> <td>{{ client.phone }}</td> </tr>
+				<tr> <td><strong>Address : </strong></td> <td>{{ client.address }}</td> </tr>
+				<tr> <td><strong>City : </strong></td> <td>{{ client.city }}</td> </tr>
+				<tr> <td><strong>State : </strong></td> <td>{{ client.state }}</td> </tr>
+				<tr> <td><strong>Zip : </strong></td> <td>{{ client.zip }}</td> </tr>
+				<tr> <td><strong>Passport : </strong></td> <td>{{ client.passport }}</td> </tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+<h5 class="card-content">Bookings</h5>
+<div class="timeline one-column">
+	{% for order in orders %}
+	<div class="timeline-event">
+		<div class="timeline-content">
+			<div class="card">
+				<div class="card-content">
+					<h5 class="card-title"><a href="{{ order.room.url.detail }}">Room {{ order.room.number }}</a><small><a href="{{ order.room.type.url.detail }}">( {{ order.room.type.name }} )</a></small> - <a href="{{ order.url.detail }}">{{ order.status }} / {% if order.complete == '-1' %} Cancelled {% elseif order.complete == '0' %} Pending {% else %} Completed {% endif %}</a></h5>
+					<p>Paid Rs. {{ order.payment.amount|number_format(2) }} </p>
+					<p>Resservation from {{ order.check_in }} To {{ order.check_out }}</p>
+				</div>
+			</div>
+		</div>
+		<div class="timeline-badge blue white-text"><i class="material-icons">language</i></div>
+	</div>
+	{% else %}
+	<div class="card">
+		<div class="card-content">
+			<h5 class="card-title">No Bookings Done</h5>
+		</div>
+	</div>
+	{% endfor %}
+</div>

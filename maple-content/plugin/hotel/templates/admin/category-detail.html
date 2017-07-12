@@ -1,0 +1,34 @@
+<div class="parallax-container" style="height : 40vh; padding: 20px">
+	<div class="parallax">
+		<img src="{{ category.image }}">
+	</div>
+	{% if permission["hotel-category-edit"] %}
+	<a href="{{ category.url.edit }}" style="bottom:30px;right:20px;position:absolute;" class="btn btn-floating btn-large blue right"> <i class="material-icons">edit</i> </a>
+	{% endif %}
+	<h1 class="white-text black" style="bottom:0px;position:absolute;padding: 5px 15px;">
+		{{ category.name }}
+	</h1>
+</div>
+<p>{{ category.brief }}</p>
+<div class="card">
+	<div class="card-content">
+		<h5>Description : </h5>
+		{{ category.description }}
+	</div>
+</div>
+<div class="card">
+	<div class="card-content">
+		<h5>Rooms : </h5>
+		<div class="row">
+			{% for room in category.rooms %}
+			<a href="{{ room.url }}" class="col s12 m4 l2 z-depth-2 {% if room.available %} green {% else %} red {% endif %} darken-2 white-text center-align" style="margin: 10px">
+				<p>{% if room.available %} Available {% else %} Unavailable {% endif %}</p>
+				<h5>{{ room.number }}</h5>
+				<p>{{ room.type }}</p>
+			</a>
+			{% else %}
+				<p class="header black-text">Error : No Rooms Found of this type</p>
+			{% endfor %}
+		</div>
+	</div>
+</div>

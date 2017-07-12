@@ -1,0 +1,69 @@
+<h2 class="header">New User</h2>
+{{ filter.admin_register_new|raw }}
+<form action="{{ maple.url.root }}" method="POST">
+	<div class="card">
+		<div class="card-content">
+			<div class="row">
+				<p>* Required Fields.</p>
+				<div class="input-field col s12 tooltipped" data-position="top" data-delay="50" data-tooltip="Your name">
+					<i class="material-icons prefix">person</i>
+					<input type="text" name="name" id="name" required>
+					<label for="name">Name*</label>
+				</div>
+				<div class="input-field col s12 tooltipped" data-position="top" data-delay="50" data-tooltip="A Unique Username">
+					<i class="material-icons prefix">perm_identity</i> 
+					<input type="text" name="username" id="username" required>
+					<label for="username">Username*</label>
+				</div>
+				<div class="input-field col s12">
+					<i class="material-icons prefix">lock_open</i> 
+					<input type="password" name="password" id="password" required>
+					<label for="password">Password*</label>
+				</div>
+				<div class="input-field col s12">
+					<i class="material-icons prefix">lock_outline</i> 
+					<input type="password" name="con-password" id="con-password" required>
+					<label for="con-password">Confirm Password*</label>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="card">
+		<div class="card-content">
+			<div class="row">
+				<p>* Required Fields.</p>
+				<div class="input-field col s12 tooltipped" data-position="top" data-delay="50" data-tooltip="E-Mail Id ">
+					<i class="material-icons prefix">email</i>
+					<input type="email" name="email" id="email">
+					<label for="email">E-Mail</label>
+				</div>
+				<div class="input-field col s12 tooltipped" data-position="top" data-delay="50" data-tooltip="A Phone thats always with you">
+					<i class="material-icons prefix">call</i> 
+					<input type="text" name="phone" id="phone">
+					<label for="phone">Phone No.*</label>
+				</div>
+				<div class="input-field col s12 tooltipped" data-position="top" data-delay="50" data-tooltip="Address that you would generally like the products to be delivered">
+					<i class="material-icons prefix">location_on</i> 
+					<textarea class="materialize-textarea" required name="address" id="address"></textarea>
+					<label for="address">Address*</label>
+				</div>
+				{{ form.ajax|raw }}
+			</div>
+		</div>
+	</div>
+	{% if permission['login-custom-type'] %}
+	<div class="card">
+		<div class="card-content">
+			<div class="row">
+				<label>Select User Type</label>
+				<select name="user-type">
+					{% for t in form.utypes %}
+					<option value="{{ t.id }}">{{ t.name }}</option>
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+				<button type="submit" class="btn blue">Submit</button>
+</form>

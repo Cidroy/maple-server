@@ -1,0 +1,28 @@
+<div class="parallax-container" style="height : 40vh">
+	<div class="parallax">
+		<img src="{{ images.parallax }}">
+	</div>
+	<h1 class="white-text black" style="bottom:0px;position:absolute;padding-left:20px;padding: 5px 15px;">Hotel</h1>
+</div>
+<div class="card">
+	<div class="card-content">
+		<h5>Project by : </h5>
+		<blockquote>
+			<ul>
+				<li>Vicky</li>
+				<li>Kaushal Gaonkar</li>
+				<li>Yash Srivastava</li>
+			</ul>
+		</blockquote>
+	</div>
+</div>
+<div class="card">
+	<div class="card-content">
+		<h5>Functions : </h5>
+		<div class="collection">
+			{% for f in functions %}
+			<a href="{{ f.url }}" class="collection-item">{{ f.name }}</a>
+			{% endfor %}
+		</div>
+	</div>
+</div>

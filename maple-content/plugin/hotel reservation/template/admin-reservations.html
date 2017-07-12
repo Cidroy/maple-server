@@ -1,0 +1,92 @@
+<h4 class="header">Reservations</h4>
+<div class="card">
+	<div class="card-content">
+		<div class="row">
+			<h5>Search</h5>
+			<form method="GET" action="">
+				<div class="col s12 m6">
+					<label for="start-date">Start</label>
+					<input type="date" class="datepicker" name="start" id="start-date" required>
+				</div>
+				<div class="col s12 m6">
+					<label for="end-date">End</label>
+					<input type="date" class="datepicker" name="end" id="end-date" required>
+				</div>
+				<input type="text" name="range" value="#" hidden="true">
+				<button class="btn deep-purple white-text" type="submit" style="float: right;">Search</button>
+			</form>
+		</div>
+	</div>
+</div>
+{% if reservations.query %}
+		<h5>Showing results <br> <label>from : <strong>{{ reservations.query.start }}</strong> to : <strong>{{ reservations.query.end }}</strong></label></h5>
+		{% for r in reservations.query.results %}
+		<div class="card">
+			<div class="card-content">
+				<a href="{{ r.url.checkout }}" class="btn red darken-2" style="float: right;">Checkout</a>
+				<p><strong>Name : </strong>{{ r.client.name }}</p>
+				<p><strong>Arrival : </strong>{{ r.reserve.start }}</p>
+				<p><strong>Departure : </strong>{{ r.reserve.end }}</p>
+			</div>
+		</div>
+		{% else %}
+			<h5> :( No Reservations found </h5>
+		{% endfor %}
+{% endif %}
+
+{% if reservations.error %}
+<div class="card">
+	<div class="card-content">
+	{% if reservations.error.critical %}
+		{% for e in reservations.error.critical %}
+			<h5 class="header red-text">{{ e }}</h5>
+		{% endfor %}
+	{% endif %}
+	</div>
+</div>
+{% endif %}
+
+	{% if not reservations.query %}
+		<h5 class="header blue-text">Today</h5>
+		{% for r in reservations.today %}
+		<div class="card">
+			<div class="card-content">
+				<a class="black-text" href="?view-reservation&id={{ r.reserve.id }}">
+					<p><strong>Name : </strong>{{ r.client.name }}</p>
+					<p><strong>Arrival : </strong>{{ r.reserve.start }}</p>
+					<p><strong>Departure : </strong>{{ r.reserve.end }}</p>
+				</a>
+			</div>
+		</div>
+		{% else %}
+			<p>:( No Reservations Today</p>
+		{% endfor %}
+		<h5 class="header blue-text">Tomorrow</h5>
+		{% for r in reservations.tomorrow %}
+		<div class="card">
+			<div class="card-content">
+				<a class="black-text" href="?view-reservation&id={{ r.reserve.id }}">
+					<p><strong>Name : </strong>{{ r.client.name }}</p>
+					<p><strong>Arrival : </strong>{{ r.reserve.start }}</p>
+					<p><strong>Departure : </strong>{{ r.reserve.end }}</p>
+				</a>
+			</div>
+		</div>
+		{% else %}
+			<p>:( No Reservations Tomorrow</p>
+		{% endfor %}
+		<h5 class="header blue-text">Next Week</h5>
+		{% for r in reservations.week %}
+		<div class="card">
+			<div class="card-content">
+				<a class="black-text" href="?view-reservation&id={{ r.reserve.id }}">
+					<p><strong>Name : </strong>{{ r.client.name }}</p>
+					<p><strong>Arrival : </strong>{{ r.reserve.start }}</p>
+					<p><strong>Departure : </strong>{{ r.reserve.end }}</p>
+				</a>
+			</div>
+		</div>
+		{% else %}
+			<p>:( No Reservations Next Week</p>
+		{% endfor %}
+	{% endif %}

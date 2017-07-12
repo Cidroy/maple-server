@@ -1,0 +1,22 @@
+<ul class="collapsible" data-collapsible="accordion">
+{% for plugin in sidebar.content %}
+	{% if plugin.More %}
+	<li>
+		<div class="collapsible-header"><i class="material-icons">{{ plugin.icon }}</i>{{ plugin.Name }}</div>
+		<div class="collapsible-body">
+			<ul class="collection">
+				{% for ele in plugin.More %}
+				<li class="collection-item {{ ele.active }}"><a href="{{ maple.url.admin }}{{ plugin.Bind }}/{{ ele.Bind }}/">{{ ele.Name }}</a></li>
+				{% endfor %}
+			</ul>
+		</div>
+	</li>
+	{% else %}
+	<li class="{{ plugin.active }}">
+		<div class="collapsible-header">
+			<a href="{{ maple.url.admin }}{{ plugin.Bind }}/" class="black-text"><i class="material-icons left">{{ plugin.icon }}</i>{{ plugin.Name }}</a>
+		</div>
+	</li>
+	{% endif %}
+{% endfor %}
+</ul>

@@ -1,0 +1,24 @@
+Rate Card
+{{ filter.admin_message }}
+<form name="xyz" method="POST" action="{{ maple.url.current }}">
+	Start Date
+	<input type="date" name="start-date">
+	End Date
+	<input type="date" name="end-date">
+	{% for room in room_types %}
+	<div class="row">
+		<p>{{ room.name }}</p>
+		<div class="input-field col s12 l6">
+			<input type="text" id="r-{{ room.id }}-r" name="room[{{ room.id }}][cost]" >
+			<label for="r-{{ room.id }}-r">Price</label>
+		</div>
+		<div class="input-field col s12 l6">
+			<input type="text" id="r-{{ room.id }}-c" name="room[{{ room.id }}][comment]">
+			<label for="r-{{ room.id }}-c">Short Comment</label>
+		</div>
+	</div>
+	{% endfor %}
+	<input type="text" name="redirect_to" value="{{ maple.url.current }}">
+	{{ form.ajax_action|raw }}
+	<input type="submit" name="">
+</form>

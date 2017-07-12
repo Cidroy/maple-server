@@ -1,0 +1,13 @@
+{
+	"name":"Cordova for Maple",
+	"version":"1.0",
+	"author":"rinzler",
+	"description":"Cordova environment support for Maple",
+	"namespace":"rinzler/app/environments/cordova",
+	"maple":{
+		"maple/app":{
+			"name":"Cordova",
+			"environment":"/environment-cordova.php"
+		}
+	}
+}

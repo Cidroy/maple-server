@@ -1,0 +1,479 @@
+<?php
+require_once 'interface-environment.php';
+
+/**
+ * Core Environment class that facilitates in the loading and execution of environments
+ * @package Maple Environment
+ * @since 1.0
+ * @author Rubixcode
+ */
+class ENVIRONMENT{
+	/**
+	 * Loccation for environment settings json
+	 * @var file path
+	 */
+	private static $config_location = ROOT."environments/environments.json";
+	/**
+	 * TODO : document
+	 * @var array
+	 */
+	private static $environments_list = [];
+	/**
+	 * TODO : document
+	 * @var array
+	 */
+	private static $environments = [];
+	/**
+	 * Environment namespace list of all the loaded environment till now in the current instance
+	 * @var array
+	 */
+	private static $environments_loaded = [];
+	/**
+	 * Ordered Priority List of environments.
+	 * array of environment namespaces
+	 * @var array
+	 */
+	private static $priority = [];
+	/**
+	 * List of allowed methods
+	 * @var array
+	 */
+	private static $methods = [];
+	/**
+	 * List of environments that support direct handling
+	 * @var array
+	 */
+	private static $direct = [];
+	/**
+	 * List of all errors that occured in current instance
+	 * @var array
+	 */
+	private static $errors = [];
+	/**
+	 * Content Dump
+	 * @var string
+	 */
+	private static $content_dump = null;
+	/**
+	 * If content exists
+	 * @var boolean
+	 */
+	private static $content = false;
+	/**
+	 * TODO : document
+	 * @var array
+	 */
+	private static $_url = false;
+	/**
+	 * TODO : document
+	 * @var string
+	 */
+	public static $url_control_panel = "";
+	/**
+	 * stores the locks depth for the current instance
+	 * @var integer
+	 */
+	private static $_lock_index = 0;
+
+	/**
+	 * initialize the environment
+	 * @param  boolean $recursive set true on recursive call to avoid infinite loop
+	 * @return
+	 */
+	public static function initialize($recursive = false){
+		try {
+			$config = file_get_contents(self::$config_location);
+			$config = json_decode($config,true);
+			self::$environments_list = $config["environments"];
+			self::$environments 	 = array_keys($config["environments"]);
+			self::$priority 		 = $config["priority"];
+			self::$methods 		 	 = $config["methods"];
+
+			if(isset($config["settings"])) self::$url_control_panel = $config["settings"]["url"]."/";
+
+			foreach (self::$environments_list as $key => $value) {
+				if(isset($value["direct"]) && $value["direct"]) self::$direct[] = $key;
+				if(isset($value["define"])) foreach ($value["define"] as $dkey => $dvalue) {
+					if(!defined($dkey))	define("{$dkey}",$dvalue);
+				}
+				require_once ROOT."environments/{$value["location"]}";
+			}
+		} catch (Exception $e) {
+			if($recursive){
+				if(!file_exists(self::$config_location)){
+					file_put_contents(self::$config_location,json_encode([
+						"environments"=>[],
+						"priority"=>[],
+						"methods"=>[],
+					],JSON_PRETTY_PRINT));
+				}
+				self::initialize(true);
+			}
+			else throw $e;
+		}
+
+		// run diagnostics
+		self::diagnostics();
+
+		// test if attempting to connect to environment settings
+		if(strrpos(self::url()->current(),self::url()->root(false).self::$url_control_panel) !== false){
+			self::bootup();
+			die();
+		}
+	}
+
+	/**
+	 * Run Environment diagnostics to treat any kind of pre initialization failure
+	 */
+	private static function diagnostics(){
+		// Test SSL
+		if( self::url()->encoding() == "https://" && !isset($_SERVER["HTTPS"]) ){
+			header("Location: https://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}");
+			die("Redirecting . . .");
+		}
+
+		// Test if environment is locked
+		if(self::locked()){
+			echo file_get_contents(__DIR__."/setup/error/503.html");
+			header("Retry-After: 5");
+			http_response_code(503);
+			die();
+		}
+
+		// Test if environments file is optimized
+		if(array_diff(self::$priority,self::$environments)){
+			self::optimize();
+			self::initialize();
+			return;
+		}
+
+		// Test if there are active environments loaded else begin bootup
+		if(!self::$environments){
+			if(!(strrpos(self::url()->current(),self::url()->root(false).self::$url_control_panel) !== false))
+			header("Location: ".self::url()->root(false).self::$url_control_panel);
+		};
+
+	}
+
+	/**
+	 * Is the passed method name allowed by the environment
+	 * @api
+	 * @param  string  $method method name
+	 * @return boolean
+	 */
+	public static function is_allowed($method){ return in_array($method,self::$methods); }
+
+	/**
+	 * Check if any environment is ready to return content via direct call
+	 * @return boolean
+	 */
+	public static function direct(){
+		foreach (self::$priority as $f) {
+			if(in_array($f,self::$direct)){
+				if (session_status() != PHP_SESSION_NONE) session_commit();
+				$return = call_user_func(self::$environments_list[$f]["class"]."::direct");
+				if($return){
+					self::$content_dump = call_user_func(self::$environments_list[$f]["class"]."::content");
+					self::$content = true;
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * return collected content
+	 * @return string
+	 */
+	public static function content(){ return self::$content?self::$content_dump:false; }
+
+	/**
+	 * Implement all environments and return if any content exists
+	 * @return boolean
+	 */
+	public static function execute(){
+		foreach (self::$priority as $priority) {
+			if (session_status() != PHP_SESSION_NONE) session_commit();
+			self::load($priority);
+			$code = call_user_func(self::$environments_list[$priority]["class"]."::execute");
+			if(call_user_func(self::$environments_list[$priority]["class"]."::has_content")){
+				self::$content_dump = call_user_func(self::$environments_list[$priority]["class"]."::content");
+				self::$content = true;
+				return true;
+			}
+			if($code["type"] == "error") self::$errors[] = $code["error"];
+		}
+		return false;
+	}
+
+	/**
+	 * Load a specified environment,
+	 * if unable to load it returns false.
+	 * NOTE : if the environment has been loaded previously then it will not reload it but still return true.
+	 * @api
+	 * @param  string $environment environment namespace
+	 * @return boolean
+	 */
+	public static function load($environment) {
+		if(isset(self::$environments_list[$environment])){
+			if(in_array($environment,self::$environments_loaded)) return true;
+			call_user_func(self::$environments_list[$environment]["class"]."::load");
+			self::$environments_loaded[] = $environment;
+		} else return false;
+	}
+	/**
+	 * Check if an environment is available to be loaded
+	 * @api
+	 * @param  string $environment environment namespace
+	 * @return boolean
+	 */
+	public static function available($environment){
+		if(in_array($environment,["maple/environment"])) return true;
+		return isset(self::$environments_list[$environment]);
+	}
+
+	/**
+	 * Handle error and return suitable response
+	 */
+	public static function error(){
+		$code = 0;
+		$code = self::$errors?end(self::$errors):404;
+		if(self::$content === false){
+			foreach (self::$priority as $priority) {
+				$x = call_user_func(self::$environments_list[$priority]["class"]."::error",$code);
+				if($x){
+					echo $x;
+					return true;
+				}
+			}
+		}
+		// if no one takes care then handle here
+		if(file_exists(__DIR__."/setup/error/{$code}.html"))
+			echo file_get_contents(__DIR__."/setup/error/{$code}.html");
+		http_response_code($code);
+	}
+
+	/**
+	 * returns the environments url object to be used
+	 * @uses \maple\environments\__URL class
+	 * @param  array $param initialize the url object
+	 * @return object        url object
+	 */
+	public static function url($param = null){
+		if($param || !self::$_url) {
+			self::$_url = new \maple\environments\__URL();
+			self::$_url->initialize($param);
+		}
+		return self::$_url;
+	}
+
+	/**
+	 * Optimize the environment configuration file
+	 */
+	private static function optimize(){
+		$config = self::$config_location;
+		$config_c = file_get_contents($config);
+		$config_c = json_decode($config_c,true);
+		$config = $config_c;
+		$environments_list = $config["environments"];
+		$environments 	 = array_keys($config["environments"]);
+		$priority 		 = $config["priority"];
+		$methods 		 = $config["methods"];
+
+		$missing_envs = array_diff($priority,$environments);
+		if($missing_envs){
+			$priority = array_diff($priority,$missing_envs);
+			$config_c["priority"] = $priority;
+			$_methods = [];
+			foreach ($environments_list as $env => $conf) $_methods = array_merge($_methods,$conf["methods"]);
+			$_junk_methods = array_diff($config["methods"],$_methods);
+			$config_c["methods"] = array_diff($config["methods"],$_junk_methods);
+			self::lock("maple/environment : optimizing");
+				file_put_contents(self::$config_location,json_encode($config_c,JSON_PRETTY_PRINT));
+			self::unlock();
+		}
+	}
+
+	/**
+	 * Load bootup and settings file
+	 */
+	private static function bootup(){ require_once __DIR__."/setup/index.php"; }
+
+	/**
+	 * // BUG: doesnt return specified environment
+	 * TODO : bug testing
+	 * return environment details from available environment namespaces
+	 * @api
+	 * @param  string $environment environment namespace
+	 *     if set to "*" returns details of all the available environment
+	 * @return mixed[array/boolean] details or false if doesnt exists
+	 */
+	public static function details($environment){
+		$path = dirname(__DIR__);
+		$dir = array_filter(glob("{$path}/*"), 'is_dir');
+		$envs = [];
+		foreach ($dir as $value) {
+			$file = "{$value}/package.json";
+			if(file_exists($file)){
+				$_environment = json_decode(file_get_contents($file),true);
+				$_detailes = $_environment;
+				unset($_detailes["maple"]);
+				$_environment = isset($_environment["maple"]["environment"])?$_environment["maple"]["environment"]:false;
+				$_environment["active"] = in_array($_environment["namespace"],self::$environments);
+				$_environment["details"]= $_detailes;
+				if($environment == "*"){ if($_environment) $envs[$_environment["namespace"]] = $_environment; }
+				else if($environment == $_environment["namespace"]) return $_environment;
+			}
+		}
+		return $environment == "*"?$envs:[];
+	}
+
+	/**
+	 * activate an environment
+	 * @param  string $param environment namespace
+	 * @return array        status
+	 */
+	public static function activate($param){
+		$environment = self::details($param["environment"]);
+		if($environment){
+			if(!$environment["active"]){
+				$config = self::configuration();
+				$config["environments"][$environment["namespace"]] = [
+					"location"	=>	$environment["location"],
+					"class"		=>	$environment["class"],
+					"direct"	=>	$environment["direct"],
+					"methods"	=>	$environment["methods"],
+					"define"	=>	$environment["define"],
+				];
+				if(!$config["priority"]) $config["priority"][] = $environment["namespace"];
+				else{
+					if(isset($param["set"]) && isset($param["reference"])){
+						$set = $param["set"] == "after"?1:0;
+						$key = array_search($param["reference"],$config["priority"]);
+						$config["priority"] = array_merge(array_slice($config["priority"], 0, $key + $set, true) ,
+    							 [$environment["namespace"]] ,
+    				 			 array_slice($config["priority"], $key + $set, count($config["priority"]), true)) ;
+						$config["priority"] = array_values($config["priority"]);
+					}
+				}
+				$config["methods"] = array_unique(array_merge($config["methods"],$param["method"]));
+				self::lock("maple/environment : activate-environment");
+					file_put_contents(self::$config_location,json_encode($config,JSON_PRETTY_PRINT));
+				self::unlock();
+				return [
+					"type"		=>	"success",
+					"message"	=>	"",
+					"environment"=>	$environment,
+					"author"	=>	"maple/environment"
+				];
+			} else return [
+				"type"		=>	"error",
+				"message"	=> "ERR::ENVIRONMENT_ALREADY_ACTIVE",
+				"author"	=>	"maple/environment"
+			];
+		}else  return [
+			"type"		=>	"error",
+			"message"	=>	"ERR::INVALID_ENVIRONMENT_NAMESPACE",
+			"author"	=>	"maple/environment"
+		];
+	}
+
+	/**
+	 * deactivate an environment
+	 * @param  string $environment environment namespace
+	 * @return boolean status
+	 */
+	public static function deactivate($environment){
+		$config = self::configuration();
+		if(isset($config["environments"][$environment])){
+			unset($config["environments"][$environment]);
+			self::lock("maple/environment : deactivate-environment");
+				file_put_contents(self::$config_location,json_encode($config,JSON_PRETTY_PRINT));
+			self::unlock();
+			self::optimize();
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * BUG : returns environment security details
+	 * @return array environment configuration
+	 */
+	public static function configuration() { return json_decode(file_get_contents(self::$config_location),true); }
+
+	/**
+	 * define a variable globaly from anywhere
+	 * - returns true if defined
+	 * - return false if already exists
+	 * @api
+	 * @param  string $name  variable name
+	 * @param  mixed[] $value value
+	 * @return boolean status
+	 */
+	public static function define($name,$value) {
+		if(defined($name)) return false;
+		else{
+			define($name,$value);
+			return true;
+		}
+	}
+
+	// TODO: !important! set the lock feature
+	/**
+	 * temporarily lock the website from working.
+	 * this must be used when updating critical files and avoiding fatal error that can be a security threat.
+	 * this function can be cascaded.
+	 * NOTE : it locks the complete environment and must be unlocked once the critical function is over.
+	 * @api
+	 * @throws DomainException if $param is not formatted to specification
+	 * @throws InvalidArgumentException if $param is not string
+	 * @throws \maple\environment\exceptions\InvalidEnvironmentException if the namespace is not a valid environment
+	 * @param  string $param formatted as "namespace : task"
+	 *         - @var namespace is callers environment namespace
+	 *         - @var task is a simple name that the caller is performing.
+	 * this is neccessary for the purpose of debugging and in case of critical failures during locks
+	 */
+	public static function lock($param){
+		if(!is_string($param)) throw new InvalidArgumentException("Argument #1 expected to be of type 'string', but '".gettype($param)."' passed", 1);
+		$param = explode(":",$param);
+		if(sizeof($param) != 2) throw new DomainException("Argument #1 could not be parsed", 1);
+		$param = array_map('trim',$param);
+		if(!self::available($param[0])) throw new \maple\environment\exceptions\InvalidEnvironmentException($param[0], 1);
+		self::$_lock_index ++;
+		// TODO: save lock to file
+	}
+
+	/**
+	 * remove the temporary lock
+	 * NOTE : must be only called when the environment is in lockdown
+	 * @api
+	 * @throws LogicException when called unexpectedly without calling __CLASS__::lock() first
+	 */
+	public static function unlock(){
+		if(!self::$_lock_index) throw new LogicException(__METHOD__." should be only called after the environment is locked", 1);
+		self::$_lock_index--;
+		// TODO: pop lock from file
+	}
+
+	/**
+	 * returns if the environment is locked
+	 * @return boolean status
+	 */
+	public static function locked(){
+		if(self::$_lock_index) return true;
+		// else TODO: return based on status
+		return false;
+	}
+
+	/**
+	 * attempts to reset the lock
+	 */
+	public static function reset_lock(){
+	}
+}
+
+ENVIRONMENT::url($URL);
+
+?>

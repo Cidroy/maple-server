@@ -1,0 +1,34 @@
+<div class="parallax-container" style="height : 20vh; padding: 20px">
+	<div class="parallax">
+		<img src="{{ image }}">
+	</div>
+	<h1 class="white-text black" style="bottom:0px;position:absolute;padding: 5px 15px;">
+		{{ title }}
+	</h1>
+	{% if not maple.request.history %}
+	<a href="?history=1" class="btn btn-large right blue">History</a>
+	{% else %}
+	<a href="{{ maple.url.current }}" class="btn btn-large right blue">Current</a>
+	{% endif %}
+</div>
+
+
+<div class="timeline one-column">
+	{% for day,reservations in timeline %}
+	<div class="timeline-event">
+		<div class="timeline-content">
+			<h5 class="header">{{ day }}</h5>
+			{% for reservation in reservations %}
+			<div class="card">
+				<div class="card-content">
+					<h5><a href="{{ url.room.detail }}{{ reservation.room['room-id'] }}"><small>Room : </small>{{ reservation.room.number }} </a><a href="{{ url.category.detail }}{{ reservation.room.type['type-id'] }}"><small>( {{ reservation.room.type['type-name'] }} )</small></a></h5>
+					<h5><small>Client : </small><a href="{{ url.client.detail }}{{ reservation.client['client-id'] }}">{{ reservation.client['client-name'] }}, <small>{{ reservation.client.email }}</small></a></h5>
+					<h5><a href="{{ url.reservation.detail }}{{ reservation.id }}"><small>{{ reservation.check_in }}</small> - <small>{{ reservation.check_out }}</small></a></h5>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+		<div class="timeline-badge blue white-text"><i class="material-icons">language</i></div>
+	</div>
+	{% endfor %}
+</div>
