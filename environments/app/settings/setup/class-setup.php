@@ -2,9 +2,24 @@
 	namespace maple\app;
 
 	class SETUP{
+		/**
+		 * Save bootup settings
+		 * @uses ENVIRONMENT::url()->available
+		 * @uses ENVIRONMENT::url()->register
+		 * @uses eAPP::configuration
+		 * @throws \Exception if Insufficent $param
+		 * @maintainance 'maple/app setup'
+		 * @param  array $param details {
+		 *         @type string 'username'
+		 *         @type string 'password'
+		 *         @type string 'web-root'
+		 *         @type string 'url'
+		 * }
+		 * @return array        status
+		 */
 		public static function save($param){
 			$missing = array_diff(["username","password","web-root","url"],array_keys($param));
-			if($missing) throw new Exception("Insufficent parameters passed to ".__METHOD__.", missing parameters".implode(",",$missing), 1);
+			if($missing) throw new \Exception("Insufficent parameters passed to ".__METHOD__.", missing parameters".implode(",",$missing), 1);
 
 			$ret = [];
 			$_web_root	= $param["web-root"];
@@ -30,9 +45,17 @@
 			return [ "type" => "success" ];
 		}
 
+		/**
+		 * Login to App
+		 * @param  array $param details{
+		 *        @type string 'username'
+		 *        @type string 'password'
+		 * }
+		 * @return boolean        status
+		 */
 		public static function login($param){
-			if(!isset($param["username"])) throw new Exception("Insufficent Arguments to ".__METHOD__.", missing 'username' ", 1);
-			else if(!isset($param["password"])) throw new Exception("Insufficent Arguments to ".__METHOD__.", missing 'password' ", 1);
+			if(!isset($param["username"]) || !is_string($param["username"])) throw new \Exception("Insufficent Arguments to ".__METHOD__.", missing 'username' ", 1);
+			else if(!isset($param["password"]) || !is_string($param["password"])) throw new \Exception("Insufficent Arguments to ".__METHOD__.", missing 'password' ", 1);
 
 			$config = \maple\environments\eAPP::configuration();
 			if(

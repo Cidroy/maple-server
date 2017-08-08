@@ -34,6 +34,7 @@ class BOOT{
 
 	/**
 	 * save maple environment credentials
+	 * @maintainance 'save-credentials'
 	 * @throws InvalidArgumentException if $param does not contain 'username','password' or 'url'
 	 * @throws \maple\environment\excetions\UrlAlreadyRegisteredException if $param["url"] is already registered
 	 * @param  array $param credentials details

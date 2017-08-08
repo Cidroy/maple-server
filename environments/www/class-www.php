@@ -82,6 +82,12 @@ class WWW{
 		}
 	}
 
+	/**
+	 * [save description]
+	 * @maintainance 'save-environment-config'
+	 * @param  [type] $configuration [description]
+	 * @return [type]                [description]
+	 */
 	protected static function save($configuration){
 		$original = self::configuration();
 		$save = array_merge($original,$configuration);
@@ -90,6 +96,13 @@ class WWW{
 		\ENVIRONMENT::unlock();
 	}
 
+	/**
+	 * [save_site_configuration description]
+	 * @maintainance 'save-site-config'
+	 * @param  [type] $location [description]
+	 * @param  [type] $config   [description]
+	 * @return [type]           [description]
+	 */
 	protected static function save_site_configuration($location,$config) {
 		$location = self::_conf_folder.md5($location).".json";
 		$config_template = [

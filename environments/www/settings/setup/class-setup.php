@@ -2,6 +2,12 @@
 	namespace maple\www;
 
 	class SETUP{
+		/**
+		 * [save description]
+		 * @maintainance 'save-login-credentials'
+		 * @param  [type] $param [description]
+		 * @return [type]        [description]
+		 */
 		public static function save($param){
 			$config = WWW::configuration();
 			$buffer = $config;

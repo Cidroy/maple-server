@@ -98,7 +98,7 @@ class CACHE{
 		self::get_mime_http_header("default");
 		self::$_cache_mime[$mime] = $param;
 		ENVIRONMENT::lock("maple/cms : cache-update-mime-type");
-		file_put_contents($file, json_encode(self::$_cache_mime));
+			file_put_contents($file, json_encode(self::$_cache_mime));
 		ENVIRONMENT::unlock();
 	}
 
@@ -126,7 +126,7 @@ class CACHE{
 		self::get_location("none");
 		self::$_cache_store[$cache_store] = $location;
 		ENVIRONMENT::lock("maple/cms : cache-add-source");
-		file_put_contents($file,json_encode (self::$_cache_store));
+			file_put_contents($file,json_encode (self::$_cache_store));
 		ENVIRONMENT::unlock();
 	}
 

@@ -1,6 +1,6 @@
 <?php
 require_once 'interface-environment.php';
-
+use maple\environments\FILE;
 /**
  * Core Environment class that facilitates in the loading and execution of environments
  * @package Maple Environment
@@ -213,13 +213,14 @@ class ENVIRONMENT{
 	 * NOTE : if the environment has been loaded previously then it will not reload it but still return true.
 	 * @api
 	 * @param  string $environment environment namespace
-	 * @return boolean
+	 * @return boolean status
 	 */
 	public static function load($environment) {
 		if(isset(self::$environments_list[$environment])){
 			if(in_array($environment,self::$environments_loaded)) return true;
 			call_user_func(self::$environments_list[$environment]["class"]."::load");
 			self::$environments_loaded[] = $environment;
+			return true;
 		} else return false;
 	}
 	/**
@@ -418,6 +419,77 @@ class ENVIRONMENT{
 			define($name,$value);
 			return true;
 		}
+	}
+
+	/**
+	 * Serve files
+	 * @api
+	 * @throws \InvalidArgumentException if $details is not of type 'array'
+	 * @throws \InvalidArgumentException if $headers is not of type 'array'
+	 * @param  array $details details
+	 *        @type mixed[array,string] 'source'	file paths
+	 *        @type string	'url'	base url to check for
+	 *        @type array 	'allow'	allowed files
+	 *        @type array 	'deny'	deny files
+	 *        NOTE: allow and deny can take regular expression matches for files
+	 * @param  array $headers return header value
+	 * @return string content false if nothing
+	 */
+	public static function serve($details,&$headers = []) {
+		if(!is_array($details)) throw new \InvalidArgumentException("Argument #1 must be of type 'array'", 1);
+		if(!is_array($headers)) throw new \InvalidArgumentException("Argument #2 must be of type 'array'", 1);
+
+		$details = array_merge([
+			"url"		=>	"/",
+			"allow"		=>	[".*"],
+			"deny"		=>	[],
+			"order"		=>	["allow","deny"]
+		],$details);
+		if(!isset($details["source"]) || (!is_array($details)&&!is_string($details))) throw new \InvalidArgumentException("Argument #1 must contain 'source' of type 'string' or 'array'", 1);
+		if(!is_array($details["allow"]) && !is_string($details["allow"])) throw new \InvalidArgumentException("Argument #1 must have 'allow' of type 'string' or 'array'", 1);
+		if(!is_array($details["deny"]) && !is_string($details["deny"])) throw new \InvalidArgumentException("Argument #1 must have 'deny' of type 'string' or 'array'", 1);
+
+		$path = str_replace(self::url()->root(),"/",self::url()->current());
+		if(strpos($path,$details["url"])===0){
+			$path = substr_replace($path,'',0,strlen($details["url"]));
+			if(is_string($details["allow"])) $details["allow"] = [$details["allow"]];
+			if(is_string($details["deny"])) $details["deny"] = [$details["deny"]];
+			foreach($details["allow"] as $key => $value) $details["allow"][$key] = "({$value})";
+			foreach($details["deny"] as $key => $value) $details["deny"][$key] = "({$value})";
+			$allow	= "/".implode("|",$details["allow"])."/";
+			$deny 	= "/".implode("|",$details["deny"])."/";
+			$allowed= false;
+			if($details["order"]==["allow","deny"]){
+				if($allow!="//" && preg_match($allow,$path)) $allowed = true;
+				if($deny!="//" && preg_match($deny,$path)) $allowed = false;
+			} else if($details["order"]==["deny","allow"]){
+				if($deny!="//" && preg_match($deny,$path)) $allowed = false;
+				if($allow!="//" && preg_match($allow,$path)) $allowed = true;
+			} else throw new \InvalidArgumentException("Argument #1 must have array 'order' that only contains 'allow' and 'deny'", 1);
+			if(!$allowed) return false;
+			if(is_string($details["source"])) $details["source"] = [$details["source"]];
+
+			$file = false;
+			foreach ($details["source"] as $dir) {
+				$dir = rtrim($dir,"/");
+				if(file_exists($dir.$path)){
+					$file = $dir.$path;
+					$f = new FILE($file);
+					$_headers = [
+						"Content-Type"		=> $f->mime(),
+						"Content-Length"	=> $f->size(),
+						"Last-Modified"		=> gmdate("D, d M Y H:i:s",$f->last_modified()),
+						"Etag"				=> md5($f->last_modified().$f->location()),
+					];
+					$headers 					= array_merge($headers,$_headers);
+					return $file;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static function serve_header($headers = [],$set = false){
 	}
 
 	// TODO: !important! set the lock feature

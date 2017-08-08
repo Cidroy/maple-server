@@ -107,6 +107,9 @@ class __URL{
 	 * NOTE : throws exception if the url is already registered to another environment.
 	 * It is wise to either check the availablity before or implement the following in try cache/
 	 * @api
+	 * @maintainance 'register-urlurl
+	 * @maintainance 'register-url'
+	 * @maintainance 'register-query'
 	 * @throws InvalidArgumentException if $environment not type 'string'
 	 * @throws InvalidArgumentException if $url not type 'string' or 'array'
 	 * @throws \maple\environment\exceptions\UrlAlreadyRegisteredException if $url is already registered to another environment other than $environment
@@ -146,6 +149,8 @@ class __URL{
 	 * NOTE : throws exception if the url is not already registered or not registered to the current url.
 	 * It is wise to either check the availablity before or implement the following in try cache/
 	 * @api
+	 * @maintainance 'unregister-url'
+	 * @maintainance 'unregister-query'
 	 * @throws InvalidArgumentException if $environment not type 'string'
 	 * @throws InvalidArgumentException if $url not type 'string' or 'array'
 	 * @throws \maple\environment\exceptions\UrlNotRegisteredException if $url is not already registered to current environment i.e. $environment
