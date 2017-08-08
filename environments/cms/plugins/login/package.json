@@ -1,0 +1,20 @@
+{
+	"name"		:	"Maple Login Core",
+	"version"	:	"1.0",
+	"description":	"Basic Login for Maple CMS",
+	"author"	:	"Rubixcode",
+	"namespace" :	"maple/login",
+	"maple"		: {
+		"maple/cms":{
+			"autoload"	: [],
+			"filters"	: [],
+			"shortcodes": [],
+			"routers"	: [],
+			"template"	: "/templates",
+			"dashboard"	: [],
+			"menus"		: [],
+			"widgets"	: [],
+			"api"		:	"/api.json"
+		}
+	}
+}

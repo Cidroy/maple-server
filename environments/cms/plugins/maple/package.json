@@ -1,0 +1,23 @@
+{
+	"name"		:	"Maple CMS",
+	"version"	:	"1.0",
+	"description":	"CMS Environment for Maple",
+	"author"	:	"Rubixcode",
+	"namespace" :	"maple/cms",
+	"maple"		: {
+		"maple/cms":{
+			"setup"		: {
+				"load"	:	"/class-setup.php"
+			},
+			"autoload"	: [],
+			"filters"	: [],
+			"shortcodes": [],
+			"routers"	: [],
+			"template"	: "/templates",
+			"dashboard"	: [],
+			"menus"		: [],
+			"widgets"	: [],
+			"api"		:	"/api.json"
+		}
+	}
+}
