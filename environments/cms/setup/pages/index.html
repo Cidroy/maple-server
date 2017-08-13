@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+		<link rel="stylesheet" href="css/materialize.min.css">
+		<link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="fonts/icons/material-icons.css">
+		<title>{% if content.title %}{{ content.title }} |{% endif %} Install Maple CMS</title>
+	</head>
+	<body>
+		<nav>
+			<div class="nav-wrapper">
+				<a href="{{ url.install }}" class="brand-logo center">Maple CMS</a>
+			</div>
+		</nav>
+		<div class="container">
+			{% for message in messages %}
+				<div class="card" style="margin: 5 0 0 2;border-left: 5px solid red">
+					<div class="card-content">
+						<i class="material-icons left orange-text tex-darken-2">warning</i>
+						<p>{{ message|raw }}</p>
+					</div>
+				</div>
+			{% endfor %}
+			{{ content.body|raw }}
+		</div>
+		<footer class="page-footer grey darken-4">
+			<div class="footer-copyright black">
+				<div class="container white-text">
+					Developed by <a class="white-text" href="http://rubixcode.com">Rubixcode</a>
+				</div>
+			</div>
+		</footer>
+		<script src="js/jquery.js" charset="utf-8"></script>
+		<script src="js/materialize.min.js" charset="utf-8">
+		</script>
+	</body>
+</html>
