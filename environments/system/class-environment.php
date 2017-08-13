@@ -472,7 +472,7 @@ class ENVIRONMENT{
 			$file = false;
 			foreach ($details["source"] as $dir) {
 				$dir = rtrim($dir,"/");
-				if(file_exists($dir.$path)){
+				if(file_exists($dir.$path) && is_file($dir.$path)){
 					$file = $dir.$path;
 					$f = new FILE($file);
 					$_headers = [
@@ -489,7 +489,20 @@ class ENVIRONMENT{
 		return false;
 	}
 
-	public static function serve_header($headers = [],$set = false){
+	/**
+	 * Set headers
+	 * @api
+	 * @throws \InvalidArgumentException if invalid $headers data type
+	 * @param  mixed[string,array] $headers headers
+	 * @return array           current headers
+	 */
+	public static function headers($headers = false){
+		if(is_array($headers)) foreach ($headers as $header => $value) header("{$header}: {$value}");
+		else if(is_string($headers)) header($headers);
+		else if(!$headers){}
+		else throw new \InvalidArgumentException("Argument #1 must be of type 'string' or 'array'", 1);
+
+		return headers_list();
 	}
 
 	// TODO: !important! set the lock feature

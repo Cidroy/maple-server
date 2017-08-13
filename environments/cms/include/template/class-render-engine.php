@@ -153,7 +153,7 @@ class TwigRenderEngine implements \maple\cms\interfaces\iRenderEngine{
 	public static function render_file($file,$data = []){
 		if(!is_string($file)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
 		if(!is_array($data)) throw new \InvalidArgumentException("Argument #2 must be of type 'string'", 1);
-		if(!file_exists($file)) throw new \maple\cms\exceptions\FileNotFoundException("unablr to locate file '{$file}'",1);
+		if(!file_exists($file)) throw new \maple\cms\exceptions\FileNotFoundException("unable to locate file '{$file}'",1);
 		return self::render_text(file_get_contents($file),$data);
 	}
 

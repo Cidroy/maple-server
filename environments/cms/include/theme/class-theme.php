@@ -58,8 +58,10 @@ class THEME {
 
 	/**
 	 * Initialize Theme
+	 * @throws \RuntimeException if \maple\cms\URL is not initialized
 	 */
 	public static function initialize() {
+		if(!URL::initialized()) throw new \RuntimeException("'\\maple\\cms\\URL' must be initialized", 1);
 		if(!file_exists(self::cache)) self::optimize();
 		// BUG: use cache theme based on sources
 		$data = json_decode(file_get_contents(self::cache."/installed.json"));
@@ -86,13 +88,15 @@ class THEME {
 				"sources"=>	self::$_sources,
 				"theme"	=>	$theme
 			]);
-			$n = new NOTIFICATION("maple/cms");
-			$n->title = "Theme '{$theme}' could not be found switched to '{$theme_alt}'";
-			$n->text = "Searched in locations \n".implode("\n",self::$_sources);
-			$n->notify();
+			try{
+				$n = new NOTIFICATION("maple/cms");
+				$n->title = "Theme '{$theme}' could not be found switched to '{$theme_alt}'";
+				$n->text = "Searched in locations \n".implode("\n",self::$_sources);
+				$n->notify();
+			}catch(\Exception $e){}
 			return ;
 		}
-		require_once self::$_details["location"];
+		require_once self::$_details["location"]."/theme.php";
 	}
 	/**
 	 * Color etc.

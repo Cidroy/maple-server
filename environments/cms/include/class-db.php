@@ -52,18 +52,30 @@ class DB{
 	/**
 	 * Initialize the class and attempt conntection
 	 * @api
-	 * @throws \maple\cms\exceptions\VendorMissingException if Vendor 'Medoo' is missing
 	 * @throws \maple\cms\exceptions\SqlConnectionException if SQL connection is not available or not set
 	 */
-	public static function initialize(){
-		if(!file_exists(self::_vendor_location."/autoload.php")) throw new \maple\cms\exceptions\VendorMissingException("Please install vendor 'Medoo'", 1);
-		if(!file_exists(self::_configuration_file))	throw new \maple\cms\exceptions\SqlConnectionException("System Not Configured", 1);
+	public static function initialize($obj = null){
+		if($obj instanceof __db and $obj){
+			self::$_object = $obj;
+			self::$_initialied = true;
+		}
+		else if(!file_exists(self::_configuration_file))	throw new \maple\cms\exceptions\SqlConnectionException("System Not Configured", 1);
+		else {
+			self::connect();
+			self::$_initialied = true;
+		}
+	}
 
+	/**
+	 * load the basic classes needed
+	 * @api
+	 * @throws \maple\cms\exceptions\VendorMissingException if Vendor 'Medoo' is missing
+	 */
+	public static function load(){
+		if(!file_exists(self::_vendor_location."/autoload.php")) throw new \maple\cms\exceptions\VendorMissingException("Please install vendor 'Medoo'", 1);
 		require_once self::_vendor_location."/autoload.php";
 		require_once ROOT.INC."/database/class-database.php";
 		MAPLE::add_autoloader("\\maple\\cms\\database\\Schema",ROOT.INC."/database/class-schema.php");
-		self::connect();
-		self::$_initialied = true;
 	}
 
 	/**
@@ -103,4 +115,5 @@ class DB{
 	public static function _(){ return self::$_object; }
 }
 
+DB::load();
 ?>

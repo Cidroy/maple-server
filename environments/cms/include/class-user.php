@@ -10,7 +10,7 @@ class USER{
 	const user_detail_template = [
 		"id"	=>	false,
 		"name"	=>	false,
-		"login"	=>	false,
+		"username"=>	false,
 		"email"	=>	false,
 		"access"=>	false,
 		"permissions"=>	[
@@ -18,6 +18,10 @@ class USER{
 			"deny"	=>	[],
 			"update"=> 0
 		],
+		"details"=>	[
+			"access"	=>	false,
+			"permissions"=>	[]
+		]
 	];
 	/**
 	 * Stores initialization status
@@ -51,6 +55,7 @@ class USER{
 	/**
 	 * initialize user
 	 * @api
+	 * @throws \RuntimeException if session not active
 	 * @filter user|initialized {
 	 *         When user is initialized
 	 *         @type integer 'id'
@@ -104,10 +109,11 @@ class USER{
 				"password"	=>	$password,
 			]
 		]);
-		if(count($data)!=0){
-			$data = $data[0];
-			self::_set($data["id"]);
-			MAPLE::do_filters("user|loggedin",["id" => self::$_user["id"]]);
+
+		$data = current($data);
+		if(count($data)){
+			self::_set(intval($data["id"]));
+			MAPLE::do_filters("user|loggedin",["id" => $data["id"]]);
 			self::initialize();
 			return true;
 		}

@@ -4,82 +4,92 @@ use \maple\cms\MAPLE;
 
 class eMAPLE implements iRenderEnvironment{
 	const cms_content = \ROOT."cms-content";
+	const install_url = "/maple/install";
 
 	private static $content = null;
 	private static $_initialized = false;
+	private static $_initialized_good = false;
 
 	public static function initialize(){
-		if(self::$_initialized) return;
-		\ENVIRONMENT::define("__MAPLE__",str_replace(\ROOT,"",__DIR__));
-		\ENVIRONMENT::define('INC',\__MAPLE__.'/include');
-		\ENVIRONMENT::define('LIBRARY',\__MAPLE__.'/library');
-		\ENVIRONMENT::define('CONFIG',\__MAPLE__.'/configurations');
-		\ENVIRONMENT::define('VENDOR',\__MAPLE__.'/vendors');
-		\ENVIRONMENT::define('CACHE',\__MAPLE__.'/cache');
-		\ENVIRONMENT::define('CONTENTS','/maple-cms-content');
-		\ENVIRONMENT::define('ADMIN',\__MAPLE__.'/admin');
-		\ENVIRONMENT::define('DATA','data');
-		\ENVIRONMENT::define('PLUGIN',\CONTENTS.'/plugin');
-		\ENVIRONMENT::define('THEME',\CONTENTS.'/themes');
+		try{
+			if(!self::$_initialized){
+				\ENVIRONMENT::define("__MAPLE__",str_replace(\ROOT,"",__DIR__));
+				\ENVIRONMENT::define('INC',\__MAPLE__.'/include');
+				\ENVIRONMENT::define('LIBRARY',\__MAPLE__.'/library');
+				\ENVIRONMENT::define('CONFIG',\__MAPLE__.'/configurations');
+				\ENVIRONMENT::define('VENDOR',\__MAPLE__.'/vendors');
+				\ENVIRONMENT::define('CACHE',\__MAPLE__.'/cache');
+				\ENVIRONMENT::define('CONTENTS','/maple-cms-content');
+				\ENVIRONMENT::define('ADMIN',\__MAPLE__.'/admin');
+				\ENVIRONMENT::define('DATA','data');
+				\ENVIRONMENT::define('PLUGIN',\CONTENTS.'/plugin');
+				\ENVIRONMENT::define('THEME',\CONTENTS.'/themes');
 
-		\ENVIRONMENT::define('LOG',\__MAPLE__.'/~$Logs');
+				\ENVIRONMENT::define('LOG',\__MAPLE__.'/~$Logs');
 
-		require_once \INC.'/maple.php';
-		spl_autoload_register("\\maple\\cms\\MAPLE::autoloader");
+				require_once \INC.'/maple.php';
+				spl_autoload_register("\\maple\\cms\\MAPLE::autoloader");
 
-		$_primary_classes = [
-			"maple\\cms\\exceptions"=> \ROOT.\INC.'/class-exceptions.php',
-			"maple\\cms\\ERROR" 	=> \ROOT.\INC.'/class-error-handler.php',
-			"maple\\cms\\DB" 		=> \ROOT.\INC.'/class-db.php',
-			"maple\\cms\\URL" 		=> \ROOT.\INC.'/class-url.php',
-			"maple\\cms\\SESSION" 	=> \ROOT.\INC.'/class-session.php',
-			"maple\\cms\\SECURITY" 	=> \ROOT.\INC.'/class-security.php',
-			"maple\\cms\\FILE" 		=> \ROOT.\INC.'/class-file.php',
-			"maple\\cms\\SITE" 		=> \ROOT.\INC.'/class-site.php',
-			"maple\\cms\\USER" 		=> \ROOT.\INC.'/class-user.php',
-		];
-		$_autoload = [
-			"maple\cms\TEMPLATE"=> \ROOT.\INC.'/template/class-template.php',
-			"maple\cms\CACHE"	=> \ROOT.\INC.'/class-cache.php',
-			"maple\cms\ROUTER" 	=> \ROOT.\INC.'/class-route.php',
-			"maple\cms\TIME" 	=> \ROOT.\INC.'/class-time.php',
-			"maple\cms\PAGE" 	=> \ROOT.\INC.'/class-page.php',
+				$_primary_classes = [
+					"maple\\cms\\exceptions"=> \ROOT.\INC.'/class-exceptions.php',
+					"maple\\cms\\ERROR" 	=> \ROOT.\INC.'/class-error-handler.php',
+					"maple\\cms\\DB" 		=> \ROOT.\INC.'/class-db.php',
+					"maple\\cms\\URL" 		=> \ROOT.\INC.'/class-url.php',
+					"maple\\cms\\SESSION" 	=> \ROOT.\INC.'/class-session.php',
+					"maple\\cms\\SECURITY" 	=> \ROOT.\INC.'/class-security.php',
+					"maple\\cms\\FILE" 		=> \ROOT.\INC.'/class-file.php',
+					"maple\\cms\\SITE" 		=> \ROOT.\INC.'/class-site.php',
+					"maple\\cms\\USER" 		=> \ROOT.\INC.'/class-user.php',
+				];
+				$_autoload = [
+					"maple\cms\TEMPLATE"=> \ROOT.\INC.'/template/class-template.php',
+					"maple\cms\CACHE"	=> \ROOT.\INC.'/class-cache.php',
+					"maple\cms\ROUTER" 	=> \ROOT.\INC.'/class-route.php',
+					"maple\cms\TIME" 	=> \ROOT.\INC.'/class-time.php',
+					"maple\cms\PAGE" 	=> \ROOT.\INC.'/class-page.php',
 
-			"maple\cms\NOTIFICATION" 		=> \ROOT.\INC.'/class-notification.php',
-			"maple\cms\NOTIFICATION_STYLE" 	=> \ROOT.\INC.'/class-notification.php',
+					"maple\cms\NOTIFICATION" 		=> \ROOT.\INC.'/class-notification.php',
+					"maple\cms\NOTIFICATION_STYLE" 	=> \ROOT.\INC.'/class-notification.php',
 
-			"maple\cms\PLUGIN" 		=> \ROOT.\INC.'/plugin/class-plugin.php',
-			"maple\cms\SHORTCODE" 	=> \ROOT.\INC.'/plugin/class-shortcode.php',
-			"maple\cms\THEME" 		=> \ROOT.\INC.'/theme/class-theme.php',
-			"maple\cms\UI" 			=> \ROOT.\INC.'/theme/class-ui.php',
-		];
-		foreach ($_primary_classes as $class) require_once $class;
-		foreach ($_autoload as $class => $dir) MAPLE::add_autoloader($class,$dir);
+					"maple\cms\database\Schema" 	=> \ROOT.\INC.'/database/class-schema.php',
 
-		self::$_initialized = true;
-		\maple\cms\ERROR::initialize();
-		\maple\cms\DB::initialize();
-		\maple\cms\URL::initialize();
-		\maple\cms\SESSION::start();
-		\maple\cms\USER::initialize();
-		\maple\cms\SECURITY::initialize();
-		\maple\cms\SITE::initialize();
+					"maple\cms\PLUGIN" 		=> \ROOT.\INC.'/plugin/class-plugin.php',
+					"maple\cms\SHORTCODE" 	=> \ROOT.\INC.'/plugin/class-shortcode.php',
+					"maple\cms\THEME" 		=> \ROOT.\INC.'/theme/class-theme.php',
+					"maple\cms\UI" 			=> \ROOT.\INC.'/theme/class-ui.php',
+				];
+				foreach ($_primary_classes as $class) require_once $class;
+				foreach ($_autoload as $class => $dir) MAPLE::add_autoloader($class,$dir);
+				self::$_initialized = true;
+			}
+			if(!self::$_initialized_good){
+				\maple\cms\TEMPLATE::initialize();
+				\maple\cms\ERROR::initialize();
+				\maple\cms\DB::initialize();
+				\maple\cms\URL::initialize();
+				\maple\cms\SESSION::start();
+				\maple\cms\USER::initialize();
+				\maple\cms\SECURITY::initialize();
+				\maple\cms\SITE::initialize();
 
-		\maple\cms\CACHE::initialize();
+				\maple\cms\CACHE::initialize();
 
-		\maple\cms\PLUGIN::source(\ROOT.\__MAPLE__."/plugins");
-		\maple\cms\PLUGIN::source(self::cms_content."/plugins");
-		\maple\cms\PLUGIN::load("*");
-		MAPLE::initialize(\maple\cms\PLUGIN::get());
-		\maple\cms\PLUGIN::clear();
+				\maple\cms\PLUGIN::source(\ROOT.\__MAPLE__."/plugins");
+				\maple\cms\PLUGIN::source(self::cms_content."/plugins");
+				\maple\cms\PLUGIN::load("*");
+				MAPLE::initialize(\maple\cms\PLUGIN::get());
+				\maple\cms\PLUGIN::clear();
 
-		\maple\cms\ROUTER::sources(MAPLE::_get_router_sources(true));
-		\maple\cms\ROUTER::initialize();
+				\maple\cms\ROUTER::sources(MAPLE::_get_router_sources(true));
+				\maple\cms\ROUTER::initialize();
 
-		\maple\cms\THEME::source(\ROOT.\__MAPLE__."/themes");
-		\maple\cms\THEME::source(self::cms_content."/themes");
-		\maple\cms\TEMPLATE::add_template_sources(MAPLE::_get_template_sources(true));
-		\maple\cms\TEMPLATE::initialize();
+				\maple\cms\THEME::source(\ROOT.\__MAPLE__."/themes");
+				\maple\cms\THEME::source(self::cms_content."/themes");
+				\maple\cms\TEMPLATE::add_template_sources(MAPLE::_get_template_sources(true));
+				\maple\cms\TEMPLATE::set_render_defaults();
+				self::$_initialized_good = true;
+			}
+		}catch(\Exception $e){ throw $e; }
 	}
 
 	public static function load(){
@@ -87,10 +97,7 @@ class eMAPLE implements iRenderEnvironment{
 			try {
 				self::initialize();
 				if(!\maple\cms\PLUGIN::active("maple/cms")) throw new \Exception("Plugin not ready", 1);
-			} catch (\Exception $e) {
-				self::diagnostics();
-				throw $e;
-			}
+			} catch (\Exception $e) { self::diagnostics(); }
 		}
 	}
 
@@ -146,6 +153,7 @@ class eMAPLE implements iRenderEnvironment{
 				$file = \ENVIRONMENT::serve($server,$headers);
 				if($file){
 					self::$content = file_get_contents($file);
+					ENVIRONMENT::headers($headers);
 					return true;
 				}
 			}
@@ -169,11 +177,11 @@ class eMAPLE implements iRenderEnvironment{
 			mkdir(self::cms_content."/plugins",0777,true);
 			mkdir(self::cms_content."/themes",0777,true);
 		}
-		// Test if database connection exists
-		if(!file_exists(\__MAPLE__."/configurations.php")){
+		if(self::attempting_install()) require_once __MAPLE__."/setup/index.php";
+	}
 
-		}
-		echo "string";
+	private static function attempting_install(){
+		if(\ENVIRONMENT::url()->matches(self::install_url)) return true;
 	}
 
 }

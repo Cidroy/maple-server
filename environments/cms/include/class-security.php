@@ -9,6 +9,12 @@ namespace maple\cms;
  */
 class SECURITY {
 	/**
+	 * Default permission to be granted to client
+	 * @var array
+	 */
+	const default_user_permission = ["grant" => [],"deny" => []];
+
+	/**
 	 * Primary user groups
 	 * @var array
 	 */
@@ -254,7 +260,7 @@ class SECURITY {
 		if(!self::$_USER_PERMISSIONS){
 			$level = USER::access_level();
 			if($level===false) $level = self::get_user_group_code("default");
-			$additional = ["grant" => [],"deny" => []];
+			$additional = self::default_user_permission;
 			if(USER::permissions()){
 				$additional = USER::permissions();
 			}

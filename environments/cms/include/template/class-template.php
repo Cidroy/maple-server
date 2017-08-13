@@ -52,14 +52,15 @@
 
 		/**
 		 * Set Template render configuration
+		 * @api
+		 * @param array $param
 		 */
-		private static function set_configuration(){
-			if(isset($_REQUEST["maple-template"]) && is_array($_REQUEST["maple-template"])){
-				if(isset($_REQUEST["maple-template"]["render"]) && is_bool($_REQUEST["maple-template"]["render"])) self::$_configuration["render"] = $_REQUEST["maple-template"]["render"];
-				if(isset($_REQUEST["maple-template"]["show-template"]) && is_bool($_REQUEST["maple-template"]["show-template"])) self::$_configuration["show-template"] = $_REQUEST["maple-template"]["show-template"];
-			} else {
-				self::$_configuration["render"] = true;
-			}
+		public static function set_configuration($param = []){
+			if($param || (isset($_REQUEST["maple-template"]) && is_array($_REQUEST["maple-template"]))){
+				$param = array_merge(isset($_REQUEST["maple-template"])?$_REQUEST["maple-template"]:[],$param);
+				if(isset($param["render"] ) && $param["render"]) self::$_configuration["render"] = $param["render"];
+				if(isset($param["show-template"] ) && $param["show-template"]) self::$_configuration["show-template"] = $param["show-template"];
+			} else self::$_configuration["render"] = true;
 		}
 
 		/**
@@ -70,8 +71,8 @@
 		 * @uses URL::http
 		 * @uses THEME::rendering_data
 		 */
-		private static function set_render_defaults(){
-			return [
+		public static function set_render_defaults(){
+			self::$__render_defaults =  [
 				"maple"	=>	[
 					"permission"=>	SECURITY::get_permissions(),
 					"request"	=>	$_REQUEST,
@@ -101,18 +102,10 @@
 		 * initialize template engines
 		 * @api
 		 * @uses THEME::initialize
-		 * @throws \RuntimeException if \maple\cms\URL is not initialized
-		 * @throws \RuntimeException if \maple\cms\SECURITY is not initialized
-		 * @throws \RuntimeException if \maple\cms\SITE is not initialized
 		 */
 		public static function initialize(){
-			if(!URL::initialized()) throw new \RuntimeException("'\\maple\\cms\\URL' must be initialized", 1);
-			if(!SECURITY::initialized()) throw new \RuntimeException("'\\maple\\cms\\SECURITY' must be initialized", 1);
-			if(!SITE::initialized()) throw new \RuntimeException("'\\maple\\cms\\SITE' must be initialized", 1);
-
-			THEME::initialize();
+			try{ THEME::initialize(); }catch(\Exception $e){}
 			self::set_configuration();
-			self::$__render_defaults = self::set_render_defaults();
 			parent::$_extention = "html";
 
 			if(self::$_configuration["render"]){
@@ -181,7 +174,7 @@
 		* @return string            content
 		*/
 		public static function render_file($file, $data = []){
-			if(self::$_configuration["render"]) return parent::render_text($file,$data);
+			if(self::$_configuration["render"]) return parent::render_file($file,$data);
 			else return [
 				"details"	=>	[
 					"type"	=>	"file",

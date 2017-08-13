@@ -1,5 +1,6 @@
 <?php
 namespace maple\cms;
+use \PDO;
 /**
  * DB Extender class
  * @since 1.0
@@ -10,22 +11,35 @@ namespace maple\cms;
 class __db extends \Medoo\Medoo{
 
 	/**
+	 * Return Prefix
+	 * @return string prefix
+	 */
+	public function prefix() { return $this->prefix; }
+
+	/**
 	 * return all table names in database
 	 * @api
 	 * @return array table names
 	 */
-	public function tableList(){
-		return $this->do_query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+	public function tables(){
+		return $this->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+	}
+
+	public function table_exists($name){
+		if(!is_string($name)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
+		return in_array($this->prefix.$name,$this->tables());
 	}
 
 	/**
 	 * Get Column names and details
 	 * @api
+	 * @throws \InvalidArgumentException if $table is not of type 'array'
 	 * @param  string $table table name
 	 * @return array        column details
 	 */
-	public function getColumns($table){
-		$data = $this->do_query("SELECT *
+	public function columns($table){
+		if(!is_string($table)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
+		$data = $this->query("SELECT *
 			FROM INFORMATION_SCHEMA.COLUMNS
 			WHERE TABLE_NAME='{$this->prefix}{$table}'
 			AND TABLE_SCHEMA = '{$this->pdo->query('select database()')->fetchColumn()}'
@@ -65,7 +79,7 @@ class __db extends \Medoo\Medoo{
 	public function backup($table){
 		if(!is_string($table)) throw new \InvalidArgumentException("Argument #1 should be of type 'string'", 1);
 
-		$columns = $this->getColumns($table);
+		$columns = $this->columns($table);
 		$_columns = array_keys($columns);
 		return [
 			"schema"	=>	[

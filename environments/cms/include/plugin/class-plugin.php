@@ -175,6 +175,7 @@ class PLUGIN{
 		];
 		foreach (self::$_sources as $source) {
 			foreach (FILE::get_folders($source) as $plugin) {
+				if(!file_exists($plugin."/package.json")) continue;
 				$buffer = json_decode(file_get_contents($plugin."/package.json"),true);
 				if(
 					( isset($buffer["namespace"]) && $buffer["namespace"] == $namespace ) &&

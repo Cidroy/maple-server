@@ -8,7 +8,7 @@ namespace maple\cms;
  * @author Rubixcode
  */
 class PAGE{
-	const page_identifiers = ["url","id","title","content"];
+	const page_identifiers = ["url","id","title","content","name"];
 
 	/**
 	 * Return the nearest matching url
@@ -26,7 +26,6 @@ class PAGE{
 
 	/**
 	 * Get details of page
-	 * BUG: does nothing
 	 * @api
 	 * @throws \InvalidArgumentException if $identifier is not of type 'string'
 	 * @throws \InvalidArgumentException if $value is not of type 'string'
@@ -39,8 +38,7 @@ class PAGE{
 		if(!is_string($identifier))	throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
 		if(!is_string($value))	throw new \InvalidArgumentException("Argument #2 must be of type 'string'", 1);
 		if(!in_array($identifier,self::page_identifiers)) throw new \DomainException("Invalid Argument #1", 1);
-
-		return [];
+		return current(DB::_()->select("pages","*",[$identifier => $value]));
 	}
 
 	/**
@@ -60,9 +58,17 @@ class PAGE{
 		if(!is_array($details)) throw new \InvalidArgumentException("Argument #1 must be of type 'array'", 1);
 		if(array_diff(array_diff(self::page_identifiers,["id"]),array_keys($details))) throw new \DomainException("Invalid Argument #1", 1);
 		if(!SECURITY::permission("maple/cms","page|add")) throw new \maple\cms\exceptions\InsufficientPermissionException("", 1);
-
 		if(!\ENVIRONMENT::url()->available("maple/cms",$details["url"])) return false;
+		if(DB::_()->has("pages",[
+			"OR"	=>	[
+				"name"	=>	$details["name"],
+				"url"	=>	$details["url"],
+			]
+		])) return false;
 
+		$details["#created"] = "NOW()";
+		$details["author"]	 = USER::id();
+		$id = DB::_()->insert("pages",$details);
 		\ENVIRONMENT::url()->register("maple/cms",$details["url"]);
 		MAPLE::do_filters("page|added",["page-id" => $id]);
 		return $id;

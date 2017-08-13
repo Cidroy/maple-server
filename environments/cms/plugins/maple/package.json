@@ -7,7 +7,8 @@
 	"maple"		: {
 		"maple/cms":{
 			"setup"		: {
-				"load"	:	"/class-setup.php"
+				"load"	:	"/class-setup.php",
+				"install":	"maple\\cms\\plugin\\SETUP::install"
 			},
 			"autoload"	: [],
 			"filters"	: [],

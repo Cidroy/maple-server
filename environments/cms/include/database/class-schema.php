@@ -1,5 +1,6 @@
 <?php
-namespace \maple\cms\database;
+namespace maple\cms\database;
+use \maple\cms\DB;
 
 /**
  * Schema Builder
@@ -32,7 +33,7 @@ class Schema{
 	public $engine = "InnoDB";
 
 	function __construct($database = null){
-		if($database === null) $database = \DB::_();
+		if($database === null) $database = DB::_();
 
 		$this->index = 0;
 		$this->stack = [
@@ -122,7 +123,28 @@ class Schema{
 	 */
 	public function table_exists($table){
 		if(!is_string($table)) throw new \InvalidArgumentException("Argument #1 shoud be of type 'string'", 1);
-		return $database->query("SELECT 1 FROM `{$table}` LIMIT 1");
+		return $this->database->query("SHOW TABLES LIKE '{$this->database->prefix()}{$table}'")->fetch();
+	}
+
+	/**
+	 * Check if coulmn(s) exist
+	 * @api
+	 * @throws \InvalidArgumentException if $column not of type 'string' or 'array'
+	 * @param  mixed[string,array]  $columns column name
+	 * @param  array $missing missing list
+	 * @return boolean           status
+	 */
+	public function columns_exists($columns,&$missing = false){
+		if(is_string($columns)) $columns = [$columns];
+		if(!is_array($columns)) throw new \InvalidArgumentException("Argument #1 must be of type 'string' or 'array'", 1);
+
+		$existing = array_keys(
+						$this->table_exists($this->stack["table"])?
+						$this->database->columns($this->stack["table"]):
+						$this->stack["columns"]
+					);
+		$missing = array_diff($columns,$existing);
+		return !$missing;
 	}
 
 	/**
@@ -268,7 +290,7 @@ class Schema{
 			if($this->stack["primary"]) $in[] = "PRIMARY KEY (`{$this->stack["primary"]}`)";
 			$this->stack["primary"] = false;
 			$in = implode(",",$in);
-			$in = "CREATE TABLE `{$this->database->prefix}{$this->stack["create"]}` ({$in}) ENGINE = {$this->engine}
+			$in = "CREATE TABLE `{$this->database->prefix()}{$this->stack["create"]}` ({$in}) ENGINE = {$this->engine}
 			";
 			$this->stack["table"]	= $this->stack["create"];
 			$this->stack["create"] = false;
@@ -278,7 +300,7 @@ class Schema{
 			$in = $this->__f1();
 			foreach ($in as $value) {
 				$this->index += 1;
-				$stack[$this->index] = "ALTER TABLE `{$this->database->prefix}{$this->stack["table"]}` ADD {$value}";
+				$stack[$this->index] = "ALTER TABLE `{$this->database->prefix()}{$this->stack["table"]}` ADD {$value}";
 			}
 		}
 
@@ -289,13 +311,13 @@ class Schema{
 
 		foreach ($this->stack["truncate"] as $table){
 			$this->index += 1;
-			$stack[$this->index] = "TRUNCATE `{$this->database->prefix}{$table}`";
+			$stack[$this->index] = "TRUNCATE `{$this->database->prefix()}{$table}`";
 		}
 		$this->stack["truncate"] = [];
 
 		foreach ($this->stack["drop"] as $table){
 			$this->index += 1;
-			$stack[$this->index]  = "DROP TABLE `{$this->database->prefix}{$table}`";
+			$stack[$this->index]  = "DROP TABLE `{$this->database->prefix()}{$table}`";
 		}
 		$this->stack["drop"] = [];
 
@@ -318,7 +340,7 @@ class Schema{
 	 * @api
 	 */
 	public function roll_back(){
-		$database->pdo->rollBack();
+		$this->database->pdo->rollBack();
 	}
 
 	public function backup($table,$destination = false){

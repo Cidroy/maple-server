@@ -201,6 +201,23 @@ class __URL{
 		}
 	}
 
+	/**
+	 * Test if url matches
+	 * if only 1 Argument is passed then it is tested against current url
+	 * @api
+	 * @param  string $first   first url
+	 * @param  string $default url. defaults to current url
+	 * @return boolean          result
+	 */
+	public function matches($first,$default = null){
+		if(!is_string($first)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
+		if($default && !is_string($default)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
+
+		if(!$default) $default = str_replace($this->root(false),"",$this->current());
+		$first = str_replace($this->root(false),"",$first);
+		return strpos($default,$first)!==false;
+	}
+
 }
 
 /**
