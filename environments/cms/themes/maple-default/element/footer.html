@@ -1,0 +1,14 @@
+<footer class="page-footer {{ color }}">
+	<div class="container">
+		<div class="row">
+			{% block content %}{% endblock content %}
+		</div>
+	</div>
+	{% if copyright %}
+	<div class="footer-copyright black">
+		<div class="container">
+			{% block copyright %} {% endblock copyright %}
+		</div>
+	</div>
+	{% endif %}
+</footer>

@@ -1,0 +1,8 @@
+{% macro icon(name,class,attrs) %}
+{% set icons = {
+	"login":"person_pin",
+	"person":"perm_identity"
+ } %}
+{% if icons[name] %}{% set name = icons[name] %}{% endif %}
+<i class="material-icons {{ class }}"{% for attr,val in attrs %} {{ attr }}="{{ val }}" {% endfor %}>{{ name }}</i>
+{% endmacro %}

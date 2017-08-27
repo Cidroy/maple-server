@@ -1,0 +1,11 @@
+<div class="card">
+	<div class="card-content">
+		{% if type == "row" %}
+		<div class="row">
+		{% endif %}
+		{% block content %}{% endblock content %}
+		{% if type == "row" %}
+		</div>
+		{% endif %}
+	</div>
+</div>

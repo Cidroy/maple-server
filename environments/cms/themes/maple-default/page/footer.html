@@ -1,0 +1,45 @@
+{% autoescape false %}
+		{{ filter("render|pre-footer") }}
+		{% embed "element/footer.html" ignore missing with
+			{	"color" : theme.color.footer,
+				"copyright":true
+			}
+		%}
+			{% block content %}
+				{% for widget in widgets.footer %}
+					{% embed "elements/column.html" ignore missing with { "size" : widgets.size.footer } %}
+						{% block content %}{{ widget(widget) }}{% endblock content %}
+					{% endembed %}
+				{% endfor %}
+			{% endblock content %}
+			{% block copyright %}
+				&copy; 2017 {{ maple.site.name }}, Copyrights Reserved
+				<a class="grey-text text-lighten-4 right" href="{{ maple.site.owner.link }}">developed by {{ maple.site.owner.name }}</a>
+			{% endblock copyright %}
+		{% endembed %}
+		{{ filter("render|post-footer") }}
+		{% for js in html.js %}
+		<script src="{{ js }}" charset="utf-8"></script>
+		{% endfor %}
+		<script type="text/javascript">
+			$(document).ready(function(){
+				$('.carousel').carousel();
+				setInterval(function(){$('.carousel').carousel('next');},3000);
+				$(".button-collapse").sideNav();
+				$(".dropdown-button").dropdown();
+				$("ul.tabs").tabs();
+				$('input').characterCounter();
+
+				$('.datepicker').pickadate({
+					selectMonths: true, // Creates a dropdown to control month
+					selectYears: 1 // Creates a dropdown of 15 years to control year
+				});
+			});
+		</script>
+		<script type="text/javascript">
+			{{ html["js-script"] }}
+		</script>
+		{{ filter("render|body-end") }}
+	</body>
+</html>
+{% endautoescape %}
