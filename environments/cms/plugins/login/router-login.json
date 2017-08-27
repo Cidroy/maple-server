@@ -1,0 +1,6 @@
+{
+	"page|login" : {
+		"base"	: "login",
+		"handler": "maple\\cms\\LOGIN::r_login"
+	}
+}
