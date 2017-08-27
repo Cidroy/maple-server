@@ -61,7 +61,7 @@ class ERROR
 	 */
 	private static $_debugbar = [
 		"location"	=>	ROOT.VENDOR."/DebugBar",
-		"autloader"	=>	ROOT.VENDOR."/DebugBar/autoload.php",
+		"autoloader"	=>	ROOT.VENDOR."/DebugBar/autoload.php",
 		"active"	=>	false,
 		"loaded"	=>	null,
 		"render"	=>	false,
@@ -80,15 +80,15 @@ class ERROR
 	public static function initialize(){
 		try {
 			if(!file_exists(self::_conf_file)) self::diagnose();
-			if(!is_readable(self::_conf_file)) throw new \maple\cms\exceptions\FilePermissionException("Unable to read file '{self::_conf_file}' because of insufficient permissions", 1);
 			if(!self::$_configuration){
 				self::$_configuration = json_decode(file_get_contents(self::_conf_file),true);
 				if(self::$_configuration["prettify-error"]){
 					self::load_error_handler();
 					self::start_error_handling();
 				}
-				if(\DEBUG && self::$_configuration["debug"]["active"] && self::$_configuration["debug"]["show-debug-bar"])
+				if(\DEBUG && self::$_configuration["debug"]["active"] && self::$_configuration["debug"]["show-debug-bar"]) {
 					self::load_debug_bar();
+				}
 				else require_once self::_class_logger["basic"];
 			}
 		} catch (\Exception $e) {
@@ -104,9 +104,7 @@ class ERROR
 	 */
 	private static function diagnose(){
 		if(!file_exists(self::_conf_file)){
-			if(is_writable(self::_conf_file)){
-				file_put_contents(self::_conf_file,json_encode(self::_default_configuration));
-			} else throw new \maple\cms\exceptions\FilePermissionException("Unable to write to file {self::_conf_file}", 1);
+			file_put_contents(self::_conf_file,json_encode(self::_default_configuration));
 		}
 	}
 
@@ -174,11 +172,11 @@ class ERROR
 				if(!file_exists(self::$_debugbar["autoloader"]))
 					throw new \maple\cms\exceptions\VendorMissingException("Unable to load Vendor 'DebugBar', please install now", 1);
 				require_once self::$_debugbar["autoloader"];
-				self::$_debugbar["object"] = new DebugBar\StandardDebugBar();
+				self::$_debugbar["object"] = new \DebugBar\StandardDebugBar();
 				self::$_debugbar["render"] = self::$_debugbar["object"]->getJavascriptRenderer();
 				if(!URL::initialized()) throw new \RuntimeException("\maple\cms\URL was not initialized before", 1);
 
-				$base = URL::http("%VENDOR%")."/DebugBar/maximebf/debugbar/src/DebugBar/Resources/";
+				$base = URL::http("%ROOT%%VENDOR%")."/DebugBar/maximebf/debugbar/src/DebugBar/Resources/";
 				self::$_debugbar["render"]->setBaseUrl($base);
 				self::$_debugbar["loaded"] = true;
 				require_once self::_class_logger["debugbar"];

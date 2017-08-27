@@ -2,12 +2,12 @@
 	{
 		"name"	: "sign-up",
 		"description":"sign up to the site",
-		"access": "*"
+		"access": "default"
 	},
 	{
 		"name"	: "login",
 		"description":"sign up to the site",
-		"access": "*"
+		"access": "default"
 	},
 	{
 		"name"	: "profile|view",
@@ -40,6 +40,11 @@
 		"access": "administrator+"
 	},
 	{
+		"name"	: "user-group|view",
+		"description":"View All User Groups",
+		"access": "administrator+"
+	},
+	{
 		"name"	: "user-group|add",
 		"description":"Add a new User Group",
 		"access": "administrator+",
@@ -47,7 +52,7 @@
 	},
 	{
 		"name"	: "user-group|edit",
-		"description":"edit user group",
+		"description":"edit a user group",
 		"access": "administrator+",
 		"requires":"maple/security:user-group|edit"
 	},

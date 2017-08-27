@@ -101,7 +101,6 @@ class SHORTCODE {
 		preg_match_all(self::SHORTOCODE_REGEXP, $content, $matches, PREG_SET_ORDER);
 		$shortcodes = [];
 		foreach ($matches as $value) {
-			var_dump($value);
 			$attrs = [];
 			$content = "";
 			if(isset($value["attrs"])){

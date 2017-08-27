@@ -69,7 +69,7 @@ class USER{
 		$data = [];
 		if(self::$_user["id"]!==false){
 			$data = DB::_()->select("users","*",[ "id" => self::$_user["id"] ]);
-			$data = $data[0];
+			$data = current($data);
 			$data["permissions"] = json_decode($data["permissions"],true);
 			self::$_user["details"] = array_merge(self::user_detail_template,$data);
 		} else { self::$_user["details"] = self::user_detail_template; }
@@ -98,7 +98,7 @@ class USER{
 	 */
 	public static function login($username,$password){
 		if(!is_string($username)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
-		if(!is_string($password)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
+		if(!is_string($password)) throw new \InvalidArgumentException("Argument #2 must be of type 'string'", 1);
 		$password = md5($password);
 		$data = DB::_()->select("users","*",[
 			"AND"	=>	[
@@ -118,6 +118,7 @@ class USER{
 			return true;
 		}
 		MAPLE::do_filters("user|login-failed");
+		SECURITY::get_permissions(true);
 		return false;
 	}
 	/**

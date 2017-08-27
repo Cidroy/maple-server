@@ -63,6 +63,22 @@ class MAPLE{
 	private static $hooks = [];
 
 	/**
+	 * Stores if Maple CMS has Content to display
+	 * @var boolean
+	 */
+	private static $has_content = false;
+
+	/**
+	 * Return / Set Content Status
+	 * @param  boolean  $status if content available
+	 * @return boolean         has content status
+	 */
+	public static function has_content($status = null){
+		if($status!==null) self::$has_content = $status;
+		return self::$has_content;
+	}
+
+	/**
 	 * initialize Maple for use
 	 * @api
 	 * @throws \DomainException if all the array variables are not provided
@@ -201,11 +217,11 @@ class MAPLE{
 		if(!is_array($args)) throw new \InvalidArgumentException("Argument #3 must be of type 'array'", 1);
 
 		if(!isset(self::$_FILTERS[$filter]))
-			self::$_FILTERS[$filter] = new \SplQueue();
-		self::$_FILTERS[$filter]->push([
+			self::$_FILTERS[$filter] = [];
+		self::$_FILTERS[$filter] = [
 			"function" => $function,
 			"args" => $args,
-		]);
+		];
 	}
 
 
@@ -222,14 +238,15 @@ class MAPLE{
 		if(!is_string($filter)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
 		if(!is_array($args)) throw new \InvalidArgumentException("Argument #2 must be of type 'array'", 1);
 		$content = [];
-		if(isset(self::$_FILTERS[$filter]) && self::$_FILTERS[$filter]->count()){
-			ob_start();
-			self::$_FILTERS[$filter]->rewind();
-			while ($f = self::$_FILTERS[$filter]->current()) {
+		if(isset(self::$_FILTERS[$filter])){
+			reset(self::$_FILTERS[$filter]);
+			#BUG : start buffer
+			// ob_start();
+			while ($f = current(self::$_FILTERS[$filter])) {
 				$content[] = call_user_func($f["function"],array_merge($f["args"],$args));
-				self::$_FILTERS[$filter]->next();
+				next(self::$_FILTERS[$filter]);
 			}
-			ob_end_clean();
+			// ob_end_clean();
 		}
 		return new __filter_content($content);
 	}
@@ -300,6 +317,17 @@ class MAPLE{
 		return $output;
 	}
 
+	public static function debug(){
+		if(!\DEBUG) return [];
+		return [
+			"AUTOLOAD_LIST" => self::$_AUTOLOAD_LIST,
+			"FILTERS" 		=> self::$_FILTERS,
+			"SHORTCODES" 	=> self::$_SHORTCODES,
+			"ROUTERS" 		=> self::$_ROUTERS,
+			"TEMPLATES" 	=> self::$_TEMPLATES,
+		];
+	}
+
 }
 /**
  * Output for filter
@@ -312,7 +340,7 @@ class __filter_content{
 	public function __construct($data){ $this->content = $data; }
 	public function __toString(){
 		$string = "";
-		foreach ($content as $value) {
+		foreach ($this->content as $value) {
 			if(is_string($value)) $string = $string.$value;
 			if(is_array($value)) $string = $string.@implode("",$value);
 		}

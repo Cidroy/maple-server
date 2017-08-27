@@ -12,7 +12,7 @@ class ENVIRONMENT{
 	 * Loccation for environment settings json
 	 * @var file path
 	 */
-	private static $config_location = ROOT."environments/environments.json";
+	private static $config_location = ROOT."/environments/environments.json";
 	/**
 	 * TODO : document
 	 * @var array
@@ -96,7 +96,7 @@ class ENVIRONMENT{
 				if(isset($value["define"])) foreach ($value["define"] as $dkey => $dvalue) {
 					if(!defined($dkey))	define("{$dkey}",$dvalue);
 				}
-				require_once ROOT."environments/{$value["location"]}";
+				require_once ROOT."/environments/{$value["location"]}";
 			}
 		} catch (Exception $e) {
 			if($recursive){

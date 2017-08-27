@@ -73,7 +73,7 @@ class eWWW implements iRenderEnvironment{
 		if(!self::$active) return false;
 		$__url = [];
 		$__url["%CURRENT%"] = \ENVIRONMENT::url()->current();
-		$__url["%WWW%"] 	= \ENVIRONMENT::url()->root().self::$_www_config["web-root"];
+		$__url["%WWW%"] 	= \ENVIRONMENT::url()->root(false).self::$_www_config["web-root"];
 		$page  = str_replace($__url["%WWW%"], "", $__url["%CURRENT%"]);
 		$__file = \ROOT.\WWW.$page;
 		$content = false;
@@ -129,7 +129,6 @@ class eWWW implements iRenderEnvironment{
 		$__url["%CURRENT%"] = \ENVIRONMENT::url()->current();
 		$__url["%WWW%"] 	= \ENVIRONMENT::url()->root(false).self::$_www_config["web-root"];
 		$page = str_replace($__url["%WWW%"], "", $__url["%CURRENT%"]);
-
 		if(!self::$_www_config["use"] && !self::$_www_config["credentials"] && false !== strrpos($page,str_replace(\ENVIRONMENT::url()->root(),"",self::url("install")))){
 			ob_start();
 				require_once __DIR__."/settings/setup/index.php";
@@ -147,9 +146,9 @@ class eWWW implements iRenderEnvironment{
 
 	public static function url($param){
 		switch ($param) {
-			case 'settings'	:  return \ENVIRONMENT::url()->root().self::$_www_config["credentials"]["url"]; break;
+			case 'settings'	:  return \ENVIRONMENT::url()->root(false).self::$_www_config["credentials"]["url"]; break;
 			case 'install'	:  return \ENVIRONMENT::url()->root(false)."/www/install/"; break;
-			case 'root' 	:  return \ENVIRONMENT::url()->root(); break;
+			case 'root' 	:  return \ENVIRONMENT::url()->root(false); break;
 			default: return false; break;
 		}
 	}

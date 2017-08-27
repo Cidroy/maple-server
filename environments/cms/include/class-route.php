@@ -66,9 +66,16 @@ class ROUTER{
 	 * @api
 	 */
 	public static function initialize(){
+		if(!file_exists(self::_router_vendor_file)) throw new \maple\cms\exceptions\VendorMissingException("Unable to load vendor for 'router'", 1);
+		require_once self::_router_vendor_file;
+		if(!file_exists(self::_route_cache)) mkdir(self::_route_cache,0777,true);
 		self::$_router = self::object();
+		foreach (self::$_sources as $namespace => $files)
+			foreach ($files as $file )
+				self::use_file($namespace,$file);
 		$cache = "router-".CACHE::unique().".cache";
 		self::$_router->cache($cache);
+		self::$_router->base_uri(URL::base_uri());
 		self::$_initialized = true;
 	}
 
@@ -133,7 +140,7 @@ class ROUTER{
 	/**
 	 * Use file for router
 	 * @api
-	 * @uses UI::add_named_url
+	 * @uses URL::add_named_url
 	 * @throws \InvalidArgumentException if $file is not of type 'string'
 	 * @param  string $namespace router namespace
 	 * @param  string $file file-path
@@ -148,10 +155,9 @@ class ROUTER{
 		// TODO : add caching
 		foreach ($routes as $name => $details) {
 			try {
-				$route = UI::add_named_url($namespace,$name,$details);
-				$type = explode("|",$details["type"]);
-				if(!$route || in_array("no-route",$type) || !isset($details["handler"]) || !$details["handler"])
-				continue;
+				$route = URL::add_named_url($namespace,$name,$details);
+				$type = isset($details["type"])?explode("|",$details["type"]):[];
+				if(!$route || in_array("no-route",$type) || !isset($details["handler"]) || !$details["handler"]) continue;
 				self::add_route((isset($details["method"])?$details["method"]:"GET"),$route,$details["handler"]);
 			} catch (\Exception $e) {
 				Log::error([
@@ -166,6 +172,12 @@ class ROUTER{
 		}
 		return true;
 	}
+
+	/**
+	 * Debug Info
+	 * @return array debug values
+	 */
+	public static function debug(){ if(\DEBUG) return self::$_router->debug(); }
 }
 
 /**
@@ -274,6 +286,7 @@ class __router{
 		if(!is_string($method) && !is_array($method)) throw new \InvalidArgumentException("Argument #1 should be of type 'string' or 'array'", 1);
 		if(!is_string($route)) throw new \InvalidArgumentException("Argument #2 should be of type 'string'", 1);
 		if(!is_string($handler)) throw new \InvalidArgumentException("Argument #3 should be of type 'string'", 1);
+		$method = strtolower($method);
 		if(is_array($method)){
 			$this->_routes["mix"][] = [
 				"method"	=>	$method,
@@ -335,7 +348,7 @@ class __router{
 			$this->_cache["active"]?
 			\FastRoute\cachedDispatcher(function(\FastRoute\RouteCollector $r){
 				$r->base_uri($this->_base_uri);
-				foreach ($this->_routes["group"] as $group => $routes) {
+				foreach ($this->_routes["groups"] as $group => $routes) {
 					$r->addGroup($group,function(\RouteCollector $r){
 						foreach ($routes as $mix)
 							$r->addRoute($mix["method"],$mix["route"],$mix["handler"]);
@@ -360,7 +373,7 @@ class __router{
 				foreach ($this->_routes["mix"] as $mix) { $r->addRoute($mix["method"],$mix["route"],$mix["handler"]); }
 			});
 		}
-		return self::$_dispatcher;
+		return $this->_dispatcher;
 	}
 	/**
 	 * Dispatch the Router
@@ -369,9 +382,11 @@ class __router{
 	 */
 	public function dispatch(){
 		$httpMethod = $_SERVER['REQUEST_METHOD'];
-		$uri = rtrim($_SERVER['REQUEST_URI'] ,"/");
-		if($uri == $this->_base_uri) $uri .= "/";
+		$uri = $_SERVER['REQUEST_URI'];
+		if (substr($uri, 0, strlen($this->_base_uri)) == $this->_base_uri) $uri = substr($uri, strlen($this->_base_uri));
 		if (false !== $pos = strpos($uri, '?')) { $uri = substr($uri, 0, $pos); }
+		$uri = rtrim($uri ,"/");
+		if(!$uri)	$uri = "/";
 		$uri = rawurldecode($uri);
 		$routeInfo = $this->dispatcher()->dispatch($httpMethod, $uri);
 		switch ($routeInfo[0]) {
@@ -408,7 +423,7 @@ class __router{
 	 * @return string content
 	 */
 	public function content(){
-		if(!$this->_info["status"] === ROUTER::NOT_DISPATCHED) $this->dispatch();
+		if($this->_info["status"] === ROUTER::NOT_DISPATCHED) $this->dispatch();
 		$content = "";
 		if($this->_info["status"] === ROUTER::FOUND){
 			ob_start();
@@ -424,5 +439,17 @@ class __router{
 	 * @return integer dispatch status
 	 */
 	public function status(){ return $this->_info["status"]; }
+
+
+	/**
+	 * Debug Info
+	 * @return array debug info
+	 */
+	public function debug(){
+		return [
+			"routes"=>	$this->_routes,
+			"info"	=>	$this->_info,
+		];
+	}
 }
 ?>

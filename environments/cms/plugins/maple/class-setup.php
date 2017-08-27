@@ -12,16 +12,6 @@ use \maple\cms\database\Schema;
  */
 class SETUP{
 	const columns = [
-		"users"	=>	[
-			"id"		=>	[ "primary" => true, "auto-increment"	=>	true, "type" =>	"int", ],
-			"name"		=>	[ "type" => "varchar", "length" => 50, ],
-			"username"	=>	[ "type" => "varchar", "length" => 50, "unique"	=> "true", ],
-			"email"		=>	[ "type" => "varchar", "length" => 50, "unique"	=> "true", ],
-			"password"	=>	[ "type" => "text", ],
-			"registered"=>	[ "type" => "datetime", ],
-			"access"	=>	[ "type" => "int", "default" => 0 ],
-			"permissions"=>	[ "type" => "text",],
-		],
 		"options" =>	[
 			"id"		=>	[ "primary" => true, "auto-increment"	=>	true, "type" =>	"int", ],
 			"name"		=>	[ "type" => "varchar", "length" => 50, "unique"	=> "true", ],

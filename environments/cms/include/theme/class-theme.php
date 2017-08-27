@@ -31,6 +31,16 @@ class THEME {
 	private static $_details = [];
 
 	/**
+	 * Theme Render Options
+	 * @var array
+	 */
+	private static $options  = [
+		"title-splitter"	=>	" - "
+	];
+
+	private static $_initialized = false;
+
+	/**
 	 * Does optimisation
 	 */
 	private static function optimize($param=null){
@@ -38,7 +48,7 @@ class THEME {
 		if(!file_exists(self::cache."/installed.json") || ($param && is_array($param))){
 			$themes = $param?$param:[];
 			foreach (self::$_sources as $source) {
-				$theme[$source] = [];
+				$themes[$source] = [];
 				foreach (FILE::get_folders($source) as $theme) {
 					if(!file_exists($theme."/package.json")) continue;
 					$data = json_decode(file_get_contents($theme."/package.json"),true);
@@ -58,13 +68,12 @@ class THEME {
 
 	/**
 	 * Initialize Theme
-	 * @throws \RuntimeException if \maple\cms\URL is not initialized
 	 */
 	public static function initialize() {
-		if(!URL::initialized()) throw new \RuntimeException("'\\maple\\cms\\URL' must be initialized", 1);
+		if(self::$_initialized) return;
 		if(!file_exists(self::cache)) self::optimize();
 		// BUG: use cache theme based on sources
-		$data = json_decode(file_get_contents(self::cache."/installed.json"));
+		$data = json_decode(file_get_contents(self::cache."/installed.json"),true);
 		$theme = current(DB::_()->select("options","value",["name" => "theme"]));
 		foreach ($data as $source => $themes) {
 			if(in_array($source,self::$_sources) && array_key_exists($theme,$themes)){
@@ -89,14 +98,19 @@ class THEME {
 				"theme"	=>	$theme
 			]);
 			try{
-				$n = new NOTIFICATION("maple/cms");
-				$n->title = "Theme '{$theme}' could not be found switched to '{$theme_alt}'";
-				$n->text = "Searched in locations \n".implode("\n",self::$_sources);
-				$n->notify();
+				if(SECURITY::permission("maple/theme","theme|change")){
+					$n = new NOTIFICATION("maple/cms");
+					$n->title = "Theme '{$theme}' could not be found switched to '{$theme_alt}'";
+					$n->text = "Searched in locations \n".implode("\n",self::$_sources);
+					$n->notify();
+				}
 			}catch(\Exception $e){}
 			return ;
 		}
+		TEMPLATE::add_template_sources([ "maple/theme" => self::$_details["location"] ]);
 		require_once self::$_details["location"]."/theme.php";
+		call_user_func(self::$_details["class"]."::initialize");
+		self::$_initialized = true;
 	}
 	/**
 	 * Color etc.
@@ -104,7 +118,12 @@ class THEME {
 	 * @api
 	 * @return array additional theme based render data
 	 */
-	public static function rendering_data() { }
+	public static function rendering_data(){
+		$color = call_user_func(self::$_details["class"]."::color");
+		return [
+			"color"	=>	$color,
+		];
+	}
 
 	/**
 	 * Add Themes Source
@@ -172,35 +191,58 @@ class THEME {
 
 	/**
 	 * Render content head
-	 * BUG: no data provided
 	 * @api
+	 * @filter pre-render|head
 	 * @return string html
 	 */
 	public static function render_head(){
 		if(!self::$_details) return "";
-		return call_user_func(self::$_details["class"]."::render_head",[]);
+		MAPLE::do_filters("pre-render|head");
+		return call_user_func(self::$_details["class"]."::render_head",[
+			"html"	=>	[
+				"header"=>	UI::header()->get(),
+				"css"	=>	UI::css()->src(),
+				"css-script"	=>	UI::css()->get_script(),
+			],
+			"title"	=>	implode(self::$options["title-splitter"],UI::title()->get()),
+			"navbar"=>	[
+				"buttons"	=>	UI::navbar()->buttons(),
+				"links"		=>	UI::navbar()->links(),
+				"html"		=>	UI::navbar()->html(),
+			]
+		]);
 	}
 
 	/**
 	 * Render content body
-	 * BUG: no data provided
 	 * @api
+	 * @filter pre-render|content
 	 * @return string html
 	 */
 	public static function render_content(){
 		if(!self::$_details) return "";
-		return call_user_func(self::$_details["class"]."::render_content",[]);
+		MAPLE::do_filters("pre-render|content");
+		return call_user_func(self::$_details["class"]."::render_content",[
+			"content"	=>	MAPLE::do_hooks()
+		]);
 	}
 
 	/**
 	 * Render Content Footer
-	 * BUG: no data provided
 	 * @api
+	 * @filter pre-render|head
 	 * @return string html
 	 */
 	public static function render_footer(){
 		if(!self::$_details) return "";
-		return call_user_func(self::$_details["class"]."::render_footer",[]);
+		MAPLE::do_filters("pre-render|footer");
+		return call_user_func(self::$_details["class"]."::render_footer",[
+			"html"	=>	[
+				"footer"=>	UI::footer()->get(),
+				"js"	=>	UI::js()->src(),
+				"js-script"	=>	UI::js()->get_script(),
+			],
+		]);
 	}
 
 	/**

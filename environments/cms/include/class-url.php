@@ -47,6 +47,15 @@ class URL{
 		"c_path"=>	[],
 		"c_url" =>	[],
 	];
+
+	/**
+	 * Secondary locations
+	 * @var array
+	 */
+	private static $_secondary = [
+		"dir"	=>	[],
+	];
+
 	/**
 	 * named urls
 	 * namespace => name => url
@@ -75,6 +84,45 @@ class URL{
 	 */
 	private static $_initialized = false;
 
+	/**
+	 * Add a new Url
+	 * BUG : does nothing
+	 * @api
+	 * @throws \InvalidArgumentException if $pseudo, $url or $dir are not of type 'string'
+	 * @param string $pseudo pseudo name
+	 * @param string $url    url
+	 * @param string $dir    directory
+	 * @return boolean	if added returns true
+	 */
+	public static function add($pseudo,$url = null,$dir = null){
+		if($pseudo && !is_string($pseudo)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
+		if($url && !is_string($url)) throw new \InvalidArgumentException("Argument #2 must be of type 'string'", 1);
+		if($dir && !is_string($dir) && !is_array($dir)) throw new \InvalidArgumentException("Argument #3 must be of type 'string'", 1);
+		if(in_array($pseudo,self::$_pseudo)) return false;
+		if($url===null) $url = self::http($pseudo);
+		if($dir===null) $dir = self::dir($pseudo);
+
+		if(is_array($dir)){
+			$dirs = [];
+			reset($dir);
+			$temp = self::dir(current($dir));
+			while(next($dir)){
+				if(in_array(self::conceal_path(current($dir)),self::$_pseudo)) continue;
+				$dirs[self::dir(current($dir))] = $pseudo;
+			}
+			$dir = $temp;
+			self::$_secondary["dir"] = array_merge(self::$_secondary["dir"],$dirs);
+		}
+		else $dir = self::dir($dir);
+		$dir = str_replace(\ROOT,"",$dir);
+		if(in_array(self::conceal_path($dir),self::$_pseudo)) return false;
+		array_unshift(self::$_pseudo,$pseudo);
+		self::$_url = [ $pseudo."" => $url ] + self::$_url;
+		self::$_dir = [ $pseudo."" => $dir ] + self::$_dir;
+
+		return false;
+	}
+
 	public static function initialize() {
 		try {
 			if(!file_exists(self::src)) self::diagnose();
@@ -84,8 +132,8 @@ class URL{
 			self::$_dir		= array_reverse($data["dir"]);
 
 			self::$base_uri	= ENVIRONMENT::url()->base();
-			self::$_url["%ROOT%"] = ENVIRONMENT::url()->root();
-			self::$_url["%CURRENT%"] = ENVIRONMENT::url()->current();
+			self::$_url["%ROOT%"] = ENVIRONMENT::url()->root(false);
+			self::$_url["%CURRENT%"] = rtrim(ENVIRONMENT::url()->current(),"/");
 
 			foreach (self::$_dir as $key => $value) { self::$_dir[$key] = defined($value) ? constant($value) : $value; }
 
@@ -134,7 +182,8 @@ class URL{
 	 * @return string        url
 	 */
 	public static function http($path,$query = "") {
-		if(!is_string($path)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
+		if(!$path) return "";
+		if(!is_string($path)) throw new \InvalidArgumentException("Argument #1 must be of type 'string', given '".gettype($path)."'", 1);
 		if($query &&( !is_string($query) || !is_array($query) )) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
 
 		if($query) $query = "?".http_build_query($query);
@@ -176,6 +225,7 @@ class URL{
 		if(isset(self::$_cache["c_path"][$path])) return self::$_cache["c_path"][$path];
 		else {
 			$path = str_replace("\\","/",$path);
+			$path = strtr($path,self::$_secondary["dir"]);
 			$c = str_replace(self::$_dir,self::$_pseudo,$path);
 			self::$_cache["c_path"][$path] = $c;
 			return $c;
@@ -277,7 +327,7 @@ class URL{
 			$query = "?".http_build_query($query);
 		} else $query = "";
 		if(isset(self::$_name_url[$namespace]) && isset(self::$_name_url[$namespace][$name]))
-			return rtrim(self::http("%ROOT%"),"/").self::$_name_url[$namespace][$name]["route"].$query;
+			return rtrim(self::http("%ROOT%"),"/").self::$_name_url[$namespace][$name]["url"].$query;
 		else{
 			Log::warning("named url \"{$name}\" not found in namespace \"{$namespace}\" ");
 			return false;
@@ -295,7 +345,6 @@ class URL{
 	 * Add Named Url
 	 * TODO : !important! Bug Testing
 	 * @api
-	 * @uses DB::connected
 	 * @uses SHORTCODE::parse
 	 * @throws \InvalidArgumentException if $namespace is not of type 'string'
 	 * @throws \InvalidArgumentException if $details is not of type 'array'
@@ -328,11 +377,12 @@ class URL{
 		$details_temp = $details;
 		$url = "";
 		if(isset($details["base"])){
-			if(!self::$_shortcode_url && DB::connected())
+			if(!self::$_shortcode_url)
+				# TODO : !important! cache
 				foreach (DB::_()->select("pages",["name","content"]) as $row)	#DB // get slugs for shortcode
 					foreach (SHORTCODE::parse($row["content"]) as $shortcode)
 						self::$_shortcode_url["{$shortcode->name}"] = self::page_uri($row["name"]);
-			if(isset(self::$_shortcode_url[$details["base"]])) $url="/".self::$_shortcode_url[$details["base"]].$url;
+			if(isset(self::$_shortcode_url[$details["base"]])) $url=self::$_shortcode_url[$details["base"]].$url;
 			else $url="/".self::http($details["base"]).$url;
 		}
 		if(isset($details["parent"]) && isset(self::$_name_url[$namespace][$details["parent"]]))
@@ -407,7 +457,9 @@ class URL{
 	 * @return string       uri
 	 */
 	public static function page_uri($name){
-		return "";
+		static $buffer = null;
+		if($buffer===null) foreach (DB::_()->select("pages",["name","url"]) as $row) $buffer[$row["name"]] = $row["url"];
+		return isset($buffer[$name])?$buffer[$name]:"";
 	}
 
 	/**
@@ -434,49 +486,35 @@ class URL{
 			];
 			$content["pseudo"] = [
 				"%CURRENT%","%ENCODING%","%ROOT%",
-				"%DATA%",
-				"%CNT%","%PLG%","%PLUGIN%","%THEME%","%VENDOR%","%CONFIG%","%CACHE%",
-				"%INC%","%INCLUDE%",
-				"%ADMIN%",
-				"%ROOT%%PLG%","%ROOT%%INCLUDE%","%ROOT%%THEME%"
+				"%MAPLE%",
+				"%PLUGIN%","%THEME%",
+				"%DATA%","%VENDOR%","%CONFIG%","%CACHE%","%INCLUDE%",
 			];
 			$content["url"] = [
 				"%CURRENT%"  => "",
 				"%ENCODING%" => ENVIRONMENT::url()->encoding(),
-				"%ROOT%" 	 => "%ENCODING%".ENVIRONMENT::url()->root(false),
+				"%ROOT%" 	 => "%ENCODING%".ENVIRONMENT::url()->root(),
+				"%MAPLE%"	 => "",
+				"%PLUGIN%"	 => "/plugins",
+				"%THEME%"	 => "/themes",
 				"%DATA%"	 => "/data",
-				"%CNT%"	 	 => "",
-				"%PLG%"	 	 => "%ROOT%/plugin",
-				"%PLUGIN%"	 => "%ROOT%/plugin",
-				"%THEME%"	 => "%ROOT%/theme",
-				"%VENDOR%"	 => "%ROOT%/vendors",
-				"%CONFIG%"	 => "%ROOT%/configurations",
-				"%CACHE%"	 => "%ROOT%/cache",
-				"%INC%"	 	 => "%ROOT%/include",
-				"%INCLUDE%"	 => "%ROOT%/include",
-				"%ADMIN%"	 => "%ROOT%/admin",
-				"%ROOT%%PLG%"=> "%PLUGIN%",
-				"%ROOT%%INCLUDE%"=>"%INCLUDE%",
-				"%ROOT%%THEME%"=>"%THEME%"
+				"%VENDOR%"	 => "/vendors",
+				"%CONFIG%"	 => "/configurations",
+				"%CACHE%"	 => "/cache",
+				"%INCLUDE%"	 => "/include",
 			];
 			$content["dir"] = [
 				"%CURRENT%"  => "",
 				"%ENCODING%" => "",
 				"%ROOT%" 	 => "ROOT",
-				"%DATA%"	 => "DATA",
-				"%CNT%"	 	 => "CNT",
-				"%PLG%"	 	 => "PLG",
-				"%PLUGIN%"	 => "%ROOT%%PLG%",
+				"%MAPLE%"	 => "__MAPLE__",
+				"%PLUGIN%"	 => "PLUGIN",
 				"%THEME%"	 => "THEME",
+				"%DATA%"	 => "DATA",
 				"%VENDOR%"	 => "VENDOR",
 				"%CONFIG%"	 => "CONFIG",
 				"%CACHE%"	 => "CACHE",
-				"%INC%"	 	 => "INC",
-				"%INCLUDE%"	 => "%ROOT%%INC%",
-				"%ADMIN%"	 => "ADMIN",
-				"%ROOT%%PLG%"=> "%PLUGIN%",
-				"%ROOT%%INCLUDE%"=> "%INCLUDE%",
-				"%ROOT%%THEME%"=> "%THEME%"
+				"%INCLUDE%"	 => "INC",
 			];
 			file_put_contents(self::src,json_encode($content));
 		}
@@ -492,6 +530,21 @@ class URL{
 			// TODO : !important! use current link method
 			// $_REQUEST[$key]=htmlspecialchars(mysqli_escape_string(DB::Link(),$value), ENT_QUOTES , 'UTF-8' );
 		}
+	}
+
+	/**
+	 * Debug Info
+	 * @return Array values
+	 */
+	public static function debug(){
+		return [
+			"pseudo"	=>	self::$_pseudo,
+			"url"		=>	self::$_url,
+			"dir"		=>	self::$_dir,
+			"secondary" =>	self::$_secondary,
+			"cache" 	=>	self::$_cache,
+			"name-url"	=>	self::$_name_url
+		];
 	}
 }
  ?>

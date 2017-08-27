@@ -172,7 +172,7 @@
 		 * @param string $namespace namespace
 		 * @param string $var       variable name
 		 */
-		public static function remove($namespace,$var){
+		public static function remove($owner,$var){
 			if(
 				isset($_SESSION["storage"]) &&
 				isset($_SESSION["storage"][$owner]) &&

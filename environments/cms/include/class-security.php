@@ -82,12 +82,10 @@ class SECURITY {
 	 * Initialize
 	 * @api
 	 * @uses SESSION::active
-	 * @uses USER::initialized
 	 * @throws \RuntimeException if session not active
 	 */
 	public static function initialize(){
 		if(!SESSION::active()) throw new \RuntimeException("'session' not started", 1);
-		if(!USER::initialized()) throw new \RuntimeException("'\\maple\\cms\\USER' not initialized", 1);
 
 		if(!file_exists(self::_permission_location."/user-type.json")){
 			if(!file_exists(self::_permission_location)) mkdir(self::_permission_location,0777,true);
@@ -221,8 +219,6 @@ class SECURITY {
 	 * @return bool 				true if access, false if not available
 	 */
 	public static function permission($namespace,$permissions,$logic = 'all'){
-		// BUG: remove this !important!
-		return true;
 		if(!self::$_USER_PERMISSIONS) self::get_permissions();
 		if(!is_string($permissions) && !is_array($permissions)) throw new \InvalidArgumentException("Argument #1 should be of type 'string' or 'array'", 1);
 
@@ -244,7 +240,7 @@ class SECURITY {
 				break;
 		}
 		else if(is_string($permissions)){
-			if(isset(self::$_USER_PERMISSIONS[$namespace]) && in_array($permission,self::$_USER_PERMISSIONS[$namespace])) return true;
+			if(isset(self::$_USER_PERMISSIONS[$namespace]) && in_array($permissions,self::$_USER_PERMISSIONS[$namespace])) return true;
 		}
 		return false;
 	}
@@ -254,10 +250,11 @@ class SECURITY {
 	 * @api
 	 * @uses USER::access_level
 	 * @uses USER::permissions
+	 * @param boolean $reinit re-populate the permissions
 	 * @return array permission list
 	 */
-	public static function get_permissions(){
-		if(!self::$_USER_PERMISSIONS){
+	public static function get_permissions($reinit = false){
+		if(!self::$_USER_PERMISSIONS || $reinit){
 			$level = USER::access_level();
 			if($level===false) $level = self::get_user_group_code("default");
 			$additional = self::default_user_permission;
@@ -265,8 +262,14 @@ class SECURITY {
 				$additional = USER::permissions();
 			}
 			self::$_USER_PERMISSIONS = json_decode(file_get_contents(self::_permission_location."/{$level}.json"),true);
-			self::$_USER_PERMISSIONS = array_merge(self::$_USER_PERMISSIONS, $additional["grant"]);
-			self::$_USER_PERMISSIONS = array_diff(self::$_USER_PERMISSIONS, $additional["deny"]);
+			foreach ($additional["grant"] as $namespace => $permissions) {
+				if(isset(self::$_USER_PERMISSIONS[$namespace])) self::$_USER_PERMISSIONS[$namespace] = [];
+				self::$_USER_PERMISSIONS[$namespace] = array_merge(self::$_USER_PERMISSIONS[$namespace], $additional["grant"][$namespace]);
+			}
+			foreach ($additional["deny"] as $namespace => $permissions) {
+				if(isset(self::$_USER_PERMISSIONS[$namespace])) self::$_USER_PERMISSIONS[$namespace] = [];
+				self::$_USER_PERMISSIONS[$namespace] = array_diff(self::$_USER_PERMISSIONS[$namespace], $additional["deny"][$namespace]);
+			}
 		}
 		return self::$_USER_PERMISSIONS;
 	}
@@ -527,6 +530,59 @@ class SECURITY {
 			]);
 		\ENVIRONMENT::unlock();
 		return true;
+	}
+
+	/**
+	 * String to Permitted Group Codes,
+	 * Get an array of group code by parsing syntax
+	 * accepts type "*","a,b,c"
+	 * @api
+	 * @throws \InvalidArgumentException if $str not of type string
+	 * @throws \DomainException if $str is not in a valid Format
+	 * @param  string $str permission syntax
+	 * @return array      codes
+	 */
+	public static function str_to_permitted_groupcodes($str = ""){
+		if(!is_string($str)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
+		$_group = [
+			"allow"	=>	[],
+			"deny"	=>	[],
+		];
+		$__parse = explode(",",$str);
+		foreach ($__parse as $access ) {
+			$mode = "allow";
+			if(preg_match("/^~/",$access)){
+				$mode = "deny";
+				$access = trim($access,"~");
+			}
+			else $mode = "allow";
+			# match "*"
+			if($access=="*") $_group[$mode] = array_merge(array_values(self::$_user_group),$_group[$mode]);
+			# match "a_z+"
+			else if(preg_match("/^[a-zA-Z0-9_]+\+$/",$access)){
+				$min_code = self::get_user_group_code(rtrim($access,"+"));
+				if($min_code===false) continue;
+				foreach (self::$_user_group as $name => $code) if($code >= $min_code) $_group[$mode][] = $code;
+			}
+			# match "a_z-"
+			else if(preg_match("/^[a-zA-Z0-9_]+\-$/",$access)){
+				$min_code = self::get_user_group_code(rtrim($access,"-"));
+				if($min_code===false) continue;
+				foreach (self::$_user_group as $name => $code) if($code <= $min_code) $_group[$mode][] = $code;
+			}
+			# match "a-b"
+			else if(preg_match("/^[a-zA-Z0-9_]+\-[a-zA-Z0-9_]+$/",$access)){
+				$access = explode("-",$access);
+				$min_code = self::get_user_group_code($access[0]);
+				$max_code = self::get_user_group_code($access[1]);
+				foreach (self::$_user_group as $name => $code) if($min_code <= $code && $code <= $max_code) $_group[$mode][] = $code;
+			}
+			# match "a"
+			else if(($code = self::get_user_group_code($access))!==false) $_group[$mode][] = $code;
+		}
+		$allowed = array_diff(array_unique($_group["allow"]),array_unique($_group["deny"]));
+		sort($allowed);
+		return $allowed;
 	}
 }
 

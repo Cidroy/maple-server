@@ -55,7 +55,7 @@ class DB{
 	 * @throws \maple\cms\exceptions\SqlConnectionException if SQL connection is not available or not set
 	 */
 	public static function initialize($obj = null){
-		if($obj instanceof __db and $obj){
+		if($obj instanceof __db and $obj !== false){
 			self::$_object = $obj;
 			self::$_initialied = true;
 		}
@@ -75,7 +75,6 @@ class DB{
 		if(!file_exists(self::_vendor_location."/autoload.php")) throw new \maple\cms\exceptions\VendorMissingException("Please install vendor 'Medoo'", 1);
 		require_once self::_vendor_location."/autoload.php";
 		require_once ROOT.INC."/database/class-database.php";
-		MAPLE::add_autoloader("\\maple\\cms\\database\\Schema",ROOT.INC."/database/class-schema.php");
 	}
 
 	/**

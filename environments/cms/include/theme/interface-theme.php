@@ -10,6 +10,7 @@ interface iTheme{
 	const palette_list = ["primary","secondary"];
 	public static function palette($color);
 	public static function palettes();
+	public static function initialize();
 	public static function render_head($content);
 	public static function render_content($content);
 	public static function render_footer($content);

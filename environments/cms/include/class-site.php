@@ -36,11 +36,11 @@ class SITE{
 	 */
 	public static function initialize(){
 		if(!DB::initialized()) throw new \RuntimeException("'\\maple\\cms\\DB' was not initialized", 1);
-		$details = [
-			"name"	=>	DB::_()->select("options","*",["name" => "site:name"])[0]["value"],
+		self::$details = [
+			"name"	=>	current(DB::_()->select("options","*",["name" => "site:name"]))["value"],
 			"owner"	=>	[
-					"name"	=>	DB::_()->select("options","*",["name" => "site-owner:name"])[0]["value"],
-					"link"	=>	DB::_()->select("options","*",["name" => "site-owner:link"])[0]["value"],
+					"name"	=>	current(DB::_()->select("options","*",["name" => "site-owner:name"]))["value"],
+					"link"	=>	current(DB::_()->select("options","*",["name" => "site-owner:link"]))["value"],
 				]
 		];
 		self::$_initialized = true;
@@ -69,7 +69,7 @@ class SITE{
 	 */
 	public static function owner($attr){
 		if(!is_string($attr)) throw new \InvalidArgumentException("Argument #1 should be of type 'string'", 1);
-		return !isset(self::$details["owner"][$attr])?self::$details["owner"][$attr]:false;
+		return isset(self::$details["owner"][$attr])?self::$details["owner"][$attr]:false;
 	}
 
 	/**

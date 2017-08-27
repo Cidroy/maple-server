@@ -10,9 +10,15 @@
 				"load"	:	"/class-setup.php",
 				"install":	"maple\\cms\\plugin\\SETUP::install"
 			},
-			"autoload"	: [],
-			"filters"	: [],
-			"shortcodes": [],
+			"autoload"	: {
+				"maple\\cms\\plugin\\MAPLE" : "/class-maple.php"
+			},
+			"filters"	: {
+				"render|body-end":"maple\\cms\\plugin\\MAPLE::f_body_end"
+			},
+			"shortcodes": {
+				"dashboard"	: "maple\\cms\\plugin\\MAPLE::sc_dashboard"
+			},
 			"routers"	: [],
 			"template"	: "/templates",
 			"dashboard"	: [],

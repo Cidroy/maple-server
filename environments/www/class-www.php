@@ -65,7 +65,7 @@ class WWW{
 			case 'active': return self::configuration()["configurations"]; break;
 			case '*':
 				$all = [];
-				foreach (array_filter(glob(ROOT.self::$_conf_temp["base-folder"]."*"), 'is_dir') as $dir) {
+				foreach (array_filter(glob(ROOT.self::$_conf_temp["base-folder"]."/*"), 'is_dir') as $dir) {
 					$package = "{$dir}/package.json";
 					if(file_exists($package)){
 						$package = file_get_contents($package);

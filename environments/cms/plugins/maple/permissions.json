@@ -45,6 +45,12 @@
 		"namespace"	: "maple/security"
 	},
 	{
+		"name"	: "theme|change",
+		"description":"install a new theme",
+		"access"	: "administrator+",
+		"namespace"	: "maple/theme"
+	},
+	{
 		"name"	: "theme|install",
 		"description":"install a new theme",
 		"access"	: "administrator+",

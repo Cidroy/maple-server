@@ -47,6 +47,7 @@ class PLUGIN{
 		"shortcodes"=>	[],
 		"routers"	=>	[],
 		"template"	=>	false,
+		"languages"	=>	false,
 		"dashboard"	=>	[],
 		"menus"		=>	[],
 		"widgets"	=>	[],
@@ -75,6 +76,7 @@ class PLUGIN{
 		"shortcodes"=>	[], # code=>function
 		"routers"	=>	[], # name=>file
 		"templates"	=>	[], # namespace=>folder
+		"languages"	=>	[], # namespace=>folder
 
 		"dashboard"	=>	[],	# []
 		"menus"		=>	[],	# []
@@ -173,7 +175,8 @@ class PLUGIN{
 			"version"	=>	0,
 			"plugin"	=>	[],
 		];
-		foreach (self::$_sources as $source) {
+		$sources = isset($param["sources"])?$param["sources"]:self::$_sources;
+		foreach ($sources as $source) {
 			foreach (FILE::get_folders($source) as $plugin) {
 				if(!file_exists($plugin."/package.json")) continue;
 				$buffer = json_decode(file_get_contents($plugin."/package.json"),true);
@@ -183,6 +186,7 @@ class PLUGIN{
 					isset($buffer["maple"]["maple/cms"])
 				){
 						$data = [ "location"	=>	$plugin, "version"	=>	$buffer["version"], "plugin" => $buffer ];
+						break;
 				}
 			}
 		}
@@ -205,8 +209,11 @@ class PLUGIN{
 			if($activation){
 				if(isset($activation["load"])){
 					if(!is_array($activation["load"])) $activation["load"] = [$activation["load"]];
-					foreach ($activation["load"] as $file) if(file_exists($data["location"].$file)) require_once $data["location"].$file;
+					foreach ($activation["load"] as $file){
+						if(file_exists($data["location"].$file)) require_once $data["location"].$file;
+					}
 				}
+				if(isset($param["install"]) && $param["install"] && $activation["install"]) call_user_func($activation["install"]);
 				if(isset($activation["activate"])) call_user_func($activation["activate"]);
 			}
 			MAPLE::do_filters("plugin|activated",[
@@ -372,17 +379,22 @@ class PLUGIN{
 		$data = $data["maple"]["maple/cms"];
 		$data = array_merge(self::plugin_format,$data);
 
+		foreach ($data["autoload"] as $class => $file) { $data["autoload"][$class] = $plugin.$file; }
 		self::$_plugin_data["autoload"] = array_merge(self::$_plugin_data["autoload"],$data["autoload"]);
-		foreach ($data["filters"] as $filter => $function) {
-			if(!isset(self::$_plugin_data["filters"])) self::$_plugin_data["filters"] = [];
-			self::$_plugin_data["filters"][] = $function;
+		foreach ($data["filters"] as $filter => $function){
+			if(!isset(self::$_plugin_data["filters"][$filter])) self::$_plugin_data["filters"][$filter] = [];
+			self::$_plugin_data["filters"][$filter][] = [
+				"function"	=>	$function,
+				"args"		=>	[],
+			];
 		}
 		self::$_plugin_data["shortcodes"] = array_merge(self::$_plugin_data["shortcodes"],$data["shortcodes"]);
 		foreach ($data["routers"] as $name => $router) {
 			if(!isset(self::$_plugin_data["routers"][$name])) self::$_plugin_data["routers"][$name] = [];
-			self::$_plugin_data["routers"][$name][] = $router;
+			self::$_plugin_data["routers"][$name][] = $plugin.$router;
 		}
 		self::$_plugin_data["templates"][$namespace] = $data["template"];
+		self::$_plugin_data["languages"][$namespace] = $data["languages"];
 		self::$_plugin_data["dashboard"] = array_merge(self::$_plugin_data["dashboard"],$data["dashboard"]);
 		self::$_plugin_data["menus"] = array_merge(self::$_plugin_data["menus"],$data["menus"]);
 		self::$_plugin_data["widgets"] = array_merge(self::$_plugin_data["widgets"],$data["widgets"]);
@@ -466,6 +478,19 @@ class PLUGIN{
 	 * @return boolean            status
 	 */
 	public static function update($namespace,$source = null){}
+
+	/**
+	 * Return debug Info
+	 * @return array info
+	 */
+	public static function debug(){
+		if(\DEBUG) return [
+			"installed"		=>	self::$_buffer,
+			"sources"		=>	self::$_sources,
+			"loaded"		=>	self::$_loaded,
+			"plugin-data"	=>	self::$_plugin_data,
+		];
+	}
 
 }
 

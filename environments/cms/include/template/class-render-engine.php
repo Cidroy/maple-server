@@ -68,6 +68,7 @@ class TwigRenderEngine implements \maple\cms\interfaces\iRenderEngine{
 			if(!file_exists(self::_vendor_autloader)) throw new \maple\cms\exceptions\VendorMissingException("Unable to load Vendor 'Twig', please install now ", 1);
 			if(!file_exists(self::_template_default)) mkdir(self::_template_default,0777,true);
 			require_once self::_vendor_autloader;
+			require_once __DIR__."/twig-extension.php";
 			\Twig_Autoloader::register();
 			self::$_twig["loader"]  = new \Twig_Loader_Filesystem(self::_template_default);
 			self::$_twig["environment"] = new \Twig_Environment(self::$_twig["loader"], [
@@ -75,6 +76,7 @@ class TwigRenderEngine implements \maple\cms\interfaces\iRenderEngine{
 				'debug' => DEBUG,
 			]);
 			if(DEBUG)	self::$_twig["environment"]->addExtension(new \Twig_Extension_Debug());
+			self::$_twig["environment"]->addExtension(new \maple\cms\twig\Maple_Twig_Ext());
 			return true;
 		} catch (\Exception $e) {
 			LOG::emergency($e->getMessage());
@@ -99,20 +101,21 @@ class TwigRenderEngine implements \maple\cms\interfaces\iRenderEngine{
 
 		$_data = is_array(self::$_render_defaults)?self::$_render_defaults:[];
 		$data = array_merge($_data,$data);
-		if( isset($_twig["environments"][$namespace]) ){
+		if( isset(self::$_twig["environments"][$namespace]) ){
 			if(!isset(self::$_twig["environments"][$namespace]["loader"])){
-				self::$_twig["environments"][$namespace]["loader"] = new \Twig_Loader_Filesystem(array_merge([
+				self::$_twig["environments"][$namespace]["loader"] = new \Twig_Loader_Filesystem(array_merge(
 					[self::$_twig["environments"][$namespace]["source"]],
 					[self::_template_default],
 					self::$_default_sources
-				]));
+				));
 				self::$_twig["environments"][$namespace]["object"] = new \Twig_Environment(self::$_twig["environments"][$namespace]["loader"],[
 					"debug"	=>	DEBUG,
 					"cache"	=>	self::_cache_location,
 				]);
 				if(DEBUG) self::$_twig["environments"][$namespace]["object"]->addExtension(new \Twig_Extension_Debug());
+				self::$_twig["environments"][$namespace]["object"]->addExtension(new \maple\cms\twig\Maple_Twig_Ext());
 			}
-			return self::$_twig["environments"][$namespace]["object"]->render($template.".".self::$_extention);
+			return self::$_twig["environments"][$namespace]["object"]->render($template.".".self::$_extention,$data);
 		}
 		else if(file_exists(self::_template_default."/{$namespace}/{$template}.".self::$_extention))
 			return self::$_twig["environment"]->render("{$namespace}/{$template}.".self::$_extention,$data);

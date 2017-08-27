@@ -51,16 +51,29 @@
 		private static $__render_defaults = [];
 
 		/**
+		 * Return Configuration status
+		 * @api
+		 * @throws \InvalidArgumentException if $setting not of type 'string'
+		 * @param  string $setting settng name
+		 * @return boolean          status
+		 */
+		public static function configuration($setting){
+			if(!is_string($setting)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
+			return isset(self::$_configuration[$setting])?self::$_configuration[$setting]:null;
+		}
+
+		/**
 		 * Set Template render configuration
 		 * @api
 		 * @param array $param
 		 */
 		public static function set_configuration($param = []){
+			self::$_configuration["render"] = true;
 			if($param || (isset($_REQUEST["maple-template"]) && is_array($_REQUEST["maple-template"]))){
 				$param = array_merge(isset($_REQUEST["maple-template"])?$_REQUEST["maple-template"]:[],$param);
 				if(isset($param["render"] ) && $param["render"]) self::$_configuration["render"] = $param["render"];
 				if(isset($param["show-template"] ) && $param["show-template"]) self::$_configuration["show-template"] = $param["show-template"];
-			} else self::$_configuration["render"] = true;
+			}
 		}
 
 		/**
@@ -72,9 +85,8 @@
 		 * @uses THEME::rendering_data
 		 */
 		public static function set_render_defaults(){
-			self::$__render_defaults =  [
+			self::$_render_defaults =  [
 				"maple"	=>	[
-					"permission"=>	SECURITY::get_permissions(),
 					"request"	=>	$_REQUEST,
 					"site"		=>	[
 						"name"		=>	SITE::name(),
@@ -82,16 +94,6 @@
 							"name"		=>	SITE::owner("name"),
 							"link"		=>	SITE::owner("link"),
 						],
-					],
-					"url"	=>	[
-						'root'		=>	URL::http("%ROOT%"),
-						'admin'		=>	URL::http("%ADMIN%"),
-						'plugin'	=>	URL::http("%PLUGIN%"),
-						'include'	=>	URL::http("%INCLUDE%"),
-						'vendor'	=>	URL::http("%VENDOR%"),
-						'current'	=>	URL::http("%CURRENT%"),
-						'data'		=>	URL::http("%DATA%"),
-						'theme'		=>	URL::http("%THEME%"),
 					],
 				],
 				"theme"	=>	THEME::rendering_data(),
@@ -101,17 +103,12 @@
 		/**
 		 * initialize template engines
 		 * @api
-		 * @uses THEME::initialize
 		 */
 		public static function initialize(){
-			try{ THEME::initialize(); }catch(\Exception $e){}
 			self::set_configuration();
 			parent::$_extention = "html";
 
-			if(self::$_configuration["render"]){
-				parent::$_render_defaults = self::$__render_defaults;
-				parent::initialize();
-			}
+			if(self::$_configuration["render"]){ parent::initialize(); }
 		}
 
 		/**

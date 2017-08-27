@@ -1,5 +1,7 @@
 <?php
 namespace maple\cms\ui\components;
+use \maple\cms\URL;
+
 /**
  * Navbar Object
  * @since 1.0
@@ -98,7 +100,7 @@ class __links{
 	 * @param string $src url
 	 */
 	public function add_src($src){
-		$src = \URL::http($src);
+		$src = URL::http($src);
 		$this->src[] = $src;
 	}
 	/**

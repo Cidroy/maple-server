@@ -10,6 +10,19 @@ if(\ENVIRONMENT::url()->matches(eMAPLE::install_url)){
 	 * @author Rubixcode
 	 */
 	class SETUP{
+		const tables = [
+			"users"	=>	[
+				"id"		=>	[ "primary" => true, "auto-increment"	=>	true, "type" =>	"int", ],
+				"name"		=>	[ "type" => "varchar", "length" => 50, ],
+				"username"	=>	[ "type" => "varchar", "length" => 50, "unique"	=> "true", ],
+				"email"		=>	[ "type" => "varchar", "length" => 50, "unique"	=> "true", ],
+				"password"	=>	[ "type" => "text", ],
+				"registered"=>	[ "type" => "datetime", ],
+				"access"	=>	[ "type" => "int", "default" => 0 ],
+				"permissions"=>	[ "type" => "text",],
+			],
+		];
+
 		/**
 		 * Init Setup
 		 */
@@ -67,7 +80,7 @@ if(\ENVIRONMENT::url()->matches(eMAPLE::install_url)){
 							$db = DB::object($db_param);
 							if(!$db->table_exists("users")) $db = null;
 						}catch(\Exception $e){}
-						if(($db && !$db->count("users",["username" => $param["admin-username"]])) || !$db){
+						if(($db && !$db->count("users",[ "OR" => [ "username" => $param["admin-username"], "email" => $param["admin-email"] ] ])) || !$db){
 							$_SESSION["maple/cms"]["storage"]["administrator"] = [
 								"username"	=>	$param["admin-username"],
 								"email"		=>	$param["admin-email"],
@@ -75,7 +88,7 @@ if(\ENVIRONMENT::url()->matches(eMAPLE::install_url)){
 								"dashboard"	=>	"/".trim(rtrim(str_replace(URL::http("%ROOT%"),"",explode("?",$param["admin-dashboard"])[0]),"/"),"/"),
 							];
 							header("Location: ".\ENVIRONMENT::url()->root(eMAPLE::install_url."/")); die();
-						} else { $_SESSION["maple/cms"]["setup/messages"][]	= "Username Already Exists"; }
+						} else { $_SESSION["maple/cms"]["setup/messages"][]	= "Username or Email Already Exists"; }
 					} catch (\Exception $e) {  $_SESSION["maple/cms"]["setup/messages"][] = "Unable to use database with these settings.\n Server says : '{$e->getMessage()}'";  }
 					return self::render_page("setup-admin");
 				break;
@@ -86,33 +99,50 @@ if(\ENVIRONMENT::url()->matches(eMAPLE::install_url)){
 						$db = DB::object($db_param);
 						DB::initialize($db);
 						$actives = file_exists(PLUGIN::active_file)?json_decode(file_get_contents(PLUGIN::active_file),true):[];
-						foreach (FILE::get_folders(__MAPLE__."/plugins") as $plugin) {
+						SECURITY::initialize();
+						\ENVIRONMENT::lock("maple/cms : setup");
+
+						FILE::remove(PLUGIN::config_location);
+
+						foreach (FILE::get_folders(ROOT.__MAPLE__."/plugins") as $plugin){
 							if(!file_exists($plugin."/package.json")) continue;
 							$buffer = json_decode(file_get_contents($plugin."/package.json"),true);
-							if( isset($buffer["maple"]["maple/cms"]) ){
-								$actives[$buffer["namespace"]] = [
-									"version"	=>	$buffer["version"],
-									"path"		=>	$plugin
-								];
-							}
-							$activation = isset($buffer["maple"]["maple/cms"]["setup"])?$buffer["maple"]["maple/cms"]["setup"]:false;
-							if($activation){
-								if(isset($activation["load"])){
-									if(!is_array($activation["load"])) $activation["load"] = [$activation["load"]];
-									foreach ($activation["load"] as $file) if(file_exists($plugin.$file)) require_once $plugin.$file;
-								}
-								if(isset($activation["install"])) call_user_func($activation["install"]);
-							}
+							self::install__permission($buffer["namespace"],$plugin);
 						}
+
+						$dbs = new \maple\cms\database\Schema();
+						foreach (self::tables as $table => $schema) {
+							if(!$dbs->table_exists($table)){
+								$dbs->create($table);
+								foreach($schema as $column => $attributes) $dbs->add_column($column,$attributes);
+							}
+							$dbs->save();
+						}
+						if(!$db->count("users",[
+							"OR"	=>	[
+								"username"	=>	$admin["username"],
+								"email"	=>	$admin["email"],
+							],
+						]))
 						$db->insert("users",[
 							"username"	=>	$admin["username"],
 							"email"		=>	$admin["email"],
 							"password"	=>	md5($admin["password"]),
 							"access"	=>	SECURITY::get_user_group_code("administrator"),
 							"#registered"=> "NOW()",
-							"permissions"=>	SECURITY::default_user_permission
+							"permissions"=>	json_encode(SECURITY::default_user_permission)
 						]);
+
 						USER::login($admin["username"],$admin["password"]);
+
+						foreach (FILE::get_folders(ROOT.__MAPLE__."/plugins") as $plugin) {
+							if(!file_exists($plugin."/package.json")) continue;
+							$buffer = json_decode(file_get_contents($plugin."/package.json"),true);
+							PLUGIN::activate($buffer["namespace"],[
+								"sources"	=> [ROOT.__MAPLE__."/plugins"],
+								"install"	=> true
+							]);
+						}
 
 						$shortcode = new SHORTCODE("dashboard");
 						if(!PAGE::add([
@@ -122,9 +152,9 @@ if(\ENVIRONMENT::url()->matches(eMAPLE::install_url)){
 							"content"=> (string)$shortcode
 						]))
 						$admin["dashboard"] = PAGE::get("name","dashboard")["url"];
-						file_put_contents(PLUGIN::active_file,json_encode($actives));
-						file_put_contents(__MAPLE__."/configurations.php",TEMPLATE::render_file(__DIR__."/assets/configurations.php",["database" => $_SESSION["maple/cms"]["storage"]["database"]]));
+						file_put_contents(ROOT.__MAPLE__."/configurations.php",TEMPLATE::render_file(__DIR__."/assets/configurations.php",["database" => $_SESSION["maple/cms"]["storage"]["database"]]));
 						USER::logout();
+						\ENVIRONMENT::unlock();
 						header("Location: ".\ENVIRONMENT::url()->root($admin["dashboard"]."/")); die();
 					} catch (\Exception $e){
 						$_SESSION["maple/cms"]["setup/messages"][]	= json_encode($e);
@@ -147,7 +177,7 @@ if(\ENVIRONMENT::url()->matches(eMAPLE::install_url)){
 		 * @return string response
 		 */
 		private static function show_page(){
-			if(!file_exists(__MAPLE__."/configurations.php") && !isset($_SESSION["maple/cms"]["storage"]["database"]) ) return self::render_page("install-database");
+			if(!file_exists(ROOT.__MAPLE__."/configurations.php") && !isset($_SESSION["maple/cms"]["storage"]["database"]) ) return self::render_page("install-database");
 			else if(!isset($_SESSION["maple/cms"]["storage"]["administrator"])) return self::render_page("setup-admin");
 			else return self::render_page("confirm");
 		}
@@ -199,6 +229,30 @@ if(\ENVIRONMENT::url()->matches(eMAPLE::install_url)){
 			}
 			return false;
 		}
+
+		/**
+		 * Install permission from folder
+		 * @uses \maple\cms\SECURITY::str_to_permitted_groupcodes
+		 * @param  string $namespace default namespace
+		 * @param  string $folder    plugin folder path
+		 */
+		private static function install__permission($namespace,$folder){
+			if(!file_exists("{$folder}/permissions.json")) return;
+			$user_codes=json_decode(file_get_contents(SECURITY::_permission_location."/user-type.json"),true);
+			$user_codes = array_flip($user_codes);
+			foreach ($user_codes as $key => $value) $user_codes[$key] = json_decode(file_get_contents(SECURITY::_permission_location."/{$key}.json"),true);
+			$plugin_permissions = json_decode(file_get_contents("{$folder}/permissions.json"),true);
+			foreach ($plugin_permissions as $permission) {
+				$permission["namespace"] = isset($permission["namespace"])?$permission["namespace"]:$namespace;
+				$permission["access"] = SECURITY::str_to_permitted_groupcodes($permission["access"]);
+				foreach ($permission["access"] as $group) {
+					if(!isset($user_codes[$group][$permission["namespace"]])) $user_codes[$group][$permission["namespace"]] = [];
+					if(!in_array($permission["name"],$user_codes[$group][$permission["namespace"]])) $user_codes[$group][$permission["namespace"]][] = $permission["name"];
+				}
+			}
+			foreach ($user_codes as $key => $value) file_put_contents(SECURITY::_permission_location."/{$key}.json",json_encode($value));
+		}
 	}
+
 }
 ?>

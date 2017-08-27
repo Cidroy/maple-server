@@ -385,5 +385,27 @@ class FILE{
 			readfile($file->location);
 		}
 	}
+
+	/**
+	 * Remove File or folders
+	 * @api
+	 * @throws \InvalidArgumentException if $path is not of type 'string'
+	 * @param  string $path path
+	 * @return boolean status
+	 */
+	public static function remove($path){
+		if(!is_string($path))	throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
+		if(!file_exists($path)) return false;
+		if(is_file($path)){
+			unlink($path);
+			return true;
+		}
+		if(is_dir($path)){
+			foreach (glob(rtrim($path,"/")."/*") as $sub_path) self::remove($sub_path);
+			rmdir($path);
+			return true;
+		}
+		return false;
+	}
 }
 ?>

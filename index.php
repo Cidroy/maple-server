@@ -26,7 +26,7 @@
 	 * @var string file location of root working directory of maple environment
 	 * @package Maple Environment
 	 */
-	define('ROOT', str_replace("\\","/",__DIR__).'/');
+	define('ROOT', str_replace("\\","/",__DIR__));
 
 	/**
 	 * Allow CORS connection to this site
@@ -57,7 +57,7 @@
 	 * @return string            file size X.XX [A-Z]B
 	 * @package Maple Environment
 	 */
-	function human_filesize($bytes, $decimals = 2) {
+	function human_filesize($bytes = 0, $decimals = 2) {
 	    $size = array('B','kB','MB','GB','TB','PB','EB','ZB','YB');
 	    $factor = floor((strlen($bytes) - 1) / 3);
 	    return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$size[$factor];
