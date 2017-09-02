@@ -92,8 +92,8 @@ class PLUGIN{
 	private static $_loaded = [];
 
 	private static function optimize(){
-		if(!file_exists(self::config_location) || !is_dir(self::config_location)) mkdir(self::config_location,0777,true);
 		if(!file_exists(self::cache) || !is_dir(self::cache)) mkdir(self::cache,0777,true);
+		if(!file_exists(self::config_location) || !is_dir(self::config_location)) mkdir(self::config_location,0777,true);
 		if(!file_exists(self::active_file)){ file_put_contents(self::active_file,self::default_configuration); }
 		self::initialize();
 	}
@@ -162,7 +162,7 @@ class PLUGIN{
 			if( $prev_version == $version || $version=="*" )
 				return true;
 			else if(self::version_compare($version,$prev_version) < 0){
-				MAPLE::do_filters("plugin|activation-failed",[
+				MAPLE::do_filters("plugin|activation-failed",$filter = [
 					"namespace"	=>	$namespace,
 					"version"	=>	$version,
 					"parameters"=>	$param,
@@ -191,7 +191,7 @@ class PLUGIN{
 			}
 		}
 		if($data["location"]===null){
-			MAPLE::do_filters("plugin|activation-failed",[
+			MAPLE::do_filters("plugin|activation-failed",$filter = [
 				"namespace"	=>	$namespace,
 				"version"	=>	$version,
 				"parameters"=>	$param,
@@ -216,7 +216,7 @@ class PLUGIN{
 				if(isset($param["install"]) && $param["install"] && $activation["install"]) call_user_func($activation["install"]);
 				if(isset($activation["activate"])) call_user_func($activation["activate"]);
 			}
-			MAPLE::do_filters("plugin|activated",[
+			MAPLE::do_filters("plugin|activated",$filter = [
 				"namespace"	=>	$namespace,
 				"version"	=>	$version,
 				"parameters"=>	$param,
@@ -261,7 +261,7 @@ class PLUGIN{
 					if(isset($activation["deactivate"])) call_user_func($activation["deactivate"]);
 				}
 			}
-			MAPLE::do_filters("plugin|deactivated",[
+			MAPLE::do_filters("plugin|deactivated",$filter = [
 				"namespace"	=>	$namespace,
 				"version"	=>	$version,
 				"parameters"=>	$param,
@@ -285,6 +285,7 @@ class PLUGIN{
 		if($type===null) $type = self::installed;
 		$namespace = explode("@",$namespace);
 		$version = isset($namespace[1])?$namespace[1]:"*";
+		$namespace = $namespace[0];
 		$path = null;
 		switch ($type) {
 			case self::active:
@@ -393,12 +394,12 @@ class PLUGIN{
 			if(!isset(self::$_plugin_data["routers"][$name])) self::$_plugin_data["routers"][$name] = [];
 			self::$_plugin_data["routers"][$name][] = $plugin.$router;
 		}
-		self::$_plugin_data["templates"][$namespace] = $data["template"];
+		self::$_plugin_data["templates"][$namespace] = $plugin.$data["template"];
 		self::$_plugin_data["languages"][$namespace] = $data["languages"];
 		self::$_plugin_data["dashboard"] = array_merge(self::$_plugin_data["dashboard"],$data["dashboard"]);
 		self::$_plugin_data["menus"] = array_merge(self::$_plugin_data["menus"],$data["menus"]);
 		self::$_plugin_data["widgets"] = array_merge(self::$_plugin_data["widgets"],$data["widgets"]);
-		self::$_plugin_data["api"][$namespace] = $data["api"];
+		self::$_plugin_data["api"][$namespace] = $plugin.$data["api"];
 
 		self::$_loaded[] = $namespace;
 		return true;

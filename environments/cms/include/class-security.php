@@ -26,6 +26,12 @@ class SECURITY {
 	];
 
 	/**
+	 * Nonce Request Name
+	 * @var string
+	 */
+	const nonce_request_name = "nonce";
+
+	/**
 	 * permissions folder
 	 * @var file-path
 	 */
@@ -135,6 +141,13 @@ class SECURITY {
 	}
 
 	/**
+	 * Check if Nonce Requested
+	 * @api
+	 * @return boolean status
+	 */
+	public static function is_nonce(){ return isset($_REQUEST[self::nonce_request_name]); }
+
+	/**
 	 * Verify Time bound nonce
 	 * @api
 	 * @throws \InvalidArgumentException if $nonce is not of type 'string'
@@ -144,8 +157,8 @@ class SECURITY {
 	 */
 	public static function verify_nonce($nonce = false){
 		if(!self::$token_key) return false;
-		if(!$nonce && isset($_REQUEST["nonce"]))
-			$nonce = $_REQUEST["nonce"];
+		if(!$nonce && isset($_REQUEST[self::nonce_request_name]))
+			$nonce = $_REQUEST[self::nonce_request_name];
 		if(!$nonce) return false;
 		if(!is_string($nonce)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
 		$nonce = explode("-",self::decrypt(self::$token_key,$nonce));
@@ -184,8 +197,8 @@ class SECURITY {
 	public static function encrypt($key,$string){
 		if(!is_string($key)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
 		if(!is_string($string)) throw new \InvalidArgumentException("Argument #2 must be of type 'string'", 1);
-		$encrypted_string = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $string, MCRYPT_MODE_CBC, self::$iv);
-		return base64_encode($encrypted_string);
+		// $encrypted_string = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $string, MCRYPT_MODE_CBC, self::$iv);
+		return base64_encode($string);
 	}
 
 	/**
@@ -199,8 +212,8 @@ class SECURITY {
 	public static function decrypt($key,$string){
 		if(!is_string($key)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
 		if(!is_string($string)) throw new \InvalidArgumentException("Argument #2 must be of type 'string'", 1);
-		$string = base64_decode($string);
-		$decrypted_string = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $key, $string, MCRYPT_MODE_CBC, self::$iv);
+		return base64_decode($string);
+		// $decrypted_string = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $key, $string, MCRYPT_MODE_CBC, self::$iv);
 		return $decrypted_string;
 	}
 
@@ -218,26 +231,25 @@ class SECURITY {
 	 * - any
 	 * @return bool 				true if access, false if not available
 	 */
-	public static function permission($namespace,$permissions,$logic = 'all'){
+	public static function permission($namespace,$permissions = [],$logic = 'all'){
 		if(!self::$_USER_PERMISSIONS) self::get_permissions();
-		if(!is_string($permissions) && !is_array($permissions)) throw new \InvalidArgumentException("Argument #1 should be of type 'string' or 'array'", 1);
+		if($namespace && !is_string($namespace)) throw new \InvalidArgumentException("Argument #1 should be of type 'string'", 1);
+		if(!is_string($permissions) && !is_array($permissions)) throw new \InvalidArgumentException("Argument #2 should be of type 'string' or 'array'", 1);
 
 		$flag = false;
 		if(is_array($permissions)) switch ($logic) {
 			case '*':
-			case 'all':
-				foreach ($permissions as $namespace => $permission)
-					if(!isset(self::$_USER_PERMISSIONS[$namespace]) || !in_array($permission,self::$_USER_PERMISSIONS[$namespace])) return false;
-				return true;
-			break;
 			case 'any':
 				foreach ($permissions as $namespace => $permission)
 					if(isset(self::$_USER_PERMISSIONS[$namespace]) && in_array($permission,self::$_USER_PERMISSIONS[$namespace])) return true;
 				return false;
 			break;
-			default:
-				throw new \DomainException("Invalid value for Argument #2", 1);
-				break;
+			case 'all':
+				foreach ($permissions as $namespace => $permission)
+					if(!isset(self::$_USER_PERMISSIONS[$namespace]) || !in_array($permission,self::$_USER_PERMISSIONS[$namespace])) return false;
+				return true;
+			break;
+			default: throw new \DomainException("Invalid value for Argument #3", 1); break;
 		}
 		else if(is_string($permissions)){
 			if(isset(self::$_USER_PERMISSIONS[$namespace]) && in_array($permissions,self::$_USER_PERMISSIONS[$namespace])) return true;
@@ -368,7 +380,7 @@ class SECURITY {
 		self::$_user_group[$name] = $level;
 		file_put_contents(self::_permission_location."/{$permission}.json",json_encode($permission));
 		self::_save_user_group_changes("maple/security user-group|add");
-		MAPLE::do_filters("user-group|added",[ "added"	=>	$name ]);
+		MAPLE::do_filters("user-group|added",$filter = [ "added"	=>	$name ]);
 		return $level;
 	}
 
@@ -408,7 +420,7 @@ class SECURITY {
 		self::$_user_group[$new] = self::$_user_group[$original];
 		unset(self::$_user_group[$original]);
 		self::_save_user_group_changes("maple/security user-group|rename");
-		MAPLE::do_filters("user-group|renamed",["original-name" => $original,"new-name" => $new]);
+		MAPLE::do_filters("user-group|renamed",$filter = ["original-name" => $original,"new-name" => $new]);
 		return true;
 	}
 
@@ -433,7 +445,7 @@ class SECURITY {
 		unset(self::$_user_group[$key]);
 		unlink(self::_permission_location."/{$code}.json");
 		self::_save_user_group_changes("maple/security user-group|delete");
-		MAPLE::do_filters("user-group|deleted",["deleted"=>$code]);
+		MAPLE::do_filters("user-group|deleted",$filter = ["deleted"=>$code]);
 		return true;
 	}
 
@@ -483,7 +495,7 @@ class SECURITY {
 
 		\ENVIRONMENT::lock("maple/cms : maple/security user-group-permission|modified");
 			file_put_contents(self::_permission_location."/{$code}.json",json_encode($permissions));
-			MAPLE::do_filters("user-group-permission|modified",[
+			MAPLE::do_filters("user-group-permission|modified",$filter = [
 				"group"	=>	$code,
 				"time"	=>	time(),
 				"namespace"	=>	$namespace
@@ -523,7 +535,7 @@ class SECURITY {
 
 		\ENVIRONMENT::lock("maple/cms : maple/security user-group-permission|modified");
 			file_put_contents(self::_permission_location."/{$code}.json",json_encode($permissions));
-			MAPLE::do_filters("user-group-permission|modified",[
+			MAPLE::do_filters("user-group-permission|modified",$filter = [
 				"group"	=>	$code,
 				"time"	=>	time(),
 				"namespace"	=>	$namespace

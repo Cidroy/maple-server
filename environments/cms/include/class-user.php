@@ -74,7 +74,7 @@ class USER{
 			self::$_user["details"] = array_merge(self::user_detail_template,$data);
 		} else { self::$_user["details"] = self::user_detail_template; }
 		self::$_initialized = true;
-		MAPLE::do_filters("user|initialized",["id" => self::$_user["id"]]);
+		MAPLE::do_filters("user|initialized",$filter = ["id" => self::$_user["id"]]);
 	}
 	/**
 	 * return initialization status
@@ -109,15 +109,14 @@ class USER{
 				"password"	=>	$password,
 			]
 		]);
-
 		$data = current($data);
-		if(count($data)){
+		if($data and count($data)){
 			self::_set(intval($data["id"]));
-			MAPLE::do_filters("user|loggedin",["id" => $data["id"]]);
+			MAPLE::do_filters("user|loggedin",$filter = ["id" => $data["id"]]);
 			self::initialize();
-			return true;
+			return $filter;
 		}
-		MAPLE::do_filters("user|login-failed");
+		MAPLE::do_filters("user|login-failed",$filter=[]);
 		SECURITY::get_permissions(true);
 		return false;
 	}
@@ -127,7 +126,7 @@ class USER{
 	 * @filter user|logout when user is about to logout
 	 */
 	public static function logout(){
-		MAPLE::do_filters("user|logout");
+		MAPLE::do_filters("user|logout",$filter=[]);
 		self::_unset();
 	}
 
@@ -155,7 +154,7 @@ class USER{
 	 * @param  string $attr attribute name
 	 * @return mixed[]       value
 	 */
-	public static function details($attr){ isset(self::$_user["details"][$attr])?self::$_user["details"][$attr]:false; }
+	public static function details($attr){ return isset(self::$_user["details"][$attr])?self::$_user["details"][$attr]:false; }
 
 	/**
 	 * Return Login Status
@@ -163,6 +162,12 @@ class USER{
 	 * @return boolean login status
 	 */
 	public static function loggedin() { return self::id()!==false; }
+
+	/**
+	 * Return debug info
+	 * @return array user info
+	 */
+	public static function debug(){ if(\DEBUG) return self::$_user; }
 }
 
 ?>

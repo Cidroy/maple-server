@@ -124,6 +124,7 @@ class MAPLE{
 		self::$_SHORTCODES = array_merge($data["shortcodes"],self::$_SHORTCODES);
 		self::$_ROUTERS = array_merge($data["routers"],self::$_ROUTERS);
 		self::$_TEMPLATES = array_merge($data["templates"],self::$_TEMPLATES);
+		self::$_API = array_merge($data["api"],self::$_API);
 
 		self::$_UI = [
 			"dashboard"	=>	array_merge($data["dashboard"],self::$_UI["dashboard"]),
@@ -133,27 +134,21 @@ class MAPLE{
 	}
 
 	/**
-	 * Router sources
+	 * Combined Plugin data
 	 * @access private
+	 * @throws \InvalidArgumentException if $detail not of type 'string'
+	 * @param string $detail detail to obtain
 	 * @param  boolean $erase should erase
 	 * @return array  sources
 	 */
-	public static function _get_router_sources($erase = false){
-		$data = self::$_ROUTERS;
-		if($erase) self::$_ROUTERS = [];
-		return $data;
-	}
-
-	/**
-	 * template sources
-	 * @access private
-	 * @param  boolean $erase should erase
-	 * @return array  sources
-	 */
-	public static function _get_template_sources($erase = false){
-		$data = self::$_TEMPLATES;
-		if($erase) self::$_TEMPLATES = [];
-		return $data;
+	public static function _get($detail,$erase = false){
+		if(!is_string($detail)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
+		switch ($detail) {
+			case 'apis': return self::$_API; if($erase) self::$_API = []; break;
+			case 'routers': return self::$_ROUTERS; if($erase) self::$_ROUTERS = []; break;
+			case 'templates': return self::$_TEMPLATES; if($erase) self::$_TEMPLATES = []; break;
+			default: return []; break;
+		}
 	}
 
 	/**
@@ -317,6 +312,24 @@ class MAPLE{
 		return $output;
 	}
 
+	/**
+	 * Return the function associated to shortcode
+	 * @param  mixed $shortcode shortcode
+	 * accepts \maple\cms\SHORTCODE, string.
+	 * @return string            functions
+	 * returns false if none
+	 */
+	public static function sc_function($shortcode){
+		if($shortcode instanceof SHORTCODE) $shortcode = $shortcode->name;
+		if(!is_string($shortcode))	throw new \InvalidArgumentException("Argument #1 must be of type 'string' or '\\maple\\cms\\SHORTCODE'", 1);
+		return isset(self::$_SHORTCODES[$shortcode])?self::$_SHORTCODES[$shortcode]:false;
+	}
+
+	/**
+	 * Return Debug info
+	 * NOTE : requires debug switch to be on
+	 * @return array debug info
+	 */
 	public static function debug(){
 		if(!\DEBUG) return [];
 		return [
@@ -325,6 +338,7 @@ class MAPLE{
 			"SHORTCODES" 	=> self::$_SHORTCODES,
 			"ROUTERS" 		=> self::$_ROUTERS,
 			"TEMPLATES" 	=> self::$_TEMPLATES,
+			"UI"		 	=> self::$_UI,
 		];
 	}
 

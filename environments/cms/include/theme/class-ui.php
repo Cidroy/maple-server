@@ -17,6 +17,10 @@ class UI implements iUI{
 	private static $objs = [];
 	private static $theme = null;
 
+	private static $filters = [
+		"content"	=>	[],
+	];
+
 	/**
 	 * Initialize
 	 * @uses \maple\cms\THEME::theme_class
@@ -49,6 +53,45 @@ class UI implements iUI{
 	public static function icon($name){
 		if(!self::$theme) return false;
 		return call_user_func(self::$theme."::icon",$name);
+	}
+
+	/**
+	 * Add Content Filter
+	 * @api
+	 * @param string  $function function name
+	 * @param integer $priority functional priority
+	 */
+	public static function add_filter($function,$priority = 0){
+		if(!is_string($function)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
+		if(!is_integer($priority)) throw new \InvalidArgumentException("Argument #2 must be of type 'string'", 1);
+
+		if(!isset(self::$filters["content"][$priority])) self::$filters["content"][$priority] = [];
+		self::$filters["content"][$priority][] = $function;
+	}
+
+	/**
+	 * Execute output filters
+	 * @param  string $context context
+	 * @return string          modified html
+	 */
+	public static function do_filters($context){
+		$output = null;
+		$previous = $context;
+		while(self::$filters["content"]){
+			reset(self::$filters["content"]);
+			$priority = key(self::$filters["content"]);
+			while (self::$filters["content"][$priority]) {
+				reset(self::$filters["content"][$priority]);
+				$hook = key(self::$filters["content"][$priority]);
+				ob_start();
+					$ret = call_user_func(self::$filters["content"][$priority][$hook],$previous);
+					$previous["content"] = is_string($ret)?$ret:$previous["content"];
+				ob_end_clean();
+				unset(self::$filters["content"][$priority][$hook]);
+			}
+			unset(self::$filters["content"][$priority]);
+		}
+		return $previous["content"];
 	}
 }
 

@@ -10,20 +10,32 @@ use \maple\cms\PAGE;
  */
 class SETUP {
 	public static function install(){
-		$sc_login = new SHORTCODE("login",["page"=>"default"]);
-		$sc_register = new SHORTCODE("register",["page"=>"default"]);
-		PAGE::add([
-			"name"	=>	"login",
-			"url"	=>	"/login",
-			"title"	=>	"Login",
-			"content"=> (string)$sc_login
-		]);
-		PAGE::add([
-			"name"	=>	"register",
-			"url"	=>	"/sign-up",
-			"title"	=>	"Sign-Up",
-			"content"=> (string)$sc_register
-		]);
+		$shortcodes = [
+			"login"	=>	new SHORTCODE("login",["page"=>"default"]),
+			"register"	=> new SHORTCODE("register",["page"=>"default"]),
+			"user-profile"	=> new SHORTCODE("user-profile",["page"=>"default"]),
+		];
+		$pages = [
+			[
+				"name"	=>	"login",
+				"url"	=>	"/login",
+				"title"	=>	"Login",
+				"content"=> (string)$shortcodes["login"]
+			],
+			[
+				"name"	=>	"register",
+				"url"	=>	"/sign-up",
+				"title"	=>	"Sign-Up",
+				"content"=> (string)$shortcodes["register"]
+			],
+			[
+				"name"	=>	"user-profile",
+				"url"	=>	"/profile",
+				"title"	=>	"Profile",
+				"content"=> (string)$shortcodes["user-profile"]
+			]
+		];
+		foreach ($pages as $page ) PAGE::add($page);
 	}
 }
 

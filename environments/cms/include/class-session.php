@@ -8,6 +8,19 @@
 	 * @author Rubixcode
 	 */
 	class SESSION{
+
+		/**
+		 * Request Value for session token
+		 * @var string
+		 */
+		const token_request = "maple-secure-token";
+
+		/**
+		 * Token Encryption key
+		 * @var string
+		 */
+		private static $token_encryption_key = "";
+
 		/**
 		 * data
 		 * @var array
@@ -31,10 +44,7 @@
 			if (session_status() != PHP_SESSION_NONE) throw new \RuntimeException("Session already active", 1);
 			if($life && !is_integer($life)) throw new \InvalidArgumentException("Argument #1 must be type 'integer'", 1);
 
-
-			if(isset($_REQUEST['maple-secure-token']) && $_REQUEST['maple-secure-token']){
-				session_id($_REQUEST['maple-secure-token']);
-			}
+			self::use_token();
 			if(self::$_data["id"]) session_id( self::$_data["id"]);
 			$life = $life ? $life : self::$_data["life"];
 			session_name(self::$_data["name"]);
@@ -42,7 +52,27 @@
 			session_start();
 
 			self::$_data["id"]	= session_id();
-			MAPLE::do_filters("session-started");
+			MAPLE::do_filters("session-started",$filter=[]);
+		}
+
+		/**
+		 * Use Token as Session
+		 */
+		private static function use_token(){
+			if(isset($_REQUEST[self::token_request]) and $token = $_REQUEST[self::token_request]){
+				$token = SECURITY::decrypt(self::$token_encryption_key,$token);
+				session_id($token);
+			}
+		}
+
+		/**
+		 * Return session token to be used
+		 * @api
+		 * @return string token
+		 */
+		public static function token(){
+			if(!self::active()) return false;
+			return SECURITY::encrypt(self::$token_encryption_key,session_id());
 		}
 
 		/**
@@ -59,7 +89,7 @@
 		 */
 		public static function refresh(){
 			if(!self::$_data["id"]) self::start();
-			MAPLE::do_filters("session-started");
+			MAPLE::do_filters("session-started",$filter=[]);
 		}
 
 		/**
@@ -70,9 +100,9 @@
 		 */
 		public static function pause(){
 			if(!self::active()) return;
-			MAPLE::do_filters("session-pausing");
+			MAPLE::do_filters("session-pausing",$filter=[]);
 			session_commit();
-			MAPLE::do_filters("session-paused");
+			MAPLE::do_filters("session-paused",$filter=[]);
 		}
 
 		/**
@@ -92,10 +122,10 @@
 		 * @filter session-stopped
 		 */
 		public static function end(){
-			MAPLE::do_filters("session-stopping");
+			MAPLE::do_filters("session-stopping",$filter=[]);
 			session_regenerate_id();
 			session_destroy();
-			MAPLE::do_filters("session-stopped");
+			MAPLE::do_filters("session-stopped",$filter=[]);
 		}
 
 		/**

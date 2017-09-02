@@ -39,6 +39,7 @@ class eMAPLE implements iRenderEnvironment{
 				spl_autoload_register("\\maple\\cms\\MAPLE::autoloader");
 
 				$_primary_classes = [
+					"maple\\cms\\AJAX" 		=> \ROOT.\INC.'/class-ajax.php',
 					"maple\\cms\\exceptions"=> \ROOT.\INC.'/class-exceptions.php',
 					"maple\\cms\\ERROR" 	=> \ROOT.\INC.'/class-error-handler.php',
 					"maple\\cms\\DB" 		=> \ROOT.\INC.'/class-db.php',
@@ -50,11 +51,12 @@ class eMAPLE implements iRenderEnvironment{
 					"maple\\cms\\USER" 		=> \ROOT.\INC.'/class-user.php',
 				];
 				$_autoload = [
-					"maple\\cms\\TEMPLATE"=> \ROOT.\INC.'/template/class-template.php',
-					"maple\\cms\\CACHE"	=> \ROOT.\INC.'/class-cache.php',
+					"maple\\cms\\TEMPLATE"	=> \ROOT.\INC.'/template/class-template.php',
+					"maple\\cms\\CACHE"		=> \ROOT.\INC.'/class-cache.php',
 					"maple\\cms\\ROUTER" 	=> \ROOT.\INC.'/class-route.php',
-					"maple\\cms\\TIME" 	=> \ROOT.\INC.'/class-time.php',
-					"maple\\cms\\PAGE" 	=> \ROOT.\INC.'/class-page.php',
+					"maple\\cms\\TIME" 		=> \ROOT.\INC.'/class-time.php',
+					"maple\\cms\\PAGE" 		=> \ROOT.\INC.'/class-page.php',
+					"maple\\cms\\LANGUAGE" 	=> \ROOT.\INC.'/class-language.php',
 
 					"maple\\cms\\NOTIFICATION" 		=> \ROOT.\INC.'/class-notification.php',
 					"maple\\cms\\NOTIFICATION_STYLE" 	=> \ROOT.\INC.'/class-notification.php',
@@ -65,6 +67,7 @@ class eMAPLE implements iRenderEnvironment{
 					"maple\\cms\\SHORTCODE" 	=> \ROOT.\INC.'/plugin/class-shortcode.php',
 					"maple\\cms\\THEME" 		=> \ROOT.\INC.'/theme/class-theme.php',
 					"maple\\cms\\UI" 			=> \ROOT.\INC.'/theme/class-ui.php',
+
 				];
 				foreach ($_primary_classes as $class) require_once $class;
 				foreach ($_autoload as $class => $dir) MAPLE::add_autoloader($class,$dir);
@@ -98,15 +101,18 @@ class eMAPLE implements iRenderEnvironment{
 		if(\ENVIRONMENT::is_allowed("maple-load")){
 			try {
 				self::initialize();
+				\maple\cms\SESSION::active() or \maple\cms\SESSION::start();
+
 				\maple\cms\PLUGIN::load("*");
 				MAPLE::initialize(\maple\cms\PLUGIN::get());
 				\maple\cms\PLUGIN::clear();
 
-				\maple\cms\ROUTER::sources(MAPLE::_get_router_sources(true));
+				\maple\cms\ROUTER::sources(MAPLE::_get("routers",true));
 				\maple\cms\ROUTER::initialize();
-				\maple\cms\TEMPLATE::add_template_sources(MAPLE::_get_template_sources(true));
+				\maple\cms\TEMPLATE::add_template_sources(MAPLE::_get("templates",true));
 				\maple\cms\THEME::initialize();
 				\maple\cms\TEMPLATE::set_render_defaults();
+				\maple\cms\AJAX::handle();
 				if(!\maple\cms\PLUGIN::active("maple/cms")) throw new \Exception("Plugin not ready", 1);
 			} catch (\Exception $e) { self::diagnostics(); }
 		}
@@ -123,11 +129,13 @@ class eMAPLE implements iRenderEnvironment{
 				\maple\cms\UI::title()->add($page["title"]);
 			}
 			MAPLE::hook("\\maple\\cms\\ROUTER::dispatch",[],250);
-
 			self::$output["content"] = \maple\cms\THEME::render_content();
 			self::$output["header"]  = \maple\cms\THEME::render_head();
 			self::$output["footer"]  = \maple\cms\THEME::render_footer();
 			if(MAPLE::has_content()){
+				self::$output["content"] = \maple\cms\UI::do_filters([
+					"content"	=> self::$output["content"]
+				]);
 				if(\maple\cms\TEMPLATE::configuration("render")) self::$content = self::$output["header"].self::$output["content"].self::$output["footer"];
 				else self::$content = json_encode([self::$output["header"],self::$output["content"],self::$output["footer"]]);
 			}
@@ -178,8 +186,11 @@ class eMAPLE implements iRenderEnvironment{
 			"html"	=>	self::$output,
 			"error"	=>	$param
 		];
-		$output = \maple\cms\THEME::render_error($param);
-		return $output;
+		self::$output["content"] = \maple\cms\UI::do_filters([
+			"content"	=> \maple\cms\THEME::render_error($param)
+		]);
+		if(\maple\cms\TEMPLATE::configuration("render")) return self::$output["header"].self::$output["content"].self::$output["footer"];
+		else return json_encode([self::$output["header"],self::$output["content"],self::$output["footer"]]);
 	}
 
 	/**

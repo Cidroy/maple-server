@@ -85,7 +85,15 @@ class SHORTCODE {
 	 * @api
 	 * @return string output
 	 */
-	public function execute(){ return "***".(string)$this; }
+	public function execute(){
+		$output = "";
+		ob_start();
+		$function = MAPLE::sc_function($this);
+		if(!$function) return $this->content;
+		$output = call_user_func($function,$this->content,$this->parameters);
+		ob_end_clean();
+		return $output;
+	}
 
 	/**
 	 * Returns Array of Shortcodes found in content

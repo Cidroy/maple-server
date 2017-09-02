@@ -70,7 +70,7 @@ class PAGE{
 		$details["author"]	 = USER::id();
 		$id = DB::_()->insert("pages",$details);
 		\ENVIRONMENT::url()->register("maple/cms",$details["url"]);
-		MAPLE::do_filters("page|added",["page-id" => $id]);
+		MAPLE::do_filters("page|added",$filter = ["page-id" => $id]);
 		return $id;
 	}
 
@@ -103,7 +103,7 @@ class PAGE{
 			\ENVIRONMENT::url()->unregister("maple/cms",$prev_details["url"]);
 			\ENVIRONMENT::url()->register("maple/cms",$details["url"]);
 		}
-		MAPLE::do_filters("page|edited",["page-id" => $id]);
+		MAPLE::do_filters("page|edited",$filter = ["page-id" => $id]);
 		return true;
 	}
 
@@ -125,7 +125,7 @@ class PAGE{
 		if(!self::get("id",$id)) return false;
 
 		\ENVIRONMENT::url()->unregister("maple/cms",$details["url"]);
-		MAPLE::do_filters("page|deleted",["page-id" => $id]);
+		MAPLE::do_filters("page|deleted",$filter = ["page-id" => $id]);
 		return true;
 	}
 }

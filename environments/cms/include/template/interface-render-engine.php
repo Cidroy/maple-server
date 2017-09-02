@@ -11,5 +11,6 @@ interface iRenderEngine{
 	public static function render_file($file,$data = []);
 	public static function add_template_sources($namespaces);
 	public static function add_default_template_source($source);
+	public static function debug();
 }
 ?>

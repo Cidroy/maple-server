@@ -158,6 +158,8 @@ class ROUTER{
 				$route = URL::add_named_url($namespace,$name,$details);
 				$type = isset($details["type"])?explode("|",$details["type"]):[];
 				if(!$route || in_array("no-route",$type) || !isset($details["handler"]) || !$details["handler"]) continue;
+				// if(isset($details["permissions"]))LOG::info([$route,$details["permissions"],!SECURITY::permission(null,$details["permissions"],(isset($details["permission-mode"])?$details["permission-mode"]:"all"))]);
+				if(isset($details["permissions"]) && !SECURITY::permission(null,$details["permissions"],(isset($details["permission-mode"])?$details["permission-mode"]:"all"))) continue;
 				self::add_route((isset($details["method"])?$details["method"]:"GET"),$route,$details["handler"]);
 			} catch (\Exception $e) {
 				Log::error([
@@ -166,7 +168,8 @@ class ROUTER{
 						"namespace"	=>	$namespace,
 						"name"		=>	$name,
 						"details"		=>	$details,
-					]
+					],
+					"debug"	=> \DEBUG?$e:false
 				]);
 			}
 		}
@@ -332,7 +335,7 @@ class __router{
 	public function cache($file){
 		if(!is_string($file)) throw new \InvalidArgumentException("Argument #1 should be of type 'string'", 1);
 		$this->_cache = [
-			"active"	=> true,
+			"active"	=> false,
 			"file"		=>	ROUTER::_route_cache."/{$file}",
 		];
 	}
@@ -362,7 +365,7 @@ class __router{
 			]):
 			\FastRoute\simpleDispatcher(function(\FastRoute\RouteCollector $r){
 				$r->base_uri($this->_base_uri);
-				foreach ($this->_routes["group"] as $group => $routes) {
+				foreach ($this->_routes["groups"] as $group => $routes) {
 					$r->addGroup($group,function(\RouteCollector $r){
 						foreach ($routes as $mix)
 							$r->addRoute($mix["method"],$mix["route"],$mix["handler"]);
@@ -388,7 +391,7 @@ class __router{
 		$uri = rtrim($uri ,"/");
 		if(!$uri)	$uri = "/";
 		$uri = rawurldecode($uri);
-		$routeInfo = $this->dispatcher()->dispatch($httpMethod, $uri);
+		$routeInfo = $this->dispatcher()->dispatch($httpMethod, $this->_base_uri.$uri);
 		switch ($routeInfo[0]) {
 			case \FastRoute\Dispatcher::NOT_FOUND:
 				return $this->_info = [

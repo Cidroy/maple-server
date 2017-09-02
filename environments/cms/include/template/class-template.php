@@ -37,20 +37,6 @@
 		];
 
 		/**
-		 * Render Defaults
-		 * @var array {
-		 *      @type array 'maple' {
-		 *            @type array 'permission',
-		 *            @type array 'request',
-		 *            @type array 'url',
-		 *            @type array 'site',
-		 *      },
-		 *      @type array 'theme'
-		 * }
-		 */
-		private static $__render_defaults = [];
-
-		/**
 		 * Return Configuration status
 		 * @api
 		 * @throws \InvalidArgumentException if $setting not of type 'string'
@@ -207,6 +193,17 @@
 		 */
 		public static function add_default_template_source($source){
 			parent::add_default_template_source($source);
+		}
+
+		/**
+		 * Debug Info
+		 * NOTE : requires DEBUG to be true
+		 * @return array debug info
+		 */
+		public static function debug(){
+			if(\DEBUG) return array_merge([
+				"configurations"	=>	self::$_configuration,
+			],parent::debug());
 		}
 
 	};

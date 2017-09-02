@@ -12,12 +12,12 @@
 	{
 		"name"	: "profile|view",
 		"description":"view profile page",
-		"access": "*"
+		"access": "default+,~default"
 	},
 	{
 		"name"	: "profile|edit",
 		"description":"edit profile details",
-		"access": "*"
+		"access": "default+,~default"
 	},
 	{
 		"name"	: "user|add",

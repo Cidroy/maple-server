@@ -64,6 +64,7 @@ class DEFAULT_THEME implements \maple\cms\iTheme{
 			"footer"	=>	"grey darken-4",
 			"navbar"	=>	"indigo darken-4",
 			"primary"	=>	"indigo",
+			"text"		=>	"black"
 		];
 	}
 }

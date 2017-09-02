@@ -108,6 +108,7 @@ class THEME {
 			return ;
 		}
 		TEMPLATE::add_template_sources([ "maple/theme" => self::$_details["location"] ]);
+		TEMPLATE::add_default_template_source(self::$_details["location"]);
 		require_once self::$_details["location"]."/theme.php";
 		call_user_func(self::$_details["class"]."::initialize");
 		self::$_initialized = true;
@@ -197,7 +198,7 @@ class THEME {
 	 */
 	public static function render_head(){
 		if(!self::$_details) return "";
-		MAPLE::do_filters("pre-render|head");
+		MAPLE::do_filters("pre-render|head",$filter=[]);
 		return call_user_func(self::$_details["class"]."::render_head",[
 			"html"	=>	[
 				"header"=>	UI::header()->get(),
@@ -221,7 +222,7 @@ class THEME {
 	 */
 	public static function render_content(){
 		if(!self::$_details) return "";
-		MAPLE::do_filters("pre-render|content");
+		MAPLE::do_filters("pre-render|content",$filter=[]);
 		return call_user_func(self::$_details["class"]."::render_content",[
 			"content"	=>	MAPLE::do_hooks()
 		]);
@@ -235,7 +236,7 @@ class THEME {
 	 */
 	public static function render_footer(){
 		if(!self::$_details) return "";
-		MAPLE::do_filters("pre-render|footer");
+		MAPLE::do_filters("pre-render|footer",$filter=[]);
 		return call_user_func(self::$_details["class"]."::render_footer",[
 			"html"	=>	[
 				"footer"=>	UI::footer()->get(),

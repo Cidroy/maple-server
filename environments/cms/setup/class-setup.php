@@ -28,6 +28,8 @@ if(\ENVIRONMENT::url()->matches(eMAPLE::install_url)){
 		 */
 		public static function initialize(){
 			if(!SESSION::active())	SESSION::start();
+			FILE::remove(\CONFIG);
+			FILE::remove(\CACHE);
 			$_SESSION["maple/cms"] = isset($_SESSION["maple/cms"])?$_SESSION["maple/cms"]:[];
 			echo isset($_REQUEST["cms-ajax-action"])?
 				self::ajax_handler($_REQUEST["cms-ajax-action"],$_REQUEST):
@@ -103,6 +105,7 @@ if(\ENVIRONMENT::url()->matches(eMAPLE::install_url)){
 						\ENVIRONMENT::lock("maple/cms : setup");
 
 						FILE::remove(PLUGIN::config_location);
+						PLUGIN::initialize();
 
 						foreach (FILE::get_folders(ROOT.__MAPLE__."/plugins") as $plugin){
 							if(!file_exists($plugin."/package.json")) continue;

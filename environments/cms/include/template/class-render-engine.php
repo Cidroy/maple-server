@@ -73,6 +73,7 @@ class TwigRenderEngine implements \maple\cms\interfaces\iRenderEngine{
 			self::$_twig["loader"]  = new \Twig_Loader_Filesystem(self::_template_default);
 			self::$_twig["environment"] = new \Twig_Environment(self::$_twig["loader"], [
 				'cache' => self::_cache_location,
+				"autoescape"	=>	false,
 				'debug' => DEBUG,
 			]);
 			if(DEBUG)	self::$_twig["environment"]->addExtension(new \Twig_Extension_Debug());
@@ -111,6 +112,7 @@ class TwigRenderEngine implements \maple\cms\interfaces\iRenderEngine{
 				self::$_twig["environments"][$namespace]["object"] = new \Twig_Environment(self::$_twig["environments"][$namespace]["loader"],[
 					"debug"	=>	DEBUG,
 					"cache"	=>	self::_cache_location,
+					"autoescape"	=>	false,
 				]);
 				if(DEBUG) self::$_twig["environments"][$namespace]["object"]->addExtension(new \Twig_Extension_Debug());
 				self::$_twig["environments"][$namespace]["object"]->addExtension(new \maple\cms\twig\Maple_Twig_Ext());
@@ -215,5 +217,12 @@ class TwigRenderEngine implements \maple\cms\interfaces\iRenderEngine{
 	 */
 	public static function environment(){ return self::$_twig["environment"]; }
 
+
+	public static function debug(){
+		return [
+			"twig"	=>	self::$_twig,
+			"default-sources"	=>	self::$_default_sources,
+		];
+	}
 }
 ?>

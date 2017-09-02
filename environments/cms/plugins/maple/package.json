@@ -11,7 +11,8 @@
 				"install":	"maple\\cms\\plugin\\SETUP::install"
 			},
 			"autoload"	: {
-				"maple\\cms\\plugin\\MAPLE" : "/class-maple.php"
+				"maple\\cms\\plugin\\MAPLE" : "/class-maple.php",
+				"maple\\cms\\plugin\\ADMIN" : "/class-admin.php"
 			},
 			"filters"	: {
 				"render|body-end":"maple\\cms\\plugin\\MAPLE::f_body_end"
@@ -19,7 +20,9 @@
 			"shortcodes": {
 				"dashboard"	: "maple\\cms\\plugin\\MAPLE::sc_dashboard"
 			},
-			"routers"	: [],
+			"routers"	: {
+				"maple/cms"	: "/router.json"
+			},
 			"template"	: "/templates",
 			"dashboard"	: [],
 			"menus"		: [],

@@ -1,1 +1,11 @@
-[]
+{
+	"login" : {
+		"method"	 : "POST",
+		"permission" : { "maple/login":"sign-up"},
+		"function"	 : "\\maple\\cms\\LOGIN::a_login"
+	},
+	"logout" : {
+		"method"	 : "POST",
+		"function"	 : "\\maple\\cms\\LOGIN::a_logout"
+	}
+}

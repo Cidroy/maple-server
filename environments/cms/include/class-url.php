@@ -176,7 +176,7 @@ class URL{
 	/**
 	 * Convert a file path or concealed Path to its respective url
 	 * @api
-	 * @throws \InvalidArgumentException if $path is not string or $query is not string or array
+	 * @throws \InvalidArgumentException if $path is not string or $query is not 'string' or 'array' respectively
 	 * @param  string $path  file path or concealed path
 	 * @param  mixed[string,array] $query query parametes
 	 * @return string        url
@@ -184,9 +184,10 @@ class URL{
 	public static function http($path,$query = "") {
 		if(!$path) return "";
 		if(!is_string($path)) throw new \InvalidArgumentException("Argument #1 must be of type 'string', given '".gettype($path)."'", 1);
-		if($query &&( !is_string($query) || !is_array($query) )) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
+		if($query && !is_array($query) ) throw new \InvalidArgumentException("Argument #2 must be of type 'array'", 1);
 
 		if($query) $query = "?".http_build_query($query);
+		else $query = "";
 		if(isset(self::$_cache["http"][$path])) return self::$_cache["http"][$path].$query;
 		else {
 			$url = self::conceal_path($path);

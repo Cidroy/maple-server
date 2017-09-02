@@ -218,7 +218,7 @@ class ERROR
 	 * - addMessage
 	 */
 	public static function log($message,$level = 'info'){
-		if(!is_string($message)) throw new \InvalidArgumentException("Argument #1 Must be of type string", 1);
+		// if(!is_string($message) && !in_array($level,["debug"])) throw new \InvalidArgumentException("Argument #1 Must be of type string", 1);
 		if(!is_string($level)) throw new \InvalidArgumentException("Argument #2 Must be of type string", 1);
 
 		if(!self::$_debugbar["object"]){
