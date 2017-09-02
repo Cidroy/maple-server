@@ -1,0 +1,6 @@
+{
+	"dashboard" : {
+		"base"	: "dashboard",
+		"permissions": {"maple/cms":"dashboard"}
+	}
+}
