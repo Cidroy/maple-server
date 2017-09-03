@@ -148,6 +148,16 @@ class URL{
 	}
 
 	/**
+	 * Match Two Urls
+	 * @api
+	 * @uses \ENVIRONMENT::url()->matches()
+	 * @param  string  $first   match
+	 * @param  string $default against
+	 * @return boolean           status
+	 */
+	public static function matches($first,$default=false){ return \ENVIRONMENT::url()->matches($first,$default); }
+
+	/**
 	 * return iniitialization status
 	 * @return boolean status
 	 */
