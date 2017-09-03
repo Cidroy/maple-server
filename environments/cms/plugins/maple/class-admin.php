@@ -58,6 +58,7 @@ class ADMIN{
 				} else $menus["url"] = URL::http($menus["url"]);
 				$buffer_menu["link"] = $menus["url"];
 				$buffer_menu["icon"] = $menus["icon"]?$menus["icon"]:"apps";
+				$buffer_menu["active"] = URL::matches($menus["url"]);
 				if(isset($menus["more"])){
 					$buffer_menu["more"] = [];
 					foreach ($menus["more"] as $menu) {
@@ -74,6 +75,7 @@ class ADMIN{
 						} else $menu["url"] = URL::http($menu["url"]);
 						$buffer_sub_menu["link"] = $menu["url"];
 						$buffer_sub_menu["icon"] = $menu["icon"]?$menu["icon"]:false;
+						$buffer_sub_menu["active"] = URL::matches($menu["url"]);
 						$buffer_menu["more"][] = $buffer_sub_menu;
 					}
 				}
