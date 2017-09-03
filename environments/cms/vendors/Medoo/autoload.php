@@ -429,9 +429,13 @@ class Medoo
 		return implode($outer_conjunctor . ' ', $stack);
 	}
 
+	/**
+	 * @bug did not account for nested sql functions
+	 * @fix changed pre_match from '/^[A-Z0-9\_]*\([^)]*\)$/' to '/\(([^()]++|(?R))*\)/'
+	 */
 	protected function fnQuote($column, $string)
 	{
-		return (strpos($column, '#') === 0 && preg_match('/^[A-Z0-9\_]*\([^)]*\)$/', $string)) ?
+		return (strpos($column, '#') === 0 && preg_match('/\(([^()]++|(?R))*\)/', $string)) ?
 
 			$string :
 
@@ -619,7 +623,6 @@ class Medoo
 				}
 			}
 		}
-
 		return implode($conjunctor . ' ', $wheres);
 	}
 
