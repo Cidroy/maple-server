@@ -6,7 +6,7 @@
 			{% for menu in sidebar.menus %}
 			<li>
 				{% if menu.more %}
-				<div class="collapsible-header {% if menu.active %} active {% endif %} {{ theme.color.text }}-text ">{% if menu.icon %}{{ imports.icon(menu.icon) }}{% endif %} {{ menu.heading }}</div>
+				<div class="collapsible-header {% if menu.active %} active {% endif %} {{ theme.color.text }}-text "><a href="{{ menu.link }}">{% if menu.icon %}{{ imports.icon(menu.icon) }}{% endif %} {{ menu.heading }}</a></div>
 				<div class="collapsible-body">
 					<div class="collection">
 					{% for m in menu.more %}
