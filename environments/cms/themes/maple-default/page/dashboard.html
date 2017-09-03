@@ -10,7 +10,7 @@
 				<div class="collapsible-body">
 					<div class="collection">
 					{% for m in menu.more %}
-						<a href="{{ m.link }}" class="collection-item {% if m.active %} active {% endif %}  {{ theme.color.text }}-text">{{ m.heading }}</a>
+						<a href="{{ m.link }}" class="collection-item {% if m.active %} active {% endif %}  {{ theme.color.text }}-text">{% if m.icon %}{{ imports.icon(m.icon,"left") }}{% endif %} {{ m.heading }}</a>
 					{% endfor %}
 					</div>
 				</div>
@@ -21,7 +21,7 @@
 			{% endfor %}
 		</ul>
 	</div>
-	<div class="col s12 l9">
+	<div class="col s12 l9 padding-0">
 		{{ context.content }}
 	</div>
 </div>
