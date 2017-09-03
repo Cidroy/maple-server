@@ -71,19 +71,26 @@ class TwigRenderEngine implements \maple\cms\interfaces\iRenderEngine{
 			require_once __DIR__."/twig-extension.php";
 			\Twig_Autoloader::register();
 			self::$_twig["loader"]  = new \Twig_Loader_Filesystem(self::_template_default);
-			self::$_twig["environment"] = new \Twig_Environment(self::$_twig["loader"], [
-				'cache' => self::_cache_location,
-				"autoescape"	=>	false,
-				'debug' => DEBUG,
-			]);
-			if(DEBUG)	self::$_twig["environment"]->addExtension(new \Twig_Extension_Debug());
-			self::$_twig["environment"]->addExtension(new \maple\cms\twig\Maple_Twig_Ext());
+			self::_init_env_twig();
 			return true;
 		} catch (\Exception $e) {
 			LOG::emergency($e->getMessage());
 			throw $e;
 		}
 		return false;
+	}
+
+	/**
+	 * Initialize base Twig environment
+	 */
+	private static function _init_env_twig(){
+		self::$_twig["environment"] = new \Twig_Environment(self::$_twig["loader"], [
+			'cache' => self::_cache_location,
+			"autoescape"	=>	false,
+			'debug' => DEBUG,
+		]);
+		if(DEBUG)	self::$_twig["environment"]->addExtension(new \Twig_Extension_Debug());
+		self::$_twig["environment"]->addExtension(new \maple\cms\twig\Maple_Twig_Ext());
 	}
 
 	/**
@@ -192,6 +199,8 @@ class TwigRenderEngine implements \maple\cms\interfaces\iRenderEngine{
 	public static function add_default_template_source($source){
 		if(!is_string($source)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
 		if($source) self::$_default_sources[] = $source;
+		self::$_twig["loader"]->addPath($source);
+		self::_init_env_twig();
 	}
 
 	/**
