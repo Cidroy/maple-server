@@ -21,6 +21,8 @@ class Maple_Twig_Ext extends \Twig_Extension{
 
 	public function getFunctions() {
 		return [
+			"json_encode"	=>	new \Twig_Function_Function("json_encode"),
+			"json_decode"	=>	new \Twig_Function_Function("json_decode"),
 			"call"	=>	new \Twig_Function_Function(__CLASS__."::maple_call"),
 			"lang"	=>	new \Twig_Function_Function(__CLASS__."::translator"),
 			"url"	=>	new \Twig_Function_Function(__CLASS__."::url"),
