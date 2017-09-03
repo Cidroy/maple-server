@@ -116,13 +116,11 @@ class eMAPLE implements iRenderEnvironment{
 				if(!\maple\cms\PLUGIN::active("maple/cms")) throw new \Exception("Plugin not ready", 1);
 			} catch (\Exception $e) { self::diagnostics(); }
 		}
-		// \maple\cms\Log::info(\maple\cms\URL::name("maple/login","page|login"));
 	}
 
 	public static function execute(){
 		if(\ENVIRONMENT::is_allowed("maple-execute") && self::$_initialized_good){
-			// BUG: move below to execute
-
+			\maple\cms\LOG::info(\maple\cms\PAGE::get("url",\maple\cms\PAGE::identify(\maple\cms\URL::http("%CURRENT%"))));
 			$page = \maple\cms\PAGE::get("url",\maple\cms\PAGE::identify(\maple\cms\URL::http("%CURRENT%")));
 			if($page){
 				MAPLE::hook("\\maple\\cms\\SHORTCODE::execute_all",$page["content"],300);
