@@ -10,7 +10,13 @@ namespace maple\cms\twig;
  */
 class Maple_Twig_Ext extends \Twig_Extension{
 	public function getName(){
-		return 'maple';
+		return 'Maple CMS Twig Extension';
+	}
+
+	public function getFilters(){
+		return [
+			"unique"	=>	new \Twig_Filter_Method($this,"unique")
+		];
 	}
 
 	public function getFunctions() {
@@ -102,6 +108,16 @@ class Maple_Twig_Ext extends \Twig_Extension{
 		if(is_string($a1) && is_array($a2)) $url = \maple\cms\URL::http($a1,$a2);
 		if(is_string($a1) && is_string($a2)) $url = \maple\cms\URL::name($a1,$a2,$a3);
 		return $url;
+	}
+
+	/**
+	 * Unique Filter for arrays
+	 * @param  mixed $array array
+	 * @return mixed        unique array
+	 */
+	public function unique($array){
+		if(is_array($array)) return array_unique($array);
+		else return $array;
 	}
 
 }
