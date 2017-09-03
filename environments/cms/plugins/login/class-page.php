@@ -13,12 +13,22 @@ use \maple\cms\LOG;
  * @author Rubixcode
  */
 class PAGE{
+	/**
+	 * View My Profile
+	 * BUG : does nothing
+	 * @router maple/login:page|profile
+	 * @return string html
+	 */
 	public static function profile_view(){
 		MAPLE::has_content(true);
 		return "j";
 	}
 
-
+	/**
+	 * Forgot Password Page
+	 * @router maple/login:page|forgot-password
+	 * @return string html
+	 */
 	public static function forgot_password(){
 		MAPLE::has_content(true);
 		$errors = [
@@ -31,6 +41,15 @@ class PAGE{
 		return TEMPLATE::render("maple/login","forgot-password",[
 			"errors"	=>	$errors,
 		]);
+	}
+
+	/**
+	 * Dashboard Home Page
+	 * @return string html
+	 */
+	public static function d_home(){
+		MAPLE::has_content(true);
+		return TEMPLATE::render("maple/login","dashboard-home");
 	}
 
 }

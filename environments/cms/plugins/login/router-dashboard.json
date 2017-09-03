@@ -1,0 +1,38 @@
+{
+	"dashboard" : {
+		"base"		: "dashboard",
+		"route"	: "/users",
+		"handler"	: "maple\\cms\\login\\PAGE::d_home",
+		"permission": {"maple/login":"dashboard"}
+	},
+	"users|all" : {
+		"parent"	: "dashboard",
+		"route"		: "/all-users",
+		"handler"	: "maple\\cms\\login\\PAGE::users_all",
+		"permission": {"maple/login":"user|view"}
+	},
+	"user|view" : {
+		"parent"	: "dashboard",
+		"route"		: "/user",
+		"handler"	: "maple\\cms\\login\\PAGE::user_view",
+		"permission": {"maple/login":"user|view"}
+	},
+	"users|add" : {
+		"parent"	: "dashboard",
+		"route"		: "/add-user",
+		"handler"	: "maple\\cms\\login\\PAGE::user_add",
+		"permission": {"maple/login":"user|add"}
+	},
+	"users-group|view" : {
+		"parent"	: "dashboard",
+		"route"		: "/all-users-group",
+		"handler"	: "maple\\cms\\login\\PAGE::users_group_view",
+		"permission": {"maple/login":"user-group|view"}
+	},
+	"users-group|add" : {
+		"parent"	: "dashboard",
+		"route"		: "/add-user-group",
+		"handler"	: "maple\\cms\\login\\PAGE::user_group_add",
+		"permission": {"maple/login":"user-group|add"}
+	}
+}

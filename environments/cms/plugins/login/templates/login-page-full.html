@@ -20,6 +20,9 @@
 					{{ imports.input({ "icon":"person", "size":["s12"], "label":lang(namespace,"Username / E-Mail"), "required": "true", "autofocus": "true", "id" : "username", "name" : "username" }) }}
 					{{ imports.input({ "type":"password", "icon":"lock", "size":["s12"], "label":lang(namespace,"Password"), "required": "true", "id" : "password", "name" : "password" }) }}
 					{{ imports.switch({ "label":"Remember Me","side":"right","name":"remember-me" }) }}
+					{% if maple.request.redirect_to %}
+					{{ imports.input({ "type":"text", "name" : "redirect_to", "value" : maple.request.redirect_to, "hidden":true }) }}
+					{% endif %}
 					{{ ajax(namespace,"login") }} {{ nonce() }}
 					{{ imports.button({ "type":"submit", "size":["s12"], "label":"Login", "color":theme.color.primary }) }}
 				</form>

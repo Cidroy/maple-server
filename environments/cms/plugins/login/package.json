@@ -25,7 +25,8 @@
 				"register"	: "maple\\cms\\login\\SHORTCODE::register"
 			},
 			"routers"	: {
-				"maple/login"	: "/router-login.json"
+				"maple/login"	: "/router-login.json",
+				"maple/login/dashboard"	: "/router-dashboard.json"
 			},
 			"template"	: "/templates",
 			"dashboard"	: [
@@ -38,37 +39,33 @@
 			"menus"		: [
 				{
 					"name"		: 	"Users",
-					"function" 	:	false,
+					"namespace" :	"maple/login",
 					"url"		:	{ "maple/login/dashboard":"dashboard-users"},
 					"icon"		:	"people",
 					"permission":	{"maple/login/dashboard":"dashboard"},
 					"more"		: [
 						{
 							"name"		: 	"All Users",
-							"function" 	:	"\\maple\\cms\\DASHBOARD::p_all_users",
-							"url"		:	{"maple/login/dashboard":"dashboard-users|all"},
+							"url"		:	{"maple/login/dashboard":"users|all"},
 							"icon"		:	"all",
 							"permission":	"user|view"
 						},
 						{
 							"name"		: 	"Add New Users",
-							"function" 	:	"\\maple\\cms\\DASHBOARD::p_add_user",
-							"url"		:	{"maple/login/dashboard":"dashboard-users|add"},
-							"icon"		:	"add",
+							"url"		:	{"maple/login/dashboard":"users|add"},
+							"icon"		:	"user-add",
 							"permission":	"user|add"
 						},
 						{
 							"name"		: 	"View User Groups",
-							"function" 	:	"\\maple\\cms\\DASHBOARD::p_view_user_groups",
-							"url"		:	{"maple/login/dashboard":"dashboard-users|view-group"},
-							"icon"		:	"group-new",
+							"url"		:	{"maple/login/dashboard":"users-group|view"},
+							"icon"		:	"group",
 							"permission":	"user-group|view"
 						},
 						{
 							"name"		: 	"Add User Group",
-							"function" 	:	"\\maple\\cms\\DASHBOARD::p_add_user_group",
-							"url"		:	{"maple/login/dashboard":"dashboard-users|add-group"},
-							"icon"		:	"group-new",
+							"url"		:	{"maple/login/dashboard":"users-group|add"},
+							"icon"		:	"group-add",
 							"permission":	"user-group|add"
 						}
 					]

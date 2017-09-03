@@ -1,0 +1,29 @@
+{% autoescape %}
+{% import "import.twig.html" as imports %}
+{% set collection = [] %}
+{% macro noUser() %}
+	{% import "import.twig.html" as imports %}
+	{{ imports.icon("close","circle red large") }}
+	<h5 class="red-text">No New Users</h5>
+{% endmacro %}
+{% macro createUserContent(x) %}
+	{% import "import.twig.html" as imports %}
+	{% set link = url("maple/login/dashboard","user|view",{"id":x.id}) %}
+	{{ imports.icon("person","circle") }}
+	<img src="{{ x.photo }}" alt="" class="circle">
+	<a href="{{ link }}">{{ x.name|default(x.username)|default(x.email) }}</a>
+	<p>joined on : {{ x.registered|date('d M y') }}</p>
+{% endmacro %}
+{% for user in users %}
+	{% set collection = collection|merge([_self.createUserContent(user)]) %}
+{% else %}
+	{% set collection = [_self.noUser()] %}
+{% endfor %}
+{% embed "element/card.html" with {"type":"row","title_class":["white-text","grey darken-2"],"title":true,"content_class":["padding-0"]} %}
+	{% block title %}New Users {{ x }}{% endblock %}
+	{% block content %}
+		<p class="center grey lighten-3">Showing activity from last 24 hours</p>
+		{% embed "element/collection.html" with {"collection":collection,"collection_class":"avatar margin-0"} %} {% endembed %}
+	{% endblock %}
+{% endembed %}
+{% endautoescape %}
