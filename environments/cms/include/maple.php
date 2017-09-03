@@ -145,6 +145,7 @@ class MAPLE{
 		if(!is_string($detail)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
 		switch ($detail) {
 			case 'apis': return self::$_API; if($erase) self::$_API = []; break;
+			case 'ui': return self::$_UI; if($erase) self::$_UI = []; break;
 			case 'routers': return self::$_ROUTERS; if($erase) self::$_ROUTERS = []; break;
 			case 'templates': return self::$_TEMPLATES; if($erase) self::$_TEMPLATES = []; break;
 			default: return []; break;
