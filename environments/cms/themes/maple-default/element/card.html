@@ -1,11 +1,12 @@
 <div class="card">
-	<div class="card-content">
-		{% if type == "row" %}
-		<div class="row">
-		{% endif %}
+	{% if type == "row" %}
+	{% if title %}
+	<span class="card-title {% for _class in title_class %}{{ _class }} {% endfor %}" style="margin:0;padding:10px;display:block;">{% block title %}{% endblock title %}</span>
+	{% endif %}
+	<div class="card-content {% for _class in content_class %}{{ _class }} {% endfor %}">
+		<div class="row margin-0">
 		{% block content %}{% endblock content %}
-		{% if type == "row" %}
 		</div>
-		{% endif %}
 	</div>
+	{% endif %}
 </div>

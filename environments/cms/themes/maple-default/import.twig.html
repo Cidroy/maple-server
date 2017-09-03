@@ -4,10 +4,13 @@
 		"login":"account_circle",
 		"key":"vpn_key",
 		"shield":"verified_user",
-		"person":"perm_identity"
+		"person":"perm_identity",
+		"all" : "list",
+		"group-add":"group_add",
+		"user-add":"person_add"
 	 } %}
 	{% if icons[name] %}{% set name = icons[name] %}{% endif %}
-	<i class="material-icons {{ class }}"{% for attr,val in attrs %} {{ attr }}="{{ val }}" {% endfor %}>{{ name }}</i>
+	<i class="material-icons {{ class }}"{% for attr,val in attrs %} {{ attr }}="{{ val }}" {% endfor %}>{{ name|replace({'-':'_'}) }}</i>
 {% endmacro %}
 
 {# Page Title #}
@@ -41,7 +44,7 @@
 	<div class="input-field {{ args.size?"col" }} {% for _size in args.size %} {{ _size }}{% endfor %}{% for _offset in args.offset %} offset-{{ _offset }}{% endfor %} {% for _class in args.class %}{{ _class }} {% endfor %}">
 		{% if args.icon %}{{ this.icon(args.icon,"prefix") }}{% endif %}
 		{% block input %}
-		<input id="{{ id }}" {% if args.name %}name="{{ args.name }}"{% endif %} type={{ args.type|default("text") }} {% for attr,val in arg %}{{ attr }}="{{ val }}"{% endfor %} {% if args.required %}required="true"{% endif %} autofocus="{{ args.autofocus|default("false") }}" {% if args.disabled %}disabled="true"{% endif %}>
+		<input id="{{ id }}" {% if args.name %}name="{{ args.name }}"{% endif %} type={{ args.type|default("text") }} {% for attr,val in arg %}{{ attr }}="{{ val }}"{% endfor %} {% if args.required %}required="true"{% endif %} autofocus="{{ args.autofocus|default("false") }}" {% if args.disabled %}disabled="true"{% endif %} {% if args.hidden %}hidden="true"{% endif %} {% if args.value %}value={{ args.value }}{% endif %}>
 		{% endblock %}
 		{% if args.label %}<label for="{{ id }}">{{ args.label }}</label>{% endif %}
 	</div>
