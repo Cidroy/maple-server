@@ -53,7 +53,8 @@ class AJAX {
 			"Allow-Credentials" =>	true,
 			"Allow-Methods"	=>	["GET","POST","HEAD"],
 			"Allow-Headers"	=>	"Content-Type, *"
-		]
+		],
+		"base"	=>	"%ROOT%/ajax"
 	];
 
 	/**
@@ -83,6 +84,7 @@ class AJAX {
 
 	/**
 	 * Return if ajax requested
+	 * BUG : does not check for request point
 	 * @api
 	 * @throws \InvalidArgumentException if $method is not of type 'string'
 	 * @param string $method http request method. Default - "*"
@@ -109,6 +111,7 @@ class AJAX {
 		if(!file_exists(self::cache) || !file_exists(self::config.self::config_file)) self::diagnose();
 		self::$apis = MAPLE::_get("apis");
 		$configuration = json_decode(file_get_contents(self::config.self::config_file),true);
+		URL::add("%API%",$configuration["base"],null);
 		if($configuration["Access-Control"]){
 			if(isset($_SERVER["HTTP_ORIGIN"]) && $configuration["Access-Control"]["Allow-Origin"]=="*") $configuration["Access-Control"]["Allow-Origin"] = $_SERVER["HTTP_ORIGIN"];
 			foreach ($configuration["Access-Control"] as $key => $value) self::$default_headers["Access-Control-{$key}"] = $value;
