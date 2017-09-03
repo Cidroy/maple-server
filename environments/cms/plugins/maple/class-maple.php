@@ -17,6 +17,7 @@ class MAPLE{
 	 * @return string        content
 	 */
 	public static function sc_dashboard($param = []){
+		if(!\maple\cms\SECURITY::permission("maple/cms","dashboard")) return;
 		UI::add_filter(__CLASS__."::dashboard_ui_filter");
 	}
 
@@ -32,7 +33,8 @@ class MAPLE{
 	public static function dashboard_ui_filter($context){
 		return TEMPLATE::render("maple/theme","page/dashboard",[
 			"sidebar" => [
-				"menus"	=>	ADMIN::get_dashboard_menu()
+				"admin-messages" => [],
+				"menus"	=>	\maple\cms\ADMIN::get_dashboard_menu()
 			],
 			"context" => $context
 		]);

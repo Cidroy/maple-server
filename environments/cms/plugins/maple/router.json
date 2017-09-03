@@ -1,6 +1,7 @@
 {
 	"dashboard" : {
 		"base"	: "dashboard",
+		"handler"	: "maple\\cms\\ADMIN::p_dashboard",
 		"permissions": {"maple/cms":"dashboard"}
 	}
 }

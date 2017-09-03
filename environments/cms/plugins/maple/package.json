@@ -12,7 +12,7 @@
 			},
 			"autoload"	: {
 				"maple\\cms\\plugin\\MAPLE" : "/class-maple.php",
-				"maple\\cms\\plugin\\ADMIN" : "/class-admin.php"
+				"maple\\cms\\ADMIN" : "/class-admin.php"
 			},
 			"filters"	: {
 				"render|body-end":"maple\\cms\\plugin\\MAPLE::f_body_end"
