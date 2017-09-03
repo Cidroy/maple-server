@@ -75,6 +75,7 @@ class eMAPLE implements iRenderEnvironment{
 			}
 			if(!self::$_initialized_good){
 				\maple\cms\URL::initialize();
+				\maple\cms\AJAX::initialize();
 				\maple\cms\TEMPLATE::initialize();
 				\maple\cms\ERROR::initialize();
 				\maple\cms\DB::initialize();
