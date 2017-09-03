@@ -21,7 +21,12 @@ class PAGE{
 	public static function identify($url){
 		if(!is_string($url)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
 		$url = str_replace(URL::http("%ROOT%"),"",$url);
-		return $url;
+		$prefix = DB::_()->prefix();
+		$query = "SELECT *,LENGTH(`url`) AS `M_LEN` FROM `{$prefix}pages` WHERE `url` = :url OR :url LIKE CONCAT(`url`,'/%') ORDER BY `M_LEN` DESC LIMIT 1";
+		$query = DB::_()->pdo->prepare($query,[\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY]);
+		if(!$query->execute([":url" => $url])) return "";
+		$query = current($query->fetchAll());
+		return $query?$query["url"]:"";
 	}
 
 	/**
