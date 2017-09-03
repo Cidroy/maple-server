@@ -120,7 +120,6 @@ class eMAPLE implements iRenderEnvironment{
 
 	public static function execute(){
 		if(\ENVIRONMENT::is_allowed("maple-execute") && self::$_initialized_good){
-			\maple\cms\LOG::info(\maple\cms\PAGE::get("url",\maple\cms\PAGE::identify(\maple\cms\URL::http("%CURRENT%"))));
 			$page = \maple\cms\PAGE::get("url",\maple\cms\PAGE::identify(\maple\cms\URL::http("%CURRENT%")));
 			if($page){
 				MAPLE::hook("\\maple\\cms\\SHORTCODE::execute_all",$page["content"],300);
