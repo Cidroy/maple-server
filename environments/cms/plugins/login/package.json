@@ -40,7 +40,7 @@
 				{
 					"name"		: 	"Users",
 					"namespace" :	"maple/login",
-					"url"		:	{ "maple/login/dashboard":"dashboard-users"},
+					"url"		:	{ "maple/login/dashboard":"dashboard"},
 					"icon"		:	"people",
 					"permission":	{"maple/login/dashboard":"dashboard"},
 					"more"		: [

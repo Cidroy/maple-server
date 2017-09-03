@@ -14,7 +14,7 @@
 			{{ imports.page_title(1,imports.icon("shield","large"),theme.color.primary,"center") }}
 			{% for e in errors %}{{ imports.notice(e) }}{% endfor %}
 			{{ filter("login-page|errors") }}
-			{% embed "element/card.html" ignore missing with {"type":"row"}%}
+			{% embed "element/card.html" ignore missing with {"type":"row","size":[],"offset":[]}%}
 				{% block content %}
 				<form action="{{ url("%ROOT%/") }}" method="post" data-form="login" name="login">
 					{{ imports.input({ "icon":"person", "size":["s12"], "label":lang(namespace,"Username / E-Mail"), "required": "true", "autofocus": "true", "id" : "username", "name" : "username" }) }}

@@ -11,6 +11,12 @@
 		"handler"	: "maple\\cms\\login\\PAGE::users_all",
 		"permission": {"maple/login":"user|view"}
 	},
+	"settings" : {
+		"parent"	: "dashboard",
+		"route"		: "/settings",
+		"handler"	: "maple\\cms\\login\\PAGE::d_settings",
+		"permission": {"maple/login":"dashboard"}
+	},
 	"user|view" : {
 		"parent"	: "dashboard",
 		"route"		: "/user",
@@ -22,6 +28,12 @@
 		"route"		: "/add-user",
 		"handler"	: "maple\\cms\\login\\PAGE::user_add",
 		"permission": {"maple/login":"user|add"}
+	},
+	"search" : {
+		"parent"	: "dashboard",
+		"route"		: "/search",
+		"handler"	: "maple\\cms\\login\\PAGE::d_search",
+		"permission": {"maple/login":"user|view"}
 	},
 	"users-group|view" : {
 		"parent"	: "dashboard",
