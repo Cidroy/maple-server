@@ -78,7 +78,28 @@ class PAGE{
 			"image"	=>	[
 				"cover"	=> URL::http(__DIR__."/assets/images/dashboard-cover.jpg",[ "maple-image"	=>	"optimise", "optimise"		=>	"auto" ])
 			],
-			"quick_actions"	=>	$quick_actions
+			"quick_actions"	=>	$quick_actions,
+			"graphs"	=>	[
+				"new-user"	=>	UI::graph([
+					"type"	=>	"LineChart",
+					"size"	=>	["height"=>"300px","width"=>"100%"],
+					"data"	=>	[
+						"values"	=>	[
+							['Year', 'Sales', 'Expenses'],
+          ['2004',  1000,      400],
+          ['2005',  1170,      460],
+          ['2006',  660,       1120],
+          ['2007',  1030,      540]
+						],
+						"options"	=>	[
+							"title"	=>	"Test",
+							"titleTextStyle"	=>	[ 'fontSize' => 20,'bold' => false, ],
+							'legend'=>	['position'=>'bottom'],
+							'tooltip'=>	['isHtml'=>true],
+						]
+					]
+				]),
+			]
 		]);
 	}
 

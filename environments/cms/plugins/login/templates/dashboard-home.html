@@ -26,6 +26,7 @@
 			{% else %}
 			<p>Oops! You have no Quick Actions</p>
 			{% endfor %}
+			{% for graph in graphs %}{{ graph|raw }}{% endfor %}
 			{% endblock content %}
 		{% endembed %}
 		{% endblock content %}
