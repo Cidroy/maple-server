@@ -93,6 +93,37 @@ class UI implements iUI{
 		}
 		return $previous["content"];
 	}
+
+	public static function graph($param){
+		static $__graph_init = false;
+		static $__graph_no = 0;
+		static $__graph_identifier = "maple-chart-";
+		if($__graph_init === false){
+			self::js()->add_src("https://www.gstatic.com/charts/loader.js");
+			self::js()->add("google.charts.load('current', {packages: ['corechart']});");
+			$__graph_init = true;
+		}
+		$suportedGraphs =  ['PieChart','AreaChart','ColumnChart','LineChart'];
+		$param = array_merge([
+			"size"	=>	["width" => "","height"=>"100%"],
+			'data'	=>	'',
+			'type'	=>	false,
+		],$param);
+		if(!in_array($param["type"],$suportedGraphs)){ LOG::error("Unsupported Graph type '{$param["type"]}'"); return false; }
+		$__graph_no++;
+		self::js()->add(TEMPLATE::render("maple","graph/js-generic",[
+			"data"	=>	[
+				'options'	=>	$param['data']['options'],
+				'values'	=>	$param['data']['values'],
+			],
+			"id"	=>	$__graph_identifier.$__graph_no,
+			"type"	=>	$param["type"]
+		]));
+		return TEMPLATE::render("maple","graph/html",[
+			"size"	=>	$param["size"],
+			"id"	=>	$__graph_identifier.$__graph_no,
+		]);
+	}
 }
 
 UI::initialize();
