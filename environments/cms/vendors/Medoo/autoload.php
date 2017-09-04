@@ -355,8 +355,9 @@ class Medoo
 
 	protected function columnQuote($string)
 	{
+		// Don't Column Quote columns starting with '#'
+		if($string[0] == '#') return substr($string, 1, strlen($string)-1) ;
 		preg_match('/(^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)(\s*\[JSON\]$)?/', $string, $column_match);
-
 		if (isset($column_match[ 2 ], $column_match[ 3 ]))
 		{
 			return '"' . $this->prefix . $column_match[ 2 ] . '"."' . $column_match[ 3 ] . '"';
