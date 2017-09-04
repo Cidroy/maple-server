@@ -355,8 +355,6 @@ class Medoo
 
 	protected function columnQuote($string)
 	{
-		// Don't Column Quote columns starting with '#'
-		if($string[0] == '#') return substr($string, 1, strlen($string)-1) ;
 		preg_match('/(^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)(\s*\[JSON\]$)?/', $string, $column_match);
 		if (isset($column_match[ 2 ], $column_match[ 3 ]))
 		{
@@ -388,17 +386,19 @@ class Medoo
 			}
 			else
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object|JSON))\])?/i', $value, $match);
+				preg_match('/(?<column>[a-zA-Z0-9_\.\#]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object|JSON))\])?/i', $value, $match);
 
 				if (!empty($match[ 'alias' ]))
 				{
-					$stack[] = $this->columnQuote( $match[ 'column' ] ) . ' AS ' . $this->columnQuote( $match[ 'alias' ] );
+					$c = substr($match["column"],-1)==="#"?substr($match["column"],0,strlen($match["column"])-1):$this->columnQuote( $match[ 'column' ] );
+					$stack[] = $c . ' AS ' . $this->columnQuote( $match[ 'alias' ] );
 
 					$columns[ $key ] = $match[ 'alias' ];
 				}
 				else
 				{
-					$stack[] = $this->columnQuote( $match[ 'column' ] );
+					$c = substr($match["column"],-1)==="#"?substr($match["column"],0,strlen($match["column"])-1):$this->columnQuote( $match[ 'column' ] );
+					$stack[] = $c;
 				}
 			}
 		}
