@@ -8,5 +8,5 @@
 	 * @package Maple CMS
 	 * @author Rubixcode
 	 */
-	class TIME extends Carbon\Carbon{ }
+	class TIME extends \Carbon\Carbon{ }
 ?>

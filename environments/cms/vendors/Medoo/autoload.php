@@ -386,19 +386,17 @@ class Medoo
 			}
 			else
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.\#]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object|JSON))\])?/i', $value, $match);
+				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object|JSON))\])?/i', $value, $match);
 
 				if (!empty($match[ 'alias' ]))
 				{
-					$c = substr($match["column"],-1)==="#"?substr($match["column"],0,strlen($match["column"])-1):$this->columnQuote( $match[ 'column' ] );
-					$stack[] = $c . ' AS ' . $this->columnQuote( $match[ 'alias' ] );
+					$stack[] = $this->columnQuote( $match['column'] ) . ' AS ' . $this->columnQuote( $match[ 'alias' ] );
 
 					$columns[ $key ] = $match[ 'alias' ];
 				}
 				else
 				{
-					$c = substr($match["column"],-1)==="#"?substr($match["column"],0,strlen($match["column"])-1):$this->columnQuote( $match[ 'column' ] );
-					$stack[] = $c;
+					$stack[] = $this->columnQuote( $match['column'] );
 				}
 			}
 		}

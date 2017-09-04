@@ -158,7 +158,6 @@ class ROUTER{
 				$route = URL::add_named_url($namespace,$name,$details);
 				$type = isset($details["type"])?explode("|",$details["type"]):[];
 				if(!$route || in_array("no-route",$type) || !isset($details["handler"]) || !$details["handler"]) continue;
-				// if(isset($details["permissions"]))LOG::info([$route,$details["permissions"],!SECURITY::permission(null,$details["permissions"],(isset($details["permission-mode"])?$details["permission-mode"]:"all"))]);
 				if(isset($details["permissions"]) && !SECURITY::permission(null,$details["permissions"],(isset($details["permission-mode"])?$details["permission-mode"]:"all"))) continue;
 				self::add_route((isset($details["method"])?$details["method"]:"GET"),$route,$details["handler"]);
 			} catch (\Exception $e) {

@@ -4,8 +4,10 @@ use \maple\cms\TEMPLATE;
 use \maple\cms\SECURITY;
 use \maple\cms\MAPLE;
 use \maple\cms\UI;
+use \maple\cms\DB;
 use \maple\cms\URL;
 use \maple\cms\LOG;
+use \maple\cms\TIME;
 
 /**
  * Pae Handler
@@ -73,36 +75,62 @@ class PAGE{
 				"permissions"	=>	["maple/cms"=>"dashboard"]
 			],
 		];
-
+		$data = [];
+		$data["new-users"] = array_merge([["Date","Users"]],self::_new_users(["joined"=>-10]));
 		return TEMPLATE::render("maple/login","dashboard-home",[
 			"image"	=>	[
-				"cover"	=> URL::http(__DIR__."/assets/images/dashboard-cover.jpg",[ "maple-image"	=>	"optimise", "optimise"		=>	"auto" ])
+				"cover"	=> URL::http(__DIR__."/assets/images/dashboard-cover.jpg",[ "maple-image" => "optimise", "optimise"	=> "auto", "quality" => 720 ])
 			],
 			"quick_actions"	=>	$quick_actions,
 			"graphs"	=>	[
-				"new-user"	=>	UI::graph([
-					"type"	=>	"LineChart",
-					"size"	=>	["height"=>"300px","width"=>"100%"],
-					"data"	=>	[
-						"values"	=>	[
-							['Year', 'Sales', 'Expenses'],
-          ['2004',  1000,      400],
-          ['2005',  1170,      460],
-          ['2006',  660,       1120],
-          ['2007',  1030,      540]
-						],
-						"options"	=>	[
-							"title"	=>	"Test",
-							"titleTextStyle"	=>	[ 'fontSize' => 20,'bold' => false, ],
-							'legend'=>	['position'=>'bottom'],
-							'tooltip'=>	['isHtml'=>true],
+				[
+					"title"	=>	"Recently Joined Users",
+					"note"	=>	"Showing for last 10 days",
+					"icon"	=>	"people",
+					"size"	=>	["s12"],
+					"content"=>	UI::graph([
+						"type"	=>	"AreaChart",
+						"size"	=>	["height"=>"300px","width"=>"100%"],
+						"data"	=>	[
+							"values"	=>	$data["new-users"],
+							"options"	=>	[
+								'legend'=>	['position'=>'bottom'],
+								'tooltip'=>	['isHtml'=>true],
+								"hAxis"	=>	["format" => "short"]
+							]
 						]
-					]
-				]),
+					])
+				]
 			]
 		]);
 	}
 
+	/**
+	 * New Users based on parameters
+	 * @param  array $param selection choice
+	 * @return array        list
+	 */
+	public static function _new_users($param){
+		if(!is_array($param))	throw new \InvalidArgumentException( "Argument #1 must be of type 'array'");
+		$where = [];
+		if(!$param["joined"] || !is_string($param["joined"])) $param["joined"] = -10;
+
+		$__d1 = (new TIME())->setTime(0,0,0);
+		$__d2 = (new TIME())->setTime(0,0,0);
+		if($param["joined"]>0) $__d2 = $__d2->modify("{$param["joined"]} DAY");
+		else $__d1 = $__d1->modify("{$param["joined"]} DAY");
+		$days = new \DatePeriod($__d1,new \DateInterval("P1D"),$__d2);
+		$result = [];
+		foreach ($days as $day ) $result[(string)($day->format("d M"))] = [(string)($day->format("d M")),0];
+
+		$prefix = DB::_()->prefix();
+		$query = "SELECT DISTINCT DATE(`registered`) AS `date`,COUNT(`id`) AS `users` FROM `{$prefix}users` GROUP BY `date` HAVING `date` > DATE_ADD(NOW(), INTERVAL {$param["joined"]} DAY) ORDER BY `date` DESC";
+		foreach (DB::_()->query($query)->fetchAll() as $row) {
+			$row["date"] = new TIME($row["date"]);
+			$result[(string)($row["date"]->format("d M"))] = [(string)($row["date"]->format("d M")),(integer)$row["users"]];
+		}
+		return array_values($result);
+	}
 }
 
 ?>
