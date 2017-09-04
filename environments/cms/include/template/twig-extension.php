@@ -15,7 +15,8 @@ class Maple_Twig_Ext extends \Twig_Extension{
 
 	public function getFilters(){
 		return [
-			"unique"	=>	new \Twig_Filter_Method($this,"unique")
+			"unique"	=>	new \Twig_Filter_Method($this,"unique"),
+			'regex' 	=>	new \Twig_Filter_Method($this, 'regex'),
 		];
 	}
 
@@ -23,6 +24,7 @@ class Maple_Twig_Ext extends \Twig_Extension{
 		return [
 			"json_encode"	=>	new \Twig_Function_Function("json_encode"),
 			"json_decode"	=>	new \Twig_Function_Function("json_decode"),
+			'regex' =>	new \Twig_Function_Method($this, 'regex'),
 			"call"	=>	new \Twig_Function_Function(__CLASS__."::maple_call"),
 			"lang"	=>	new \Twig_Function_Function(__CLASS__."::translator"),
 			"url"	=>	new \Twig_Function_Function(__CLASS__."::url"),
@@ -122,6 +124,10 @@ class Maple_Twig_Ext extends \Twig_Extension{
 		else return $array;
 	}
 
+	public function regex($var, $find = '', $replace = ''){
+		if (is_string($var) && strlen($var)) $var = preg_replace($find, $replace, $var);
+		return $var;
+	}
 }
 
 ?>
