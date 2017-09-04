@@ -94,6 +94,20 @@ class UI implements iUI{
 		return $previous["content"];
 	}
 
+	/**
+	 * Graph
+	 * @api
+	 * @uses Google Charts
+	 * @param  array $param {
+	 *         @type string "type" graph type
+	 *         @type array "size" graph size
+	 *         @type array "data" {
+	 *               @type array "options" options
+	 *               @type array "values" values
+	 *         }
+	 * }
+	 * @return string        graph container
+	 */
 	public static function graph($param){
 		static $__graph_init = false;
 		static $__graph_no = 0;
