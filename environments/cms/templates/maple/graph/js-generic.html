@@ -1,15 +1,17 @@
 {% autoescape false %}
 {% if data %}
+
+
 	$(window).ready(function(){
 		if( typeof google == 'undefined'){
 			$('#{{ id }}').text(" {{ data.options.title }} Charts Failed to load due to Poor Connection.");
-			$('#{{ id }}').height('auto');			
+			$('#{{ id }}').height('auto');
 		}
 	});
-	google.charts.setOnLoadCallback(drawChart{{ id }});
-	function drawChart{{ id }}() {
-		var data = google.visualization.arrayToDataTable({{ data.values }});
-		var options = {{ data.options }};
+	google.charts.setOnLoadCallback(drawChart{{ id|regex('/[^0-9]+/','') }});
+	function drawChart{{ id|regex('/[^0-9]+/','') }}() {
+		var data = google.visualization.arrayToDataTable({{ json_encode(data.values) }});
+		var options = {{ json_encode(data.options) }};
 		var chart = new google.visualization.{{ type }}(document.getElementById('{{ id }}'));
 		chart.draw(data, options);
 	}
