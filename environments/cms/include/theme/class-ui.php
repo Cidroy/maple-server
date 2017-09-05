@@ -138,6 +138,22 @@ class UI implements iUI{
 			"id"	=>	$__graph_identifier.$__graph_no,
 		]);
 	}
+
+	public static function datatable($id = null,$param = [""=>""]){
+		static $__id = 0;
+		static $__identifier = "#datatable-";
+		static $__loaded = false;
+		if($__loaded===false){
+			self::js()->add_src(PLUGIN::path("maple/cms")."/assets/js/datatable.js");
+			self::css()->add_src(PLUGIN::path("maple/cms")."/assets/css/datatable.css");
+			$__loaded = true;
+		}
+		if(!is_array($param)) $param = [$param];
+		$param = json_encode($param);
+		if($id===null){ $id = $__identifier.$__id; $__id++;}
+		self::js()->add("$('{$id}').DataTable({$param})");
+		return "$id";
+	}
 }
 
 UI::initialize();
