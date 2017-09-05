@@ -481,6 +481,15 @@ class PLUGIN{
 	public static function update($namespace,$source = null){}
 
 	/**
+	 * Get Path of Active Plugin using namespace
+	 * @api
+	 * @param  string $namespace namespace
+	 * @return mixed            file path
+	 * 'false' if plugin not active
+	 */
+	public static function path($namespace){ return isset(self::$_buffer[$namespace])?self::$_buffer[$namespace]["path"]:false;}
+
+	/**
 	 * Return debug Info
 	 * @return array info
 	 */
