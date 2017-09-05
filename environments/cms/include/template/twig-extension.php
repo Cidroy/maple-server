@@ -34,6 +34,7 @@ class Maple_Twig_Ext extends \Twig_Extension{
 			"ajax"	=>	new \Twig_Function_Function(__CLASS__."::ajax_input"),
 			"nonce"	=>	new \Twig_Function_Function(__CLASS__."::nonce"),
 			"permission"=>	new \Twig_Function_Function("\\maple\\cms\\SECURITY::permission"),
+			"ui_datatable"=>	new \Twig_Function_Function("\\maple\\cms\\UI::datatable"),
 		];
 	}
 
