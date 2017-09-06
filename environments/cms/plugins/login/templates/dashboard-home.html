@@ -1,3 +1,8 @@
+{#
+	@filter admin-dashboard|users-action
+	@filter admin-dashboard|users-statistics
+	@filter admin-dashboard|users-extra
+#}
 {% import "import.twig.html" as imports %}
 {% set colors = ["red","blue","green","purple","indigo","grey","cyan","teal","orange"] %}
 {% embed "element/row.html" %}
@@ -26,6 +31,7 @@
 			{% else %}
 			<p>Oops! You have no Quick Actions</p>
 			{% endfor %}
+			{{ filter("admin-dashboard|users-action") }}
 			{% endblock content %}
 		{% endembed %}
 		{% if graphs %} {{ imports.page_title(4,"Statistics",random(colors)) }} {% endif %}
@@ -37,7 +43,9 @@
 				{% endblock content %}
 			{% endembed %}
 		{% endfor %}
+		{{ filter("admin-dashboard|users-statistics") }}
 		{% endblock content %}
 	{% endembed %}
 	{% endblock content %}
 {% endembed %}
+{{ filter("admin-dashboard|users-extra") }}

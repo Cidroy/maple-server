@@ -312,6 +312,7 @@ class URL{
 				case 'any':
 					$flag = false;
 					foreach ($param as $value) if(array_key_exists($value,$array)){ $flag = true; }
+					break;
 				default:
 					throw new \DomainException('Invalid Argument #3 for a request type in '.__METHOD__. " expecting values 'all','any','*' ",1);
 				break;

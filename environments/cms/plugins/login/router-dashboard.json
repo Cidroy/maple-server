@@ -8,7 +8,7 @@
 	"users|all" : {
 		"parent"	: "dashboard",
 		"route"		: "/all-users",
-		"handler"	: "maple\\cms\\login\\PAGE::users_all",
+		"handler"	: "maple\\cms\\login\\PAGE::d_users_all",
 		"permissions": {"maple/login":"user|view"}
 	},
 	"settings" : {
@@ -20,13 +20,25 @@
 	"user|view" : {
 		"parent"	: "dashboard",
 		"route"		: "/user",
-		"handler"	: "maple\\cms\\login\\PAGE::user_view",
+		"handler"	: "maple\\cms\\login\\PAGE::d_user_view",
 		"permissions": {"maple/login":"user|view"}
+	},
+	"user|edit" : {
+		"parent"	: "user|view",
+		"route"		: "/edit",
+		"handler"	: "maple\\cms\\login\\PAGE::d_user_edit",
+		"permissions": {"maple/login":"user|edit"}
+	},
+	"user|delete" : {
+		"parent"	: "user|view",
+		"route"		: "/delete",
+		"handler"	: "maple\\cms\\login\\PAGE::d_user_delete",
+		"permissions": {"maple/login":"user|delete"}
 	},
 	"users|add" : {
 		"parent"	: "dashboard",
 		"route"		: "/add-user",
-		"handler"	: "maple\\cms\\login\\PAGE::user_add",
+		"handler"	: "maple\\cms\\login\\PAGE::d_user_add",
 		"permissions": {"maple/login":"user|add"}
 	},
 	"search" : {
@@ -38,13 +50,19 @@
 	"users-group|view" : {
 		"parent"	: "dashboard",
 		"route"		: "/all-users-group",
-		"handler"	: "maple\\cms\\login\\PAGE::users_group_view",
+		"handler"	: "maple\\cms\\login\\PAGE::d_users_group_view",
 		"permissions": {"maple/login":"user-group|view"}
 	},
-	"users-group|add" : {
+	"settings" : {
 		"parent"	: "dashboard",
-		"route"		: "/add-user-group",
-		"handler"	: "maple\\cms\\login\\PAGE::user_group_add",
+		"route"		: "/settings",
+		"handler"	: "maple\\cms\\login\\PAGE::d_settings",
 		"permissions": {"maple/login":"user-group|add"}
+	},
+	"users-group|edit" : {
+		"parent"	: "dashboard",
+		"route"		: "/edit-user-group",
+		"handler"	: "maple\\cms\\login\\PAGE::d_user_group_edit",
+		"permissions": {"maple/login":"user-group|edit"}
 	}
 }

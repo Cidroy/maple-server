@@ -69,6 +69,11 @@
 		"namespace":"maple/login/dashboard"
 	},
 	{
+		"name"	: "settings",
+		"description":"change login settings",
+		"access": "administrator+"
+	},
+	{
 		"name"	: "users|new",
 		"description":"view recently added users",
 		"access": "administrator+",

@@ -1,0 +1,33 @@
+{% import "import.twig.html" as imports %}
+{% embed "element/row.html" with {"class":["padding-10"]} %}
+	{% block content %}
+	{{ imports.page_title(2,imports.icon("group","medium")~"All User Groups",theme.color.primary) }}
+	{% embed "element/card.html" with {"size":["s12"],"class":[]} %}
+		{% block content %}
+		<table class="responsive">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for group in primary %}
+				<tr>
+					<td>{{ group }}</td>
+					<td>{{ imports.button({"href":url("maple/login/dashboard","users-group|edit",{"group":group}),"icon":"edit","class":["blue"]}) }}</td>
+				</tr>
+				{% endfor %}
+				{% for group in groups %}
+				<tr>
+					<td>{{ group }}</td>
+					<td>{{ imports.button({"href":url("maple/login/dashboard","users-group|edit",{"group":group}),"icon":"edit","class":["blue"]}) }}</td>
+					<td>{{ imports.button({"href":url("maple/login/dashboard","users-group|delete",{"group":group}),"icon":"delete","class":["black"]}) }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		{% endblock %}
+	{% endembed %}
+	{% endblock %}
+{% endembed %}

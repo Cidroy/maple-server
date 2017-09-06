@@ -75,7 +75,7 @@ class ADMIN{
 						} else $menu["url"] = URL::http($menu["url"]);
 						$buffer_sub_menu["link"] = $menu["url"];
 						$buffer_sub_menu["icon"] = $menu["icon"]?$menu["icon"]:false;
-						$buffer_sub_menu["active"] = URL::matches($menu["url"]);
+						$buffer_sub_menu["active"] = $menu["url"] && URL::matches($menu["url"]) && ( URL::matches($menu["url"]."/") || URL::http("%CURRENT%")===$menu["url"] );
 						$buffer_menu["more"][] = $buffer_sub_menu;
 					}
 				}

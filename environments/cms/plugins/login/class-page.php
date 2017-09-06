@@ -1,5 +1,6 @@
 <?php
 namespace maple\cms\login;
+use \maple\cms\LOGIN;
 use \maple\cms\TEMPLATE;
 use \maple\cms\SECURITY;
 use \maple\cms\MAPLE;
@@ -48,6 +49,7 @@ class PAGE{
 
 	/**
 	 * Dashboard Home Page
+	 * @router maple/login/dashboard:dashboard
 	 * @return string html
 	 */
 	public static function d_home(){
@@ -89,7 +91,7 @@ class PAGE{
 					"icon"	=>	"people",
 					"size"	=>	["s12"],
 					"content"=>	UI::graph([
-						"type"	=>	"AreaChart",
+						"type"	=>	"ColumnChart",
 						"size"	=>	["height"=>"300px","width"=>"100%"],
 						"data"	=>	[
 							"values"	=>	$data["new-users"],
@@ -106,11 +108,92 @@ class PAGE{
 	}
 
 	/**
+	 * @router maple/login/dashboard:users|all
+	 * @return string html
+	 */
+	public static function d_users_all(){
+		MAPLE::has_content(true);
+		$user_group_name = SECURITY::user_groups();
+		$param = [
+			"limit"	=>	25,
+			"offset"=>	0,
+			"type"	=>	"*"
+		];
+		$temp = DB::_()->select("users",["id","name","username","email","access(group)"]);
+		$users = [];
+		foreach ($temp as $row ) {
+			$users[$row["id"]]	= $row;
+		}
+		return TEMPLATE::render("maple/login","dashboard-users-all",[
+			"users"	=>	[
+				"group_name"	=> $user_group_name,
+				"header"		=> array_keys(current($users)),
+				"data"			=> $users
+			]
+		]);
+	}
+
+	/**
+	 * @router maple/login/dashboard:user|view
+	 * @return string html
+	 */
+	public static function d_user_view(){
+		MAPLE::has_content(true);
+		$condition = [];
+		$selectors = ["id","username","email"];
+		if(!URL::has_request($selectors,"get","any")){
+			URL::redirect(URL::name("maple/login/dashboard","users|all"));
+			return;
+		}
+		if(isset($_REQUEST["id"])) $condition["id"] = $_REQUEST["id"];
+		if(isset($_REQUEST["username"])) $condition["username"] = $_REQUEST["username"];
+		if(isset($_REQUEST["email"])) $condition["email"] = $_REQUEST["email"];
+		$user = current(DB::_()->select("users","*",$condition));
+		return TEMPLATE::render("maple/login","dashboard-user-view",[
+			"user" => $user,
+			"user_group" => SECURITY::user_groups()
+		]);
+	}
+
+	/**
+	 * @router maple/login/dashboard:users|add
+	 */
+	public static function d_user_add(){
+		MAPLE::has_content(true);
+		return TEMPLATE::render("maple/login","dashboard-user-add",[ "form"	=>	[ "groups"	=>	SECURITY::user_groups() ] ]);
+	}
+
+	/**
+	 * @router maple/login/dashboard:users-group|view
+	 */
+	public static function d_users_group_view(){
+		MAPLE::has_content(true);
+		$primary = array_flip(SECURITY::primary_user_groups);
+		$groups = array_diff(SECURITY::user_groups(),$primary);
+		return TEMPLATE::render("maple/login","dashboard-user-group=view",[
+			"primary"	=>	$primary,
+			"groups"	=>	$groups,
+		]);
+	}
+
+	/**
+	 * @router maple/login/dashboard:settings
+	 */
+	public static function d_settings(){
+		MAPLE::has_content(true);
+		return TEMPLATE::render("maple/login","dashboard-settings",[
+			"groups"	=>	SECURITY::user_groups(),
+			"register"	=>	LOGIN::settings("registraion|allowed"),
+			"default_group"	=>	LOGIN::settings("new-user|default-group"),
+		]);
+	}
+
+	/**
 	 * New Users based on parameters
 	 * @param  array $param selection choice
 	 * @return array        list
 	 */
-	public static function _new_users($param){
+	private static function _new_users($param){
 		if(!is_array($param))	throw new \InvalidArgumentException( "Argument #1 must be of type 'array'");
 		$where = [];
 		if(!$param["joined"] || !is_string($param["joined"])) $param["joined"] = -10;

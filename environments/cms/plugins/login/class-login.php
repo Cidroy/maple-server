@@ -25,6 +25,27 @@ class LOGIN{
 	];
 
 	/**
+	 * Path to configurations file
+	 * @var string file path
+	 */
+	const config_file = \ROOT.\CONFIG."/plugin/maple-login.json";
+
+	/**
+	 * Default Configuration
+	 * @var array
+	 */
+	const default_configuration = [
+		"registration|allowed"	=>	false,
+		"new-user|default-group"=>	0,
+	];
+
+	/**
+	 * current settings
+	 * @var array
+	 */
+	private static $_settings = [];
+
+	/**
 	 * Add Navbar Elements
 	 * @filter-handler pre-render|head
 	 * @filter user|navbar-actions
@@ -107,6 +128,31 @@ class LOGIN{
 			"message"	=>	LANGUAGE::translate(self::app_namespace,self::error[$error][1]),
 		];
 	}
+
+	/**
+	 * Return current configurations
+	 * @api
+	 * @param  string $param setting name
+	 * @return mixed        value
+	 */
+	public static function settings($param){
+		if(!is_string($param)) throw new \InvalidArgumentException( "Argument #1 must be of type 'string'");
+		switch ($param) {
+			case 'registration|allowed': return self::$_settings["registration|allowed"]; break;
+			case 'new-user|default-group': return self::$_settings["new-user|default-group"]; break;
+			default: return false; break;
+		}
+	}
+
+	/**
+	 * initialize the system
+	 */
+	public static function initialize(){
+		if(!file_exists(self::config_file)) FILE::write(self::config_file,self::default_configuration);
+		self::$_settings = FILE::read(self::config_file,true);
+	}
 }
+
+LOGIN::initialize();
 
 ?>

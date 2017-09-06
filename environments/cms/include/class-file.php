@@ -80,8 +80,8 @@ class FILE{
 		if(file_exists($path) && is_file($path) && is_readable($path)){
 			$content = file_get_contents($path);
 			if($convert){
-				$temp === null;
-				try { $temp = json_decode($content); } catch (\Exception $e) { }
+				$temp = null;
+				try { $temp = json_decode($content,true); } catch (\Exception $e) { }
 				if(json_last_error() === 0 ) return $temp;
 			}
 			return $content;

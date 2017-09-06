@@ -57,16 +57,16 @@
 							"permission":	"user|add"
 						},
 						{
-							"name"		: 	"View User Groups",
+							"name"		: 	"User Groups",
 							"url"		:	{"maple/login/dashboard":"users-group|view"},
 							"icon"		:	"group",
 							"permission":	"user-group|view"
 						},
 						{
-							"name"		: 	"Add User Group",
-							"url"		:	{"maple/login/dashboard":"users-group|add"},
-							"icon"		:	"group-add",
-							"permission":	"user-group|add"
+							"name"		: 	"Settings",
+							"url"		:	{"maple/login/dashboard":"settings"},
+							"icon"		:	"settings",
+							"permission":	"settings"
 						}
 					]
 				}

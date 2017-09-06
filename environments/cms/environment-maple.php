@@ -26,7 +26,7 @@ class eMAPLE implements iRenderEnvironment{
 				\ENVIRONMENT::define('CACHE',\__MAPLE__.'/cache');
 				\ENVIRONMENT::define('CONTENTS','/cms-content');
 				\ENVIRONMENT::define('ADMIN',\__MAPLE__.'/admin');
-				\ENVIRONMENT::define('DATA','data');
+				\ENVIRONMENT::define('DATA','/data');
 				\ENVIRONMENT::define('PLUGIN',\CONTENTS.'/plugin');
 				\ENVIRONMENT::define('THEME',\CONTENTS.'/themes');
 

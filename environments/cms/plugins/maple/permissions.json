@@ -45,6 +45,24 @@
 		"namespace"	: "maple/security"
 	},
 	{
+		"name"	: "user-permission|grant",
+		"description":"grant permission to a user",
+		"access"	: "administrator+",
+		"namespace"	: "maple/security"
+	},
+	{
+		"name"	: "user-permission|deny",
+		"description":"deny permission to a user",
+		"access"	: "administrator+",
+		"namespace"	: "maple/security"
+	},
+	{
+		"name"	: "user|change-group",
+		"description":"Change User Group of a User",
+		"access"	: "administrator+",
+		"namespace"	: "maple/security"
+	},
+	{
 		"name"	: "theme|change",
 		"description":"install a new theme",
 		"access"	: "administrator+",
