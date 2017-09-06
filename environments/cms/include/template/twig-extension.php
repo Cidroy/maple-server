@@ -16,7 +16,11 @@ class Maple_Twig_Ext extends \Twig_Extension{
 	public function getFilters(){
 		return [
 			"unique"	=>	new \Twig_Filter_Method($this,"unique"),
-			'regex' 	=>	new \Twig_Filter_Method($this, 'regex'),
+			"regex" 	=>	new \Twig_Filter_Method($this, 'regex'),
+			"int"		=>	new \Twig_SimpleFilter("int","intval"),
+			"string"	=>	new \Twig_SimpleFilter("string",function($item){ return (string)$item; }),
+			"bool"		=>	new \Twig_SimpleFilter("bool",function($item){ return (bool)$item; }),
+			"float"		=>	new \Twig_SimpleFilter("float",function($item){ return (float)$item; }),
 		];
 	}
 
