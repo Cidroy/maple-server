@@ -450,6 +450,12 @@ class SECURITY {
 	}
 
 	/**
+	 * Return list of user groups
+	 * @return array user groups
+	 */
+	public static function user_groups(){ return array_flip(self::$_user_group); }
+
+	/**
 	 * Save the User Group Modification made in self::$_user_group
 	 * @maintainance $change
 	 * @throws \InvalidArgumentException if $change not of type 'string'
