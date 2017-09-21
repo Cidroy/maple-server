@@ -44,7 +44,7 @@
 {% macro input(args) %}
 	{% import _self as this %}
 	{% set id = args.id?:random() %}
-	<div class="input-field {{ args.size?"col" }} {% for _size in args.size %} {{ _size }}{% endfor %}{% for _offset in args.offset %} offset-{{ _offset }}{% endfor %} {% for _class in args.class %}{{ _class }} {% endfor %}">
+	<div class="input-field {{ args.size?"col" }} {% for _size in args.size %} {{ _size }}{% else %} s12 {% endfor %}{% for _offset in args.offset %} offset-{{ _offset }}{% endfor %} {% for _class in args.class %}{{ _class }} {% endfor %}">
 		{% if args.icon %}{{ this.icon(args.icon,"prefix") }}{% endif %}
 		{% block input %}
 		<input id="{{ id }}" {% if args.name %}name="{{ args.name }}"{% endif %} type="{{ args.type|default("text") }}" {% for attr,val in args.arg %} {{ attr }}="{{ val }}" {% endfor %} {% if args.required %}required="true"{% endif %} {% if args.autofocus %}autofocus="true"{% endif %} {% if args.readonly %}readonly="true"{% endif %} {% if args.disabled %}disabled="true"{% endif %} {% if args.hidden %}hidden="true"{% endif %} {% if args.value %}value="{{ args.value }}"{% endif %}>

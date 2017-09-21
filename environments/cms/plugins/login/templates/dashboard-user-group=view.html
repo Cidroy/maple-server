@@ -8,25 +8,49 @@
 			<thead>
 				<tr>
 					<th>Name</th>
-					<th></th>
+					<th>Action</th>
 				</tr>
 			</thead>
 			<tbody>
 				{% for group in primary %}
 				<tr>
 					<td>{{ group }}</td>
+					<td>{{ imports.button({"href":url("maple/login/dashboard","users-group|view",{"group":group}),"icon":"delete","class":["indigo"]}) }}</td>
 					<td>{{ imports.button({"href":url("maple/login/dashboard","users-group|edit",{"group":group}),"icon":"edit","class":["blue"]}) }}</td>
 				</tr>
 				{% endfor %}
 				{% for group in groups %}
 				<tr>
 					<td>{{ group }}</td>
+					<td>{{ imports.button({"href":url("maple/login/dashboard","users-group|view",{"group":group}),"icon":"view","class":["indigo"]}) }}</td>
 					<td>{{ imports.button({"href":url("maple/login/dashboard","users-group|edit",{"group":group}),"icon":"edit","class":["blue"]}) }}</td>
 					<td>{{ imports.button({"href":url("maple/login/dashboard","users-group|delete",{"group":group}),"icon":"delete","class":["black"]}) }}</td>
 				</tr>
 				{% endfor %}
 			</tbody>
 		</table>
+		{% endblock %}
+	{% endembed %}
+	{% embed "element/card.html" with {"size":["s12"],"class":[],"title":"Add User Group"} %}
+		{% block content %}
+		<form class="row" action="{{ url("maple/login/dashboard","user-group|add") }}" method="post">
+			{{ imports.input({'name':'name','label':'Group Name','required':true}) }}
+			<div class="col s12 l6">
+				<input type="radio" name="position" value="<" id="r1" checked>
+				<label for="r1">Has Less Access Than</label>
+			</div>
+			<div class="col s12 l6">
+				<input type="radio" name="position" value=">" id="r2">
+				<label for="r2">Has Equal Access to</label>
+			</div>
+			<div class="col s12 input-field">
+				<label>User Group</label>
+				<select name="group">
+					<option value="{{ g.value }}">{{ g.name }}</option>
+				</select>
+			</div>
+			{{ imports.button({'type':'submit','label':'Create'}) }}
+		</form>
 		{% endblock %}
 	{% endembed %}
 	{% endblock %}
