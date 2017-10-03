@@ -1,0 +1,59 @@
+<h2 class="header">Plugins</h2>
+<p>
+	<a class="btn btn-small {% if not maple.request.status %}blue{% else %}grey{% endif %}" href="?"  >All</a>
+	<a class="btn btn-small {% if maple.request.status=='active' %}blue{% else %}grey{% endif %}" href="?status=active">Active</a>
+	<a class="btn btn-small {% if maple.request.status=='inactive' %}blue{% else %}grey{% endif %}" href="?status=inactive">Inactive</a>
+	<a class="btn btn-small {% if maple.request.status=='core' %}blue{% else %}grey{% endif %}" href="?status=core">Core</a>
+</p>
+<div class="row">
+	<form method="POST" action="{{ url("%API%") }}">
+	<div class="row" style="margin:0">
+		<div class="input-field col s12 m6 l3" style="margin:0">
+			<select name="action">
+				<option value="" disabled selected>Bulk Edit</option>
+				<option value="activate">Activate</option>
+				<option value="deactivate">Deactivate</option>
+				<option value="update">Update</option>
+				<option value="delete">Delete</option>
+			</select>
+		</div>
+		{{ ajax("maple/cms","plugin|bulk") }}
+		<input type="text" hidden name="redirect_to" value="{{ maple.current }}">
+		<button type="submit" class="btn grey lighten-2 black-text wave-effect"> Apply</button>
+	</div>
+	{% for plugin in plugins %}
+		<div class="col s12">
+			<div class="card">
+				<div class="card-content">
+					{% if not plugin.core %}
+					<input type="checkbox" name="plugins[]" id="{{ plugin.id }}" value="{{ plugin.id }}" />
+					{% endif %}
+					<label for="{{ plugin.id }}"></label>
+					<span class="card-title black-text">{{ plugin.name }}</span>
+					<span class="grey-text"> {{ plugin.version }}</span><br>
+					<span class="grey-text">by {{ plugin.author }}</span>
+					<p>{{ plugin.description|raw }}</p>
+					{% if not plugin.core %}
+						{% if plugin.active %}
+							<a class="btn black" href="{{ ajax_url("maple/cms","plugin",{'action':'reload','plugin':plugin.id,'redirect_to':url('%CURRENT%')}) }}" ><i class="material-icons left">refresh</i> Reload</a>
+							<a class="btn grey" href="{{ ajax_url("maple/cms","plugin",{'action':'edit','plugin':plugin.id,'redirect_to':url('%CURRENT%')}) }}" ><i class="material-icons left">edit</i> edit</a>
+							<a class="btn blue" href="{{ ajax_url("maple/cms","plugin",{'action':'deactivate','plugin':plugin.id,'redirect_to':url('%CURRENT%')}) }}" ><i class="material-icons left">pause</i> Disable</a>
+						{% else %}
+							<a class="btn blue" href="{{ ajax_url("maple/cms","plugin",{'action':'activate','plugin':plugin.id,'redirect_to':url('%CURRENT%')}) }}" ><i class="material-icons left">play_arrow</i> Activate</a>
+							<a class="btn red" href="{{ ajax_url("maple/cms","plugin",{'action':'delete','plugin':plugin.id,'redirect_to':url('%CURRENT%')}) }}" ><i class="material-icons left">delete</i> Remove</a>
+						{% endif %}
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	{% else %}
+	<div class="col s12">
+		<div class="card">
+			<div class="card-content">
+				<h5>No Plugins Installed</h5>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+	</form>
+</div>

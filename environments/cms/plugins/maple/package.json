@@ -6,6 +6,7 @@
 	"namespace" :	"maple/cms",
 	"maple"		: {
 		"maple/cms":{
+			"core"		: true,
 			"setup"		: {
 				"load"	:	"/class-setup.php",
 				"install":	"maple\\cms\\plugin\\SETUP::install"
@@ -15,7 +16,8 @@
 				"maple\\cms\\ADMIN" : "/class-admin.php"
 			},
 			"filters"	: {
-				"render|body-end":"maple\\cms\\plugin\\MAPLE::f_body_end"
+				"render|body-end":"maple\\cms\\plugin\\MAPLE::f_body_end",
+				"render|body-start":"maple\\cms\\plugin\\MAPLE::f_body_start"
 			},
 			"shortcodes": {
 				"dashboard"	: "maple\\cms\\plugin\\MAPLE::sc_dashboard"
@@ -25,7 +27,29 @@
 			},
 			"template"	: "/templates",
 			"dashboard"	: [],
-			"menus"		: [],
+			"menus"		: [
+				{
+					"name"		: 	"Plugins",
+					"namespace" :	"maple/cms",
+					"url"		:	{ "maple/cms":"plugin|dashboard"},
+					"icon"		:	"apps",
+					"permission":	{"maple/plugin":"plugin|activate"},
+					"more"		: [
+						{
+							"name"		: 	"All Plugins",
+							"url"		:	{"maple/cms":"plugin|view"},
+							"icon"		:	"all",
+							"permission": 	{"maple/plugin":"plugin|activate"}
+						},
+						{
+							"name"		: 	"Add New",
+							"url"		:	{"maple/cms":"plugin|install"},
+							"icon"		:	"add",
+							"permission": 	{"maple/plugin":"plugin|install"}
+						}
+					]
+				}
+			],
 			"widgets"	: [],
 			"api"		:	"/api.json"
 		}

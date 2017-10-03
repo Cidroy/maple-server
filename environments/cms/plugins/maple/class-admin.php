@@ -114,6 +114,27 @@ class ADMIN{
 			"dashboards"	=>	self::$_UI["dashboards"],
 		]);
 	}
+
+	public static function p_plugin_dashboard(){
+		MAPLE::has_content(true);
+		return TEMPLATE::render("maple/cms","plugin-all",[
+			"plugins"	=> \maple\cms\PLUGIN::list_all()
+		]);
+	}
+
+	public static function p_plugin_install(){
+		return false;
+		MAPLE::has_content(true);
+		return TEMPLATE::render("maple/cms","plugin-install");
+	}
+
+	public static function notify($notify){
+		$notify = array_merge(["message" => false, "title" => false,],$notify);
+			$notification = new NOTIFICATION("maple/cms");
+			$notification->text = $notify["message"];
+			$notification->title = $notify["title"];
+			$notification->notify();
+	}
 }
 
 ADMIN::initialize();
