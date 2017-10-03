@@ -558,5 +558,18 @@ class URL{
 			"name-url"	=>	self::$_name_url
 		];
 	}
+
+	/**
+	 * Generate AJAX Action url
+	 * @param  string $namespace app namespace
+	 * @param  string $action    action
+	 * @param  array  $query     [optional] Parameter Queries
+	 * @return string            url
+	 */
+	public static function ajax($namespace,$action,$query = []){
+		$query[\maple\cms\AJAX::request_parameters["namespace"]] = $namespace;
+		$query[\maple\cms\AJAX::request_parameters["action"]] = $action;
+		return self::http("%API%",$query);
+	}
 }
  ?>

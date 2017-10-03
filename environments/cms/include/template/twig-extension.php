@@ -36,7 +36,7 @@ class Maple_Twig_Ext extends \Twig_Extension{
 			"filter"=>	new \Twig_Function_Function("\\maple\\cms\\MAPLE::do_filters"),
 			"widget"=>	new \Twig_Function_Function(__CLASS__."::widget"),
 			"ajax"	=>	new \Twig_Function_Function(__CLASS__."::ajax_input"),
-			"ajax_url"	=>	new \Twig_Function_Function(__CLASS__."::ajax_url"),
+			"ajax_url"	=>	new \Twig_Function_Function("\\maple\\cms\\URL::ajax"),
 			"nonce"	=>	new \Twig_Function_Function(__CLASS__."::nonce"),
 			"permission"=>	new \Twig_Function_Function("\\maple\\cms\\SECURITY::permission"),
 			"ui_datatable"=>	new \Twig_Function_Function("\\maple\\cms\\UI::datatable"),
@@ -90,12 +90,6 @@ class Maple_Twig_Ext extends \Twig_Extension{
 	 */
 	public static function ajax_input($namespace,$action){
 		return "<input type=\"text\" name=\"".\maple\cms\AJAX::request_parameters["namespace"]."\" value=\"{$namespace}\" hidden=\"true\"><input type=\"text\" name=\"".\maple\cms\AJAX::request_parameters["action"]."\" value=\"{$action}\" hidden=\"true\">";
-	}
-
-	public static function ajax_url($namespace,$action,$query = []){
-		$query[\maple\cms\AJAX::request_parameters["namespace"]] = $namespace;
-		$query[\maple\cms\AJAX::request_parameters["action"]] = $action;
-		return self::url("%API%",$query);
 	}
 
 	/**
