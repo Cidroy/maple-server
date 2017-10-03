@@ -6,6 +6,7 @@
 	"namespace" :	"maple/login",
 	"maple"		: {
 		"maple/cms":{
+			"core"		: true,
 			"setup"		: {
 				"load"	:	"/class-setup.php",
 				"install":	"maple\\cms\\login\\SETUP::install"

@@ -128,7 +128,7 @@ class UI implements iUI{
 		self::js()->add(TEMPLATE::render("maple","graph/js-generic",[
 			"data"	=>	[
 				'options'	=>	$param['data']['options'],
-				'values'	=>	$param['data']['values'],
+				'values'	=>	array_values($param['data']['values']),
 			],
 			"id"	=>	$__graph_identifier.$__graph_no,
 			"type"	=>	$param["type"]

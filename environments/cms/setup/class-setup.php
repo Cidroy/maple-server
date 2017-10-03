@@ -65,7 +65,7 @@ if(\ENVIRONMENT::url()->matches(eMAPLE::install_url)){
 						$_SESSION["maple/cms"]["storage"] = isset($_SESSION["maple/cms"]["storage"])?$_SESSION["maple/cms"]["storage"]:[];
 						$_SESSION["maple/cms"]["storage"]["database"] = $db_param;
 						header("Location: ".\ENVIRONMENT::url()->root(eMAPLE::install_url."/")); die();
-					} catch (\Exception $e) { $_SESSION["maple/cms"]["setup/messages"][] = "Unable to use database with these settings.\n Server says : '{$e->getMessage()}'"; }
+					} catch (\Exception $e) { $_SESSION["maple/cms"]["setup/messages"][] = "Unable to use database with these settings.\n Server says : '{$e->getMessage()}' <br> ".(string)$e ; }
 					try {
 						unset($_REQUEST["db-password"]);
 						unset($_REQUEST["db-confirm-password"]);
@@ -91,7 +91,7 @@ if(\ENVIRONMENT::url()->matches(eMAPLE::install_url)){
 							];
 							header("Location: ".\ENVIRONMENT::url()->root(eMAPLE::install_url."/")); die();
 						} else { $_SESSION["maple/cms"]["setup/messages"][]	= "Username or Email Already Exists"; }
-					} catch (\Exception $e) {  $_SESSION["maple/cms"]["setup/messages"][] = "Unable to use database with these settings.\n Server says : '{$e->getMessage()}'";  }
+					} catch (\Exception $e) {  $_SESSION["maple/cms"]["setup/messages"][] = "Unable to use database with these settings.\n Server says : '{$e->getMessage()}' <br> ".(string)$e;  }
 					return self::render_page("setup-admin");
 				break;
 				case 'confirm':

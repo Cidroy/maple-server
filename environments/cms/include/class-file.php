@@ -195,7 +195,7 @@ class FILE{
 		if (is_dir($dir)) {
 			$files = scandir($dir);
 			foreach ($files as $file)
-				if ($file != "." && $file != "..") rrmdir("$dir/$file");
+				if ($file != "." && $file != "..") self::delete_folder("$dir/$file");
 			rmdir($dir);
 		}
 		else if (file_exists($dir)) unlink($dir);
@@ -216,7 +216,7 @@ class FILE{
 	 */
 	public static function copy_folder($src, $dst, $merge = false) {
 		if ($merge === false && file_exists ( $dst ))
-			rrmdir ( $dst );
+			self::delete_folder ( $dst );
 		if (file_exists ( $src ) && is_dir ( $src )) {
 			if(!is_readable($src)) throw new \maple\cms\exceptions\FilePermissionException("Unable to write contents to destination '{$dst}' because of insufficient permissions", 1);
 			if(!is_writeable($dst)) throw new \maple\cms\exceptions\FilePermissionException("Unable to read contents from source '{$src}' because of insufficient permissions", 1);

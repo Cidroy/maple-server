@@ -602,6 +602,48 @@ class SECURITY {
 		sort($allowed);
 		return $allowed;
 	}
+
+	/**
+	 * Install Permissions from File
+	 * @param  string $namespace app namespace
+	 * @param  string $folder    app folder path
+	 */
+	public static function install_permission($namespace,$folder){
+		if(!file_exists("{$folder}/permissions.json")) return;		
+		$user_codes=json_decode(file_get_contents(self::_permission_location."/user-type.json"),true);
+		$user_codes = array_flip($user_codes);
+		foreach ($user_codes as $key => $value) $user_codes[$key] = json_decode(file_get_contents(self::_permission_location."/{$key}.json"),true);
+		$plugin_permissions = json_decode(file_get_contents("{$folder}/permissions.json"),true);
+		foreach ($plugin_permissions as $permission) {
+			$permission["namespace"] = isset($permission["namespace"])?$permission["namespace"]:$namespace;
+			$permission["access"] = self::str_to_permitted_groupcodes($permission["access"]);
+			foreach ($permission["access"] as $group) {
+				if(!isset($user_codes[$group][$permission["namespace"]])) $user_codes[$group][$permission["namespace"]] = [];
+				if(!in_array($permission["name"],$user_codes[$group][$permission["namespace"]])) $user_codes[$group][$permission["namespace"]][] = $permission["name"];
+			}
+		}
+		foreach ($user_codes as $key => $value) file_put_contents(self::_permission_location."/{$key}.json",json_encode($value));
+	}
+
+	/**
+	 * Uninstall permissions
+	 * @param  string $namespace app namespace
+	 * @param  string $folder  app path
+	 */
+	public static function uninstall_permission($namespace,$folder){
+		if(!file_exists("{$folder}/permissions.json")) return;
+		$user_codes=json_decode(file_get_contents(self::_permission_location."/user-type.json"),true);
+		$user_codes = array_flip($user_codes);
+		foreach ($user_codes as $key => $value) $user_codes[$key] = json_decode(file_get_contents(self::_permission_location."/{$key}.json"),true);
+		$plugin_permissions = json_decode(file_get_contents("{$folder}/permissions.json"),true);
+		foreach ($plugin_permissions as $permission) {
+			$permission["namespace"] = isset($permission["namespace"])?$permission["namespace"]:$namespace;
+			foreach ($user_codes as $key => $value) {
+				unset($user_codes[$key][$permission["namespace"]]);
+			}
+		}
+		foreach ($user_codes as $key => $value) file_put_contents(self::_permission_location."/{$key}.json",json_encode($value));
+	}
 }
 
 ?>

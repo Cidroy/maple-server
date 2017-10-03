@@ -206,6 +206,7 @@ class PLUGIN{
 		];
 		\ENVIRONMENT::lock("maple/cms : maple/plugin activate");
 			file_put_contents(self::active_file,json_encode($buffer));
+			self::clear_cache();
 			if($activation){
 				if(isset($activation["load"])){
 					if(!is_array($activation["load"])) $activation["load"] = [$activation["load"]];
@@ -216,6 +217,7 @@ class PLUGIN{
 				if(isset($param["install"]) && $param["install"] && $activation["install"]) call_user_func($activation["install"]);
 				if(isset($activation["activate"])) call_user_func($activation["activate"]);
 			}
+			SECURITY::install_permission($namespace,$buffer[$namespace]["path"]);
 			MAPLE::do_filters("plugin|activated",$filter = [
 				"namespace"	=>	$namespace,
 				"version"	=>	$version,
@@ -247,20 +249,24 @@ class PLUGIN{
 
 		$buffer = json_decode(file_get_contents(self::active_file),true);
 		$data = $buffer[$namespace];
+		$path = $buffer[$namespace]["path"];
+		$version = $buffer[$namespace]["version"];
 		unset($buffer[$namespace]);
 		\ENVIRONMENT::lock("maple/cms : maple/plugin deactivate");
-			file_put_contents(self::active_file,$buffer);
-			if(file_exists($data["location"]."/package.json")){
-				$buffer = json_decode(file_get_contents($data["location"."/package.json"]),true);
+			file_put_contents(self::active_file,json_encode($buffer));
+			self::clear_cache();
+			if(file_exists($data["path"]."/package.json")){
+				$buffer = json_decode(file_get_contents($data["path"]."/package.json"),true);
 				$activation = isset($buffer["maple"]["maple/cms"]["setup"])?$buffer["maple"]["maple/cms"]["setup"]:false;
 				if($activation){
 					if(isset($activation["load"])){
 						if(!is_array($activation["load"])) $activation["load"] = [$activation["load"]];
-						foreach ($activation["load"] as $file) if(file_exists($data["location"].$file)) require_once $data["location"].$file;
+						foreach ($activation["load"] as $file) if(file_exists($data["path"].$file)) require_once $data["path"].$file;
 					}
 					if(isset($activation["deactivate"])) call_user_func($activation["deactivate"]);
 				}
 			}
+			SECURITY::uninstall_permission($namespace,$path);
 			MAPLE::do_filters("plugin|deactivated",$filter = [
 				"namespace"	=>	$namespace,
 				"version"	=>	$version,
@@ -269,6 +275,31 @@ class PLUGIN{
 		\ENVIRONMENT::unlock();
 		self::$_buffer = $buffer;
 		return true;
+	}
+
+	/**
+	 * List all The Plugins in a location with basic details
+	 * @param  mixed[] $sources string or array of location,
+	 * '*' for all current list
+	 * @return array          plugin list
+	 */
+	public static function list_all($sources = "*"){
+		if($sources=="*") $sources = self::$_sources;
+		else if(is_string($sources)) $sources = [$sources];
+		$plugins = [];
+		foreach ($sources as $source) {
+			foreach (FILE::get_folders($source) as $plugin) {
+				$buffer = json_decode(file_get_contents($plugin."/package.json"),true);
+				if( isset($buffer["maple"]["maple/cms"]) && isset($buffer["namespace"]) ){
+					$buffer["core"]	= isset($buffer["maple"]["maple/cms"]["core"]) && $buffer["maple"]["maple/cms"]["core"];
+					unset($buffer["maple"]);
+					$buffer["id"] = $buffer["namespace"]."@".$buffer["version"];
+					$buffer["active"] = isset(self::$_buffer[$buffer["namespace"]]) && self::$_buffer[$buffer["namespace"]]["version"]==$buffer["version"];
+					$plugins[] = $buffer;
+				}
+			}
+		}
+		return $plugins;
 	}
 
 	/**
@@ -289,8 +320,9 @@ class PLUGIN{
 		$path = null;
 		switch ($type) {
 			case self::active:
-					if(isset(self::$_buffer[$namespace]) && self::version_compare(self::$_buffer[$namespace]["version"],$version))
+					if(isset(self::$_buffer[$namespace]) && self::version_compare(self::$_buffer[$namespace]["version"],$version)==0) {
 						$path = self::$_buffer[$namespace]["path"];
+					}
 				break;
 			case self::installed:
 				foreach (self::$_sources as $source) {
@@ -307,6 +339,9 @@ class PLUGIN{
 		}
 		if($path===null) return false;
 		$details = json_decode(file_get_contents($path."/package.json"),true);
+		$details["core"]	= isset($details["maple"]["maple/cms"]["core"]) && $details["maple"]["maple/cms"]["core"];
+		$details["id"] = $details["namespace"]."@".$details["version"];
+		$details["active"] = isset(self::$_buffer[$details["namespace"]]) && self::$_buffer[$details["namespace"]]["version"]==$details["version"];
 		$details["maple/cms"] = $details["maple"]["maple/cms"];
 		$details["path"]	= $path;
 		unset($details["maple"]);
@@ -500,6 +535,13 @@ class PLUGIN{
 			"loaded"		=>	self::$_loaded,
 			"plugin-data"	=>	self::$_plugin_data,
 		];
+	}
+
+	/**
+	 * Clear Cache Files
+	 */
+	public static function clear_cache(){
+		FILE::delete_folder(self::cache);
 	}
 
 }
