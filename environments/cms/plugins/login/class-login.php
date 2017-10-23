@@ -113,6 +113,7 @@ class LOGIN{
 	 */
 	public static function a_logout(){
 		USER::logout();
+		if(!isset($_REQUEST["ajax"])) URL::redirect(URL::http("%ROOT%"));
 		return [ "type"	=>	"success", ];
 	}
 

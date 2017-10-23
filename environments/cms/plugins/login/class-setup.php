@@ -13,7 +13,7 @@ class SETUP {
 		$shortcodes = [
 			"login"	=>	new SHORTCODE("login",["page"=>"default"]),
 			"register"	=> new SHORTCODE("register",["page"=>"default"]),
-			"user-profile"	=> new SHORTCODE("user-profile",["page"=>"default"]),
+			"profile"	=> new SHORTCODE("profile",["page"=>"default"]),
 		];
 		$pages = [
 			[
@@ -29,10 +29,10 @@ class SETUP {
 				"content"=> (string)$shortcodes["register"]
 			],
 			[
-				"name"	=>	"user-profile",
+				"name"	=>	"profile",
 				"url"	=>	"/profile",
 				"title"	=>	"Profile",
-				"content"=> (string)$shortcodes["user-profile"]
+				"content"=> (string)$shortcodes["profile"]
 			]
 		];
 		foreach ($pages as $page ) PAGE::add($page);

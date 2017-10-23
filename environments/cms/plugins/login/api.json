@@ -5,7 +5,7 @@
 		"function"	 : "\\maple\\cms\\LOGIN::a_login"
 	},
 	"logout" : {
-		"method"	 : "POST",
+		"method"	 : ["POST","GET"],
 		"function"	 : "\\maple\\cms\\LOGIN::a_logout"
 	}
 }

@@ -25,7 +25,7 @@ class PAGE{
 	 */
 	public static function profile_view(){
 		MAPLE::has_content(true);
-		return "j";
+		return TEMPLATE::render("maple/login","profile/home");
 	}
 
 	/**

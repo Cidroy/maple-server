@@ -15,7 +15,7 @@
 		"permissions": {"maple/login":"sign-up"}
 	},
 	"page|profile" : {
-		"base"		: "user-profile"
+		"base"		: "profile"
 	},
 	"profile|view" : {
 		"parent"	: "page|profile",

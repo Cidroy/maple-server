@@ -42,6 +42,34 @@ class SHORTCODE{
 				break;
 		}
 	}
+
+	public static function profile(){
+		UI::add_filter(__CLASS__."::dashboard_ui_filter");
+	}
+
+	public static function dashboard_ui_filter($context){
+		return TEMPLATE::render("maple/theme","page/dashboard",[
+			"sidebar"	=>	[
+				"menus"	=>	self::menus()
+			],
+			"context"	=>	$context,
+		]);
+	}
+
+	private static function menus(){
+		return [
+			[
+				"link"	=>	URL::name("maple/login","profile|view"),
+				"heading"=>	"View",
+				"icon"	=>	"home",
+			],
+			[
+				"link"	=>	URL::ajax("maple/login","logout"),
+				"heading"=>	"Logout",
+				"icon"	=>	"apps",
+			],
+		];
+	}
 }
 
 ?>
