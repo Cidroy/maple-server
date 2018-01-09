@@ -1,0 +1,26 @@
+{
+	"page|login" : {
+		"base"	: "login",
+		"permissions": {"maple/login":"login"}
+	},
+	"page|forgot-password" : {
+		"parent"	: "page|login",
+		"route"		: "/forgot-password",
+		"handler"	: "maple\\cms\\login\\PAGE::forgot_password",
+		"permissions": {"maple/login":"login"}
+	},
+	"page|sign-up" : {
+		"parent"	: "page|login",
+		"base"		: "register",
+		"permissions": {"maple/login":"sign-up"}
+	},
+	"page|profile" : {
+		"base"		: "profile"
+	},
+	"profile|view" : {
+		"parent"	: "page|profile",
+		"route"		: "/view",
+		"handler"	: "maple\\cms\\login\\PAGE::profile_view",
+		"permissions": {"maple/login":"profile|view"}
+	}
+}

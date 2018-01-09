@@ -1,0 +1,28 @@
+<!-- TODO : Multicoloumn text flow of checkbox -->
+<h2 class="header">Set Permissions</h2>
+<form method="POST" action="{{ maple.url.root }}">
+	<div class="row">
+		{% for level,data in form.permissions %}
+		<div class="col s12 l6">
+			<div class="card">
+				<div class="card-content">
+					<h4 class="header black-text">{{ data.name }}</h4>
+					<hr>
+					<div class="row">
+						<div class="col s12">
+							{% for name,p in data.permission %}
+							<input type="checkbox" name="permission[{{ level }}][{{ form.id }}][{{ name }}]" id="{{ level }}-{{ name }}" {% if p.access %} checked="true" {% endif %}>
+							<label for="{{ level }}-{{ name }}" class="tooltipped" data-position="bottom" data-tooltip="{{ p.description }}">{{ name }}</label>
+							<br>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+		{{ form.ajax|raw }}
+		<input type="text" name="redirect_to" value="{{ maple.url.current }}" hidden="true">
+	</div>	
+	<button type="submit" class="btn blue">Done</button>
+</form>

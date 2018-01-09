@@ -1,0 +1,13 @@
+<h4 class="header">Clients</h4>
+{% for c in clients %}
+<div class="card">
+	<div class="card-content">
+		<a href="{{ c.url }}">
+			<p class="black-text"><strong>Name : </strong>{{ c.name }}</p>
+			<p class="black-text"><strong>Phone : </strong>{{ c.phone }}</p>
+			<p class="black-text"><strong>Email : </strong>{{ c.email }}</p>
+			<p class="black-text"><strong>Address : </strong>{{ c.address }}</p>
+		</a>
+	</div>
+</div>
+{% endfor %}

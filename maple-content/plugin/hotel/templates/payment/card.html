@@ -1,0 +1,75 @@
+<div class="card" style="height:100vh">
+	<div class="card-content">
+		<h5 class="card-title">Payment Method</h5>
+		<div class="row">
+			<div class="col s12">
+				<ul class="tabs indigo darken-4 white-text">
+					<li class="tab col s3"><a class="active" href="#ttest2">Card</a></li>
+					<li class="tab col s3"><a href="#ttest4">Cash</a></li>
+					<li class="tab col s3"><a href="#ttest3">Invalid</a></li>
+				</ul>
+			</div>
+			<div id="ttest2" class="col s12">
+				<div class="col s12">
+					<p>Please Select Payment Method</p>
+					<input type="radio" name="transaction[method]" value="card" id="t-card" checked="true">
+					<label class="black-text" for="t-card">Card</label>
+				</div>
+				<div class="col s12 input-field">
+					<select id="t-card-type" name="transaction[card-type]">
+						<option value="credit">Credit Card</option>
+						<option value="debit">Debit Card</option>
+					</select>
+					<label>Card Type</label>
+				</div>
+				<div class="col s12 input-field">
+					<input type="text" name="transaction[card][holder]" id="t-card-holder"  value="{{ maple.request.transaction.holder }}">
+					<label for="t-card-holder">Card Holder Name</label>
+				</div>
+				<div class="col s12 m8 l10 input-field">
+					<input type="number" name="transaction[card][number]" id="t-card-number"  value="{{ maple.request.transaction.number }}">
+					<label for="t-card-number">Card Number</label>
+				</div>
+				<div class="col s12 m4 l2 input-field">
+					<input type="password" name="transaction[card][cvv]" id="t-card-cvv" >
+					<label for="t-card-cvv">CVV</label>
+				</div>
+				<p>Expiry : </p>
+				<div class="col s6 input-field">
+					<input type="text" name="transaction[card][expiry][mm]" id="t-card-expiry-mm" >
+					<label for="t-card-expiry-mm">mm</label>
+				</div>
+				<div class="col s6 input-field">
+					<input type="text" name="transaction[card][expiry][yy]" id="t-card-expiry-yy" >
+					<label for="t-card-expiry-yy">yy</label>
+				</div>
+			</div>
+			<div id="ttest4" class="col s12">
+				<div class="col s12">
+					<p>Please Select Payment Method</p>
+					<input type="radio" name="transaction[method]" value="cod" id="t-cod">
+					<label class="black-text" for="t-cod">Cash On Delivery</label>
+				</div>
+				<!-- <div class="col s12 input-field">
+					<select name="transaction[cod][type]">
+						<option value="paid">Paid</option>
+						<option value="advance">Advance Payment </option>
+						<option value="unpaid">Unpaid</option>
+					</select>
+				</div> -->
+			</div>
+			<div id="ttest3" class="col s12">
+				<div class="col s12">
+					<p>Please Select Payment Method</p>
+					<input type="radio" name="transaction[method]" value="inavlid" id="t-cod">
+					<label class="black-text" for="t-cod">Invalid</label>
+				</div>
+				<h5 class="header black-text">This method will generate an incorrect transaction report</h5>
+			</div>
+		</div>
+		<div class="row">
+			<h5 class="header black-text right">Total : <b>{{ currency.symbol|raw }} {{ payment.amount|number_format(2,'.',',') }}</b></h5>
+			<input type="number" name="transaction[amount]" value="{{ payment.amount }}" hidden="true">
+		</div>
+	</div>
+</div>

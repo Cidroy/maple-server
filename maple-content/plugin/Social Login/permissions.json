@@ -1,0 +1,8 @@
+{
+	"permission"	:{
+		"fb-view-all"	:{
+			"description"	:"",
+			"default"		:"Administrator+"
+		}
+	}
+}

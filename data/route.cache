@@ -1,0 +1,1 @@
+{"get":[{"route":"\/rooms","handler":"FunctionName"},{"route":"\/offer","handler":"FunctionName"},{"route":"\/{name:\\d+}","handler":"FunctionName"}],"post":[],"mix":[]}

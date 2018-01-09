@@ -1,0 +1,154 @@
+{
+    "name": "Hotel Reservation",
+    "version": "2.0",
+    "description": "The simple and fast way for hotel Reservation",
+    "author": "Rubixcode",
+    "namespace": "rubixcode\/hotel",
+    "Maple": {
+        "ID": "583c2968e7fde4ac9bfb4f37f87782dc",
+        "Active": false,
+        "Name": "Hotel Reservation",
+        "Path": "%ROOT%%PLG%hotel",
+        "Setup": {
+            "Path": "setup.php",
+            "Backup": true,
+            "Activate": "rubixcode\\hotel\\SETUP::Activate",
+            "Deactivate": "rubixcode\\hotel\\SETUP::Deactivate"
+        },
+        "Autoload": {
+            "rubixcode\\hotel\\DASHBOARD": "class\/dashboard.php",
+            "rubixcode\\hotel\\ROOM": "class\/room.php",
+            "rubixcode\\hotel\\RATES": "class\/rates.php",
+            "rubixcode\\hotel\\RESERVATION": "class\/reservation.php",
+            "rubixcode\\hotel\\PAYMENT": "class\/payment.php",
+            "rubixcode\\hotel\\ADMIN": "class\/admin.php",
+            "rubixcode\\hotel\\CLIENT": "class\/client.php"
+        },
+        "Shortcode": [],
+        "app-route": [
+            "route\/room.json",
+            "route\/rate.json",
+            "route\/reservation.json",
+            "route\/admin.json",
+            "route\/client.json"
+        ],
+        "template": "templates",
+        "Filter": {
+            "navbar_element": "rubixcode\\hotel\\ADMIN::n_navbar_search"
+        },
+        "Client": {
+            "Do": "rubixcode\\hotel\\ADMIN::n_navbar_search"
+        },
+        "Admin": {
+            "Dashboard": [
+                {
+                    "Name": "Total Income",
+                    "Function": "rubixcode\\hotel\\DASHBOARD::d_total_income",
+                    "Permission": "hotel-admin-dashboard"
+                },
+                {
+                    "Name": "Total Clients",
+                    "Function": "rubixcode\\hotel\\DASHBOARD::d_total_clients",
+                    "Permission": "hotel-admin-dashboard"
+                },
+                {
+                    "Name": "Room Stats",
+                    "Function": "rubixcode\\hotel\\DASHBOARD::d_room_stats",
+                    "Permission": "hotel-admin-dashboard"
+                },
+                {
+                    "Name": "Season Stats",
+                    "Function": "rubixcode\\hotel\\DASHBOARD::d_season_stats",
+                    "Permission": "hotel-admin-dashboard"
+                }
+            ],
+            "Plugin": [
+                {
+                    "Bind": "hotel",
+                    "Name": "Hotel",
+                    "To": "rubixcode\\hotel\\ADMIN::h_home",
+                    "icon": "rooms",
+                    "Permission": "hotel-admin",
+                    "More": [
+                        {
+                            "Bind": "rooms",
+                            "Name": "Rooms",
+                            "To": "rubixcode\\hotel\\ADMIN::h_rooms",
+                            "Permission": "hotel-admin-rooms"
+                        },
+                        {
+                            "Bind": "category",
+                            "Name": "Category",
+                            "To": "rubixcode\\hotel\\ADMIN::h_category",
+                            "Permission": "hotel-admin-category"
+                        },
+                        {
+                            "Bind": "reservation",
+                            "Name": "Reservations",
+                            "To": "rubixcode\\hotel\\ADMIN::h_reservation",
+                            "Permission": "hotel-admin-reservation"
+                        },
+                        {
+                            "Bind": "clients",
+                            "Name": "Clients",
+                            "To": "rubixcode\\hotel\\ADMIN::h_clients",
+                            "Permission": "hotel-admin-client"
+                        },
+                        {
+                            "Bind": "prices",
+                            "Name": "Prices",
+                            "To": "rubixcode\\hotel\\ADMIN::h_prices",
+                            "Permission": "hotel-admin-prices"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "AJAX": {
+        "hotel-category-add": {
+            "function": "rubixcode\\hotel\\ADMIN::r_category_add",
+            "permission": "hotel-category-add"
+        },
+        "hotel-category-edit": {
+            "function": "rubixcode\\hotel\\ADMIN::r_category_edit",
+            "permission": "hotel-category-edit"
+        },
+        "hotel-category-delete": {
+            "function": "rubixcode\\hotel\\ADMIN::r_category_delete",
+            "permission": "hotel-category-delete"
+        },
+        "hotel-rooms-add": {
+            "function": "rubixcode\\hotel\\ADMIN::r_rooms_add",
+            "permission": "hotel-rooms-add"
+        },
+        "hotel-rooms-edit": {
+            "function": "rubixcode\\hotel\\ADMIN::r_rooms_edit",
+            "permission": "hotel-rooms-edit"
+        },
+        "hotel-rooms-delete": {
+            "function": "rubixcode\\hotel\\ADMIN::r_rooms_delete",
+            "permission": "hotel-rooms-delete"
+        },
+        "hotel-reservation-checkout": {
+            "function": "rubixcode\\hotel\\ADMIN::r_reservation_checkout",
+            "permission": "hotel-reservation-checkout"
+        },
+        "hotel-reservation-cancel": {
+            "function": "rubixcode\\hotel\\ADMIN::r_reservation_cancel",
+            "permission": "hotel-reservation-cancel"
+        },
+        "hotel-prices-add": {
+            "function": "rubixcode\\hotel\\ADMIN::r_prices_add",
+            "permission": "hotel-prices-add"
+        },
+        "hotel-prices-edit": {
+            "function": "rubixcode\\hotel\\ADMIN::r_prices_edit",
+            "permission": "hotel-prices-edit"
+        },
+        "hotel-prices-delete": {
+            "function": "rubixcode\\hotel\\ADMIN::r_prices_delete",
+            "permission": "hotel-prices-delete"
+        }
+    }
+}

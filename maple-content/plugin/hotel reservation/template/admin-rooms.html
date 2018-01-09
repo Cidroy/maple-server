@@ -1,0 +1,38 @@
+<h2 class="header">
+{% if permission['hotel-delete-category'] %}
+
+{% endif %}
+{{ content.title }}
+</h2>
+{% if not content.meta.back_all_room %}
+<div class="card">
+	<div class="card-content">
+		<div class="row">
+			<h4 class="header blue-text">Categories  <a href="{{ this.url.add_category }}" class="btn btn-floating blue white-text"><i class="material-icons right">add</i></a> </h4>
+			{% for ty in content.types %}
+			<div class="col s12 m6 l4" style="margin-bottom: 10px">
+				<a href="{{ ty.url }}" class="btn deep-purple darken-2 white-text" style="width: 100%">
+					{{ ty.name }}
+				</a>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endif %}
+<div class="card">
+	<div class="card-content">
+		<h4 class="header blue-text">Rooms <a href="{{ this.url.add_room }}" class="btn btn-floating blue white-text"><i class="material-icons right">add</i></a> </h2>
+		<div class="row">
+			{% for room in content.rooms %}
+			<a href="{{ room.url }}" class="col s12 m4 l2 z-depth-2 {% if room.available %} green {% else %} red {% endif %} darken-2 white-text center-align" style="margin: 10px">
+				<p>{% if room.available %} Available {% else %} Unavailable {% endif %}</p>
+				<h5>{{ room.number }}</h5>
+				<p>{{ room.type }}</p>
+			</a>
+			{% else %}
+				<h5 class="header red-text">Error : No Rooms Found of this type</h5>
+			{% endfor %}
+		</div>
+	</div>
+</div>

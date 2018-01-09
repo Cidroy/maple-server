@@ -1,0 +1,13 @@
+{{ filter.admin_message }}
+<pre>
+Input
+	Start Date	{{ span.start }}
+	End Date	{{ span.end }}
+	{{ form.ajax_action|raw }}
+{% for room in room_types %}
+	{{ room.id }} {{ room.name }}
+	{{ room.rate }}
+	{{ room.comment }}
+
+{% endfor %}
+</pre>

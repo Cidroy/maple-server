@@ -1,0 +1,51 @@
+{#
+	@filter admin-dashboard|users-action
+	@filter admin-dashboard|users-statistics
+	@filter admin-dashboard|users-extra
+#}
+{% import "import.twig.html" as imports %}
+{% set colors = ["red","blue","green","purple","indigo","grey","cyan","teal","orange"] %}
+{% embed "element/row.html" %}
+	{% block content %}
+	{% embed "element/column.html" with {"size":["s12"]} %}
+		{% block content %}
+		{% embed "element/parallax.html" with {"size":["s12"],"source":image.cover,"height":"200px"} %}
+			{% block content %}
+				{{ imports.page_title(3,imports.icon("people","left medium")~" Users Dashboard","white","margin-10 bottom") }}
+			{% endblock %}
+		{% endembed %}
+		{% endblock content %}
+	{% endembed %}
+	{% embed "element/column.html" with {"size":["s12"]} %}
+		{% block content %}
+		{% if permission("maple/login","user|view") %} <form action="{{ url("maple/login/dashboard","search") }}" method="get"> {{ imports.input({"name":"search","icon":"search","arg":{"placeholder":"Search Users"}}) }} </form> {% endif %}
+		{{ imports.page_title(4,"Quick Actions",random(colors)) }}
+		{% embed "element/row.html" with { "class":["margin-0"] } %}
+			{% block content %}
+			{% for action in quick_actions %}
+				{% if action.permissions and permission(null,action.permissions) %}
+					{% embed "element/card.html" with {"class":[random(colors),"darken-2","white-text","padding-0","margin-0"],"size":["s12","m3","l4"],"title":imports.icon(action.icon,"prefix")~action.title,"link":action.link} %}
+						{% block content %}{{ action.description }}{% endblock content %}
+					{% endembed %}
+				{% endif %}
+			{% else %}
+			<p>Oops! You have no Quick Actions</p>
+			{% endfor %}
+			{{ filter("admin-dashboard|users-action") }}
+			{% endblock content %}
+		{% endembed %}
+		{% if graphs %} {{ imports.page_title(4,"Statistics",random(colors)) }} {% endif %}
+		{% for graph in graphs %}
+			{% embed "element/card.html" with {"class":[random(colors),"darken-2","white-text","padding-0","margin-0"],"content_class":["padding-0"],"size":graph.size,"title":imports.icon(graph.icon,"prefix")~graph.title,"link":graph.link} %}
+				{% block content %}
+					{% if graph.note %}<p class="center grey lighten-3 black-text">{{ graph.note }}</p>{% endif %}
+					{{ graph.content|raw }}
+				{% endblock content %}
+			{% endembed %}
+		{% endfor %}
+		{{ filter("admin-dashboard|users-statistics") }}
+		{% endblock content %}
+	{% endembed %}
+	{% endblock content %}
+{% endembed %}
+{{ filter("admin-dashboard|users-extra") }}

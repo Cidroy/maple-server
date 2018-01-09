@@ -1,0 +1,271 @@
+{
+    "name": "TDNE",
+    "version": "1.0",
+    "description": "Tour de North East",
+    "author": "Rinzler",
+    "namespace": "tdne\/core",
+    "Maple": {
+        "ID": "9c8b3f02777fa69868808d20a00d8358",
+        "Name": "Docs",
+        "Template": "docs",
+        "Path": "%ROOT%%PLG%TDNE",
+        "Active": false,
+        "Setup": {
+            "Path": "setup.php",
+			"Backup" : true,
+            "Activate": "TDNE\\Setup::Activate",
+            "Deactivate": "TDNE\\Setup::Deactivate"
+        },
+        "Autoload": {
+            "TDNE\\ALoc": "class-locations-admin.php",
+            "TDNE\\AHub": "class-hub-admin.php",
+            "TDNE\\Hub": "class-hub.php",
+            "TDNE\\AGame": "class-game-admin.php",
+            "TDNE\\Game": "class-game.php"
+        },
+        "template": "template",
+        "app-route": [
+            "route-game.json",
+            "route-game-admin.json",
+            "route-hub.json",
+            "route-hub-admin.json",
+            "route-location-admin.json"
+        ],
+        "Shortcode": [],
+        "Filter": [],
+        "Admin": {
+            "Dashboard": [],
+            "Plugin": [
+                {
+                    "Name": "Game",
+                    "Bind": "game",
+                    "icon": "maps",
+                    "To": "TDNE\\AGame::show",
+                    "Permission": "tdne-game-admin-area",
+                    "More": [
+                        {
+                            "Name": "Create Task",
+                            "Bind": "create-task",
+                            "To": "TDNE\\AGame::show_create_task",
+                            "Permission": "tdne-create-task"
+                        },
+                        {
+                            "Name": "View Tasks",
+                            "Bind": "view-task",
+                            "To": "TDNE\\AGame::show_view_task",
+                            "Permission": "tdne-create-task"
+                        },
+                        {
+                            "Name": "Edit Tasks",
+                            "Bind": "edit-task",
+                            "To": "TDNE\\AGame::show_edit_task",
+                            "Permission": "tdne-create-task"
+                        },
+                        {
+                            "Name": "Create Event",
+                            "Bind": "create-event",
+                            "To": "TDNE\\AGame::show_create_event",
+                            "Permission": "tdne-create-event"
+                        },
+                        {
+                            "Name": "View Events",
+                            "Bind": "view-event",
+                            "To": "TDNE\\AGame::show_view_event",
+                            "Permission": "tdne-create-event"
+                        },
+                        {
+                            "Name": "Edit Events",
+                            "Bind": "edit-event",
+                            "To": "TDNE\\AGame::show_edit_event",
+                            "Permission": "tdne-create-event"
+                        }
+                    ]
+                },
+                {
+                    "Name": "Hub",
+                    "Bind": "hub",
+                    "To": "TDNE\\AHub::show",
+                    "icon": "location",
+                    "Permission": "tdne-hub-admin-area",
+                    "More": [
+                        {
+                            "Name": "Assign",
+                            "Bind": "assign",
+                            "To": "TDNE\\AHub::show_assign",
+                            "Permission": "tdne-hub-assign"
+                        },
+                        {
+                            "Name": "Edit Assignment",
+                            "Bind": "edit",
+                            "To": "TDNE\\AHub::show_edit",
+                            "Permission": "tdne-hub-assign-edit"
+                        }
+                    ]
+                },
+                {
+                    "Name": "Places",
+                    "Bind": "places",
+                    "To": "TDNE\\ALoc::show",
+                    "icon": "location",
+                    "Permission": "tdne-admin-locations",
+                    "More": [
+                        {
+                            "Name": "Add",
+                            "Bind": "add",
+                            "To": "TDNE\\ALoc::show_add",
+                            "Permission": "tdne-add-location"
+                        },
+                        {
+                            "Name": "Edit",
+                            "Bind": "edit",
+                            "To": "TDNE\\ALoc::show_edit",
+                            "Permission": "tdne-edit-location"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "AJAX": {
+        "add-task": {
+            "function": "TDNE\\AGame::h_add_task",
+            "permission": "tdne-create-task",
+            "extention": "json"
+        },
+        "edit-task": {
+            "function": "TDNE\\AGame::h_edit_task",
+            "permission": "tdne-edit-task",
+            "extention": "json"
+        },
+        "delete-task": {
+            "function": "TDNE\\AGame::h_delete_task",
+            "permission": "tdne-delete-task",
+            "extention": "json"
+        },
+        "add-event": {
+            "function": "TDNE\\AGame::h_add_event",
+            "permission": "tdne-create-event",
+            "extention": "json"
+        },
+        "edit-event": {
+            "function": "TDNE\\AGame::h_edit_event",
+            "permission": "tdne-edit-event",
+            "extention": "json"
+        },
+        "delete-event": {
+            "function": "TDNE\\AGame::h_delete_event",
+            "permission": "tdne-delete-event",
+            "extention": "json"
+        },
+        "add-location": {
+            "function": "TDNE\\AHub::h_add_location",
+            "permission": "tdne-add-location",
+            "extention": "json"
+        },
+        "edit-location": {
+            "function": "TDNE\\AHub::h_edit_location",
+            "permission": "tdne-edit-location",
+            "extention": "json"
+        },
+        "assign-hub": {
+            "function": "TDNE\\AHub::h_assign_hub",
+            "permission": "tdne-hub-assign",
+            "extention": "json"
+        },
+        "edit-hub": {
+            "function": "TDNE\\AHub::h_edit_hub",
+            "permission": "tdne-hub-edit",
+            "extention": "json"
+        },
+        "delete-hub": {
+            "function": "TDNE\\AHub::h_delete_hub",
+            "permission": "tdne-hub-delete",
+            "extention": "json"
+        },
+        "get-points": {
+            "function": "TDNE\\Game::h_get_points",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        },
+        "get-rank": {
+            "function": "TDNE\\Game::h_get_rank",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        },
+        "get-rank-list": {
+            "function": "TDNE\\Game::h_get_rank_list",
+            "permission": "tdne-game-viewer",
+            "extention": "json"
+        },
+        "get-task-list": {
+            "function": "TDNE\\Game::h_get_task_list",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        },
+        "get-task-detail": {
+            "function": "TDNE\\Game::h_get_task_detail",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        },
+        "get-feeds": {
+            "function": "TDNE\\Game::h_get_feeds",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        },
+        "get-blogs-list": {
+            "function": "TDNE\\Game::h_get_blogs_list",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        },
+        "get-blog-details": {
+            "function": "TDNE\\Game::h_get_blog_details",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        },
+        "get-rewards-list": {
+            "function": "TDNE\\Game::h_get_rewards_list",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        },
+        "get-reward-details": {
+            "function": "TDNE\\Game::h_get_reward_detail",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        },
+        "do-contacts-sync": {
+            "function": "TDNE\\Game::h_do_contacts_sync",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        },
+        "get-avatars-list": {
+            "function": "TDNE\\Game::h_get_avatars_list",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        },
+        "get-avatar": {
+            "function": "TDNE\\Game::h_get_avatar",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        },
+        "get-acheivements-list": {
+            "function": "TDNE\\Game::h_get_acheivements_list",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        },
+        "tdne-scanned": {
+            "function": "TDNE\\Game::h_scaned",
+            "permission": "tdne-scanner",
+            "extention": "json"
+        },
+        "tdne-heartbeat": {
+            "function": "TDNE\\Game::h_scanner_heartbeat",
+            "permission": "tdne-scanner",
+            "extention": "json"
+        },
+        "get-timeline": {
+            "function": "TDNE\\Game::h_get_timeline",
+            "permission": "tdne-game-user",
+            "extention": "json"
+        }
+    }
+}

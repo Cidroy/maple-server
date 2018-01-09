@@ -1,0 +1,118 @@
+[
+	{
+		"name"	: "page|add",
+		"description":"add new page",
+		"access"	: "administrator+"
+	},
+	{
+		"name"	: "page|edit",
+		"description":"edit existing page",
+		"access"	: "administrator+"
+	},
+	{
+		"name"	: "page|delete",
+		"description":"delete a page",
+		"access"	: "administrator+"
+	},
+	{
+		"name"	: "user-group|add",
+		"description":"add new user group",
+		"access"	: "administrator+",
+		"namespace"	: "maple/security"
+	},
+	{
+		"name"	: "user-group|edit",
+		"description":"edit existing user group",
+		"access"	: "administrator+",
+		"namespace"	: "maple/security"
+	},
+	{
+		"name"	: "user-group|delete",
+		"description":"delete a user group",
+		"access"	: "administrator+",
+		"namespace"	: "maple/security"
+	},
+	{
+		"name"	: "user-group-permission|grant",
+		"description":"grant permission to a user group",
+		"access"	: "administrator+",
+		"namespace"	: "maple/security"
+	},
+	{
+		"name"	: "user-group-permission|deny",
+		"description":"deny permission to a user group",
+		"access"	: "administrator+",
+		"namespace"	: "maple/security"
+	},
+	{
+		"name"	: "user-permission|grant",
+		"description":"grant permission to a user",
+		"access"	: "administrator+",
+		"namespace"	: "maple/security"
+	},
+	{
+		"name"	: "user-permission|deny",
+		"description":"deny permission to a user",
+		"access"	: "administrator+",
+		"namespace"	: "maple/security"
+	},
+	{
+		"name"	: "user|change-group",
+		"description":"Change User Group of a User",
+		"access"	: "administrator+",
+		"namespace"	: "maple/security"
+	},
+	{
+		"name"	: "theme|change",
+		"description":"install a new theme",
+		"access"	: "administrator+",
+		"namespace"	: "maple/theme"
+	},
+	{
+		"name"	: "theme|install",
+		"description":"install a new theme",
+		"access"	: "administrator+",
+		"namespace"	: "maple/theme"
+	},
+	{
+		"name"	: "theme|uninstall",
+		"description":"uninstall a theme",
+		"access"	: "administrator+",
+		"namespace"	: "maple/theme"
+	},
+	{
+		"name"	: "plugin|install",
+		"description":"install a new plugin",
+		"access"	: "administrator+",
+		"namespace"	: "maple/plugin"
+	},
+	{
+		"name"	: "plugin|uninstall",
+		"description":"uninstall a plugin",
+		"access"	: "administrator+",
+		"namespace"	: "maple/plugin"
+	},
+	{
+		"name"	: "plugin|activate",
+		"description":"activate an installed plugin",
+		"access"	: "administrator+",
+		"namespace"	: "maple/plugin"
+	},
+	{
+		"name"	: "plugin|deactivate",
+		"description":"deactivate an installed plugin",
+		"access"	: "administrator+",
+		"namespace"	: "maple/plugin"
+	},
+	{
+		"name"	: "plugin|update",
+		"description":"update an installed plugin",
+		"access"	: "administrator+",
+		"namespace"	: "maple/plugin"
+	},
+	{
+		"name"	: "dashboard",
+		"description":"access dashboard",
+		"access"	: "administrator+"
+	}
+]

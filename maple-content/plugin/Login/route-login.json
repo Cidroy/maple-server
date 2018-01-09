@@ -1,0 +1,41 @@
+{
+	"namespace" : "login",
+	"app-route" : [
+		{
+			"name" 		 : "login",
+			"description": "Full page Login",
+			"method"	 : "GET",
+			"base-page"	 : "login@full-page",
+			"route"		 : "",
+			"handler"	 : "LOGIN::r_login"
+		},
+		{
+			"name" 		 : "sign-up",
+			"description": "Full page Sign In",
+			"method"	 : "GET",
+			"route"		 : "/sign-up",
+			"handler"	 : "SIGN::r_sign_page"
+		},
+		{
+			"parent" 	 : "login",
+			"name" 		 : "forgot-password",
+			"description": "Full page forgot password",
+			"method"	 : "GET",
+			"route"		 : "/forgot-password",
+			"handler"	 : "LOGIN::r_forgot_password"
+		},
+		{
+			"name" 		 : "logout",
+			"description": "ajax logout",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "%ROOT%",
+			"handler"	 : "",
+			"query"		 : {
+				"maple_ajax"	: "login",
+				"maple_ajax_action" : "logout",
+				"nonce"			: ""
+			}
+		}
+	]
+}

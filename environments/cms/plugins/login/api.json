@@ -1,0 +1,15 @@
+{
+	"login" : {
+		"method"	 : "POST",
+		"permission" : { "maple/login":"sign-up"},
+		"function"	 : "\\maple\\cms\\LOGIN::a_login"
+	},
+	"logout" : {
+		"method"	 : ["POST","GET"],
+		"function"	 : "\\maple\\cms\\LOGIN::a_logout"
+	},
+	"*" : {
+		"method"	 : ["POST","GET","HEAD","PUT","DELETE"],
+		"function"	 : "\\maple\\cms\\LOGIN::a_default"
+	}
+}

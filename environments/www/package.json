@@ -1,0 +1,16 @@
+{
+	"name":"Maple Website",
+	"version":"1.0",
+	"description":"The Website handler for maple",
+	"author":"Rinzler",
+	"maple":{
+		"environment":{
+			"namespace":"maple/www",
+			"location"	: "www/environment-www.php",
+			"class"		: "Maple\\environments\\eWWW",
+			"direct"	: true,
+			"methods"	: [ "www-load" ],
+			"post-install": "/www/install"
+		}
+	}
+}

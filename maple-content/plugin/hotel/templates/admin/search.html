@@ -1,0 +1,64 @@
+{% if not maple.request.search %}
+<form action="{{ maple.url.current }}" method="GET">
+<div class="row valign-wrapper" style="height:60vh;">
+	<div class="valign center" style="width:100%">
+		<h2 class="page-title indigo-text tex-darken-2">Search</h2>
+		<div class="row">
+			<div class="input-field col s6" style="margin:auto; float:initial;">
+				<input type="text" name="search" minlength="3" value="" autofocus="true" required="true">
+			</div>
+			<div class="input-field col s6" style="margin:auto; float:initial;">
+				<button type="submit" class="btn btn-floating blue"><i class="material-icons">search</i></button>
+			</div>
+		</div>
+	</div>
+</div>
+</form>
+{% else %}
+<div class="row">
+	<form action="{{ maple.url.current }}" method="GET">
+		<div class="col s12 input-field">
+			<i class="material-icons prefix left">search</i>
+			<input type="text" name="search" minlength="3" value="{{ maple.request.search }}" id="search" required="true" {% if not maple.request.search %} autofocus="true" {% endif %}>
+			<label for="search">Search</label>
+		</div>
+	</form>
+</div>
+{% if results.clients or results.reservations %}
+	<p class="grey-text">Found {{ results.count }} Results</p>
+	{% for client in results.clients %}
+	<div class="card">
+		<div class="card-content">
+			<i class="material-icons">perm_identity</i>
+			<a href="{{ url.client.detail }}{{ client.id }}" class="card-title">{{ client.name }}</a>
+			<div class="row">
+				<div class="col s12 l6"> <a href="tel:{{ client.phone }}">{{ client.phone }}</a> </div>
+				<div class="col s12 l6"> <a href="mailto:{{ client.email }}">{{ client.email }}</a> </div>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+	{% for reservation in results.reservations %}
+	<div class="card">
+		<div class="card-content">
+			<a href="{{ url.reservation.detail }}{{ reservation.id }}" class="card-title">Reservation {{ reservation.check_in }} <i class="material-icons center">arrow_forward</i> {{ reservation.check_out }}</a>
+			<div class="row">
+				<div class="col s12 l6"> <a href="{{ url.room.detail }}{{ reservation.room["room-id"] }}">Room {{ reservation.room.number }}</a> </div>
+				<div class="col s12 l6"> <a href="{{ url.client.detail }}{{ reservation.client["client-id"] }}">{{ reservation.client.name }}</a> </div>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+{% else %}
+<div class="container flow-text">
+	<p>Your search - {{ maple.request.search }} - did not match any documents.</p>
+	<p>Suggestions:</p>
+	<ul class="browser-default">
+		<li>Make sure that all words are spelled correctly.</li>
+		<li>Try different keywords.</li>
+		<li>Try more general keywords.</li>
+		<li>Try fewer keywords.</li>
+	</ul>
+</div>
+{% endif %}
+{% endif %}

@@ -1,0 +1,14 @@
+{% set tag = "div" %}
+{% if type == "row" %} {% set tag = "div" %}
+{% elseif link %} {% set tag = "a" %}
+{% endif %}
+<{{ tag }} {% if link %} href="{{ link }}" {% endif %} class="card {% if size %}col{% endif %} {% for _size in size %} {{ _size }}{% endfor %}{% for _offset in offset %} offset-{{ _offset }}{% endfor %} {% for _class in class %}{{ _class }} {% endfor %}">
+	{% if title %}
+	<span class="card-title {% for _class in title_class %}{{ _class }} {% endfor %}" style="margin:0;padding:10px;display:block;">{% block title %}{{ title }}{% endblock title %}</span>
+	{% endif %}
+	<div class="card-content {% for _class in content_class %}{{ _class }} {% endfor %}">
+		<div class="row margin-0">
+		{% block content %}{% endblock content %}
+		</div>
+	</div>
+</{{ tag }}>

@@ -1,0 +1,95 @@
+{
+	"name":"Login-Core",
+	"version":"1.2",
+	"description":"Core Login Plugin for Maple Framework",
+	"author":"Rinzler",
+	"namespace" : "login/core",
+	"Maple":{
+		"ID":"00002",
+		"Name":"Login",
+		"Path":"%PLG%Login",
+		"Active":true,
+		"Core":true,
+		"Autoload":{
+			"LOGIN":"class-login.php",
+			"AUSER":"class-user-admin.php",
+			"USER":"class-user.php",
+			"SIGN":"class-register.php"
+		},
+		"Shortcode":{
+			"login":"LOGIN::shortcode"
+		},
+		"Filter":{
+			"admin_register_new":"AUSER::filter_handler",
+			"body_start_content":"LOGIN::add_navbar",
+			"body_end_content":"LOGIN::filter_handler"
+		},
+		"app-route" : [ "route-login.json", "route-user.json" ],
+		"template"	: "templates",
+		"Admin":{
+			"Search":"LOGIN::search",
+			"Dashboard":[
+				{
+					"Function":"AUSER::dashboard_new_users",
+					"Permission":"login-dash-new-users"
+				}
+			],
+			"Plugin":[
+				{
+					"Bind":"users",
+					"Name":"Users",
+					"To":"AUSER::show_all_users",
+					"icon":"people",
+					"Permission":"login-dashboard",
+					"More":[
+						{
+							"Permission":"login-view-users",
+							"Bind":"all-users",
+							"Name":"All Users",
+							"To":"AUSER::show_all_users"
+						},
+						{
+							"Permission":"login-add-users",
+							"Bind":"add-new",
+							"Name":"Add New",
+							"To":"AUSER::add_new_user"
+						},
+						{
+							"Permission":"login-add-user-group",
+							"Bind":"add-user-group",
+							"Name":"Add User Group",
+							"To":"AUSER::add_user_group"
+						},
+						{
+							"Permission":"login-settings",
+							"Bind":"settings",
+							"Name":"Settings",
+							"To":"AUSER::registration_settings"
+						}
+					]
+				}
+			]
+		}
+	},
+	"AJAX":{
+		"login":"LOGIN::doLogin",
+		"logout":"LOGIN::Logout",
+		"user-details":{
+			"function" : "USER::h_details",
+			"extention": "json"
+		},
+		"login-register":"SIGN::register",
+		"login-activate":"SIGN::Activate_Acc",
+		"change_user_password":"LOGIN::change_user_password",
+		"change_user_address":"LOGIN::change_user_data",
+		"forgot-password":"LOGIN::forgot_password",
+		"insert_new_user":{
+			"function":"AUSER::insert_user",
+			"permission":"login-add-users"
+		},
+		"delete_user":{
+			"function":"AUSER::delete_user",
+			"permission":"login-delete-user"
+		}
+	}
+}

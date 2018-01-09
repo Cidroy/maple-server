@@ -1,0 +1,300 @@
+{
+	"namespace" : "rubixcode/hotel/admin",
+	"app-route" : [
+		{
+			"name" 		 : "home",
+			"description": "Base Page",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "%ADMIN%",
+			"route" 	 : "/hotel",
+			"handler"	 : ""
+		},
+		{
+			"parent"	 : "home",
+			"name" 		 : "category",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"route"		 : "/category",
+			"handler"	 : ""
+		},
+		{
+			"parent"	 : "category",
+			"name" 		 : "category-add",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"add"	: ""
+			}
+		},
+		{
+			"parent"	 : "category",
+			"name" 		 : "category-edit",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"edit"	: "id",
+				"id"	: ""
+			}
+		},
+		{
+			"parent"	 : "category",
+			"name" 		 : "category-delete",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"maple_ajax"	: "rubixcode/hotel",
+				"maple_ajax_action" : "hotel-category-delete",
+				"id"	: ""
+			}
+		},
+		{
+			"parent"	 : "category",
+			"name" 		 : "category-detail",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"details"	: "id",
+				"id"		: ""
+			}
+		},
+		{
+			"parent" 	 : "home",
+			"name" 		 : "rooms",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"route"		 : "/rooms",
+			"handler"	 : ""
+		},
+		{
+			"parent"	 : "rooms",
+			"name" 		 : "rooms-add",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"add"	: ""
+			}
+		},
+		{
+			"parent"	 : "rooms",
+			"name" 		 : "rooms-edit",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"edit"	: "id"
+			}
+		},
+		{
+			"parent"	 : "rooms",
+			"name" 		 : "rooms-delete",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"maple_ajax"	: "rubixcode/hotel",
+				"maple_ajax_action" : "hotel-rooms-delete",
+				"id"	: ""
+			}
+		},
+		{
+			"parent"	 : "rooms",
+			"name" 		 : "rooms-detail",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"room"	: "id",
+				"id"	: ""
+			}
+		},
+		{
+			"parent"	 : "rooms",
+			"name" 		 : "rooms-by-category",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"type"	: "id",
+				"id"	: ""
+			}
+		},
+		{
+			"parent"	 : "rooms",
+			"name" 		 : "rooms-reserve",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"reserve": "id",
+				"id"	 : ""
+			}
+		},
+		{
+			"parent" 	 : "home",
+			"name" 		 : "reservation",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"route"		 : "/reservation",
+			"handler"	 : ""
+		},
+		{
+			"parent"	 : "reservation",
+			"name" 		 : "reservation-checkout",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"checkout": "id",
+				"id"	 : ""
+			}
+		},
+		{
+			"parent"	 : "reservation",
+			"name" 		 : "reservation-cancel",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"cancel": "id",
+				"id"	 : ""
+			}
+		},
+		{
+			"parent"	 : "reservation",
+			"name" 		 : "reservation-detail",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"reservation": "id",
+				"id"	 : ""
+			}
+		},
+		{
+			"parent" 	 : "home",
+			"name" 		 : "client",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"route"		 : "/clients",
+			"handler"	 : ""
+		},
+		{
+			"parent"	 : "client",
+			"name" 		 : "client-detail",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"client" : "id",
+				"id"	 : ""
+			}
+		},
+		{
+			"parent"	 : "client",
+			"name" 		 : "client-edit",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"edit" : "id",
+				"id"	 : ""
+			}
+		},
+		{
+			"parent" 	 : "home",
+			"name" 		 : "rates",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"route"		 : "/prices",
+			"handler"	 : ""
+		},
+		{
+			"parent"	 : "rates",
+			"name" 		 : "rates-add",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"add"	: ""
+			}
+		},
+		{
+			"parent"	 : "rates",
+			"name" 		 : "rates-edit",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"edit"	: "begin",
+				"begin"	: ""
+			}
+		},
+		{
+			"parent"	 : "rates",
+			"name" 		 : "rates-delete",
+			"description": " ",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "/",
+			"handler"	 : "",
+			"query"		 : {
+				"delete"	: "begin",
+				"begin"	: ""
+			}
+		},
+		{
+			"parent" 	 : "home",
+			"name" 		 : "search",
+			"description": " ",
+			"method"	 : "GET",
+			"route"		 : "/search",
+			"handler"	 : "rubixcode\\hotel\\ADMIN::h_search"
+		}
+	]
+}

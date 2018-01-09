@@ -1,0 +1,82 @@
+[
+	{
+		"name"	: "sign-up",
+		"description":"sign up to the site",
+		"access": "default"
+	},
+	{
+		"name"	: "login",
+		"description":"sign up to the site",
+		"access": "default"
+	},
+	{
+		"name"	: "profile|view",
+		"description":"view profile page",
+		"access": "default+,~default"
+	},
+	{
+		"name"	: "profile|edit",
+		"description":"edit profile details",
+		"access": "default+,~default"
+	},
+	{
+		"name"	: "user|add",
+		"description":"Add a new User",
+		"access": "administrator+"
+	},
+	{
+		"name"	: "user|view",
+		"description":"View a Users Profile",
+		"access": "administrator+"
+	},
+	{
+		"name"	: "user|edit",
+		"description":"edit an existing user",
+		"access": "administrator+"
+	},
+	{
+		"name"	: "user|delete",
+		"description":"delete a user account",
+		"access": "administrator+"
+	},
+	{
+		"name"	: "user-group|view",
+		"description":"View All User Groups",
+		"access": "administrator+"
+	},
+	{
+		"name"	: "user-group|add",
+		"description":"Add a new User Group",
+		"access": "administrator+",
+		"requires":"maple/security:user-group|add"
+	},
+	{
+		"name"	: "user-group|edit",
+		"description":"edit a user group",
+		"access": "administrator+",
+		"requires":"maple/security:user-group|edit"
+	},
+	{
+		"name"	: "user-group|delete",
+		"description":"delete a user group",
+		"access": "administrator+",
+		"requires":"maple/security:user-group|delete"
+	},
+	{
+		"name"	: "dashboard",
+		"description":"access dashboard",
+		"access": "administrator+",
+		"namespace":"maple/login/dashboard"
+	},
+	{
+		"name"	: "settings",
+		"description":"change login settings",
+		"access": "administrator+"
+	},
+	{
+		"name"	: "users|new",
+		"description":"view recently added users",
+		"access": "administrator+",
+		"namespace":"maple/login/dashboard"
+	}
+]

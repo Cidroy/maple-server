@@ -1,0 +1,36 @@
+{% autoescape false %}
+{# header.html #}
+<!DOCTYPE html>
+<html>
+	<head lang="{{ settings.language }}">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+		{{ html.head }}
+		{% for src in html.css.src %}
+		<link rel="stylesheet" href="{{ src }}" >
+		{% endfor %}
+		<title>{% if html.title %}{{ html.title }}|{% endif %}{{ site.name }}</title>
+	</head>
+	<body>
+		{{ filter.body_start_content }}
+		{{ filter.pre_nav_content }}
+		{% embed "elements/navbar.html" ignore missing with
+			{ 	"buttons":html.navbar.buttons,
+				"html":html.navbar.html,
+				"sidebar" : html.navbar.sidebar,
+				"brand_logo":{"html":site.name,"src":maple.url.root},
+				"align":{"buttons":"right"},
+				"color":color.primary,
+				"sidebar":{ "content":filter.admin_sidebar_list,"background":theme.url.background }
+			} only
+		%}
+			{% block nav_lists %}
+			<ul class="right hide-on-med-and-up">
+				<li><a onclick="location.reload()"><i class="material-icons">refresh</i></a></li>
+				<li><a onclick="window.history.back()"><i class="material-icons">arrow_back</i></a></li>
+			</ul>
+			{% endblock %}
+		{% endembed %}
+		{{ filter.post_nav_content }}
+{# header.html #}
+{% endautoescape %}

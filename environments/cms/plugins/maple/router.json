@@ -1,0 +1,25 @@
+{
+	"dashboard" : {
+		"base"	: "dashboard",
+		"handler"	: "maple\\cms\\ADMIN::p_dashboard",
+		"permissions": {"maple/cms":"dashboard"}
+	},
+	"plugin|dashboard" : {
+		"parent"	: "dashboard",
+		"route"		: "/plugin",
+		"handler"	: "maple\\cms\\ADMIN::p_plugin_dashboard",
+		"permissions": {"maple/plugin":"plugin|activate"}
+	},
+	"plugin|view" : {
+		"parent"	: "plugin|dashboard",
+		"route"		: "/view",
+		"handler"	: "maple\\cms\\ADMIN::p_plugin_dashboard",
+		"permissions": {"maple/plugin":"plugin|activate"}
+	},
+	"plugin|install" : {
+		"parent"	: "plugin|dashboard",
+		"route"		: "/install",
+		"handler"	: "maple\\cms\\ADMIN::p_plugin_install",
+		"permissions": {"maple/plugin":"plugin|install"}
+	}
+}

@@ -1,0 +1,15 @@
+{
+	"default":"access plus 1 seconds",
+	"text\/html":"access plus 1 seconds",
+	"image\/svg+xml":"access plus 2592000 seconds, public",
+	"image\/x-icon":"access plus 2592000 seconds, public",
+	"image\/gif":"access plus 2592000 seconds, public",
+	"image\/jpeg":"access plus 2592000 seconds, public",
+	"image\/png":"access plus 2592000 seconds, public",
+	"text\/css":"access plus 604800 seconds, public",
+	"text\/javascript":"access plus 216000 seconds, private",
+	"application\/javascript":"access plus 216000 seconds, private",
+	"application\/x-javascript":"access plus 216000 seconds, private, must-revalidate",
+	"application\/json":"access plus 1 seconds, private, must-revalidate",
+	"none":""
+}

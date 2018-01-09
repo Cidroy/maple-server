@@ -1,0 +1,43 @@
+<h2 class="header">Plugins</h2>
+<div class="row">
+	<form method="POST" action="{{ maple.url.root }}">
+	<div class="row" style="margin:0">
+		<div class="input-field col s12 m6 l3" style="margin:0">
+			<select name="action">
+				<option value="" disabled selected>Bulk Edit</option>
+				<option value="activate">Activate</option>
+				<option value="deactivate">Deactivate</option>
+				<option value="update">Update</option>
+				<option value="delete">Delete</option>
+			</select>
+		</div>
+		<input type="text" hidden name="maple_ajax" value="maple-core">
+		<input type="text" hidden name="maple_ajax_action" value="plugin_bulk_edit">
+		<input type="text" hidden name="redirect_to" value="{{ maple.current }}">
+		<button type="submit" class="btn grey lighten-2 black-text wave-effect"> Apply</button>
+	</div>
+	{% for plugin in plugins %}
+		{% if not plugin.Maple.Core %}
+		<div class="col s12">
+			<div class="card">
+				<div class="card-content">
+					<input type="checkbox" name="plugins[]" id="{{ plugin.Maple.ID }}" value="{{ plugin.Maple.ID }}" />
+					<label for="{{ plugin.Maple.ID }}"></label>
+					<span class="card-title black-text">{{ plugin.name }}</span>
+					<span class="grey-text"> {{ plugin.version }}</span><br>
+					<span class="grey-text">by {{ plugin.author }}</span>
+					<p>{{ plugin.description|raw }}</p>
+					{% if plugin.Maple.Active %}
+					<a class="btn grey" href="{{ maple.url.root }}?maple_ajax=maple-core&maple_ajax_action=plugin_single_edit&plugin={{ plugin.Maple.ID }}&action=edit&redirect_to={{ maple.url.current }}" ><i class="material-icons left">edit</i> edit</a>
+					<a class="btn blue" href="{{ maple.url.root }}?maple_ajax=maple-core&maple_ajax_action=plugin_single_edit&plugin={{ plugin.Maple.ID }}&action=disable&redirect_to={{ maple.url.current }}" ><i class="material-icons left">pause</i> Disable</a>
+					{% else %}
+					<a class="btn blue" href="{{ maple.url.root }}?maple_ajax=maple-core&maple_ajax_action=plugin_single_edit&plugin={{ plugin.Maple.ID }}&action=activate&redirect_to={{ maple.url.current }}" ><i class="material-icons left">play_arrow</i> Activate</a>
+					<a class="btn red" href="{{ maple.url.root }}?maple_ajax=maple-core&maple_ajax_action=plugin_single_edit&plugin={{ plugin.Maple.ID }}&action=delete&redirect_to={{ maple.url.current }}" ><i class="material-icons left">delete</i> Remove</a>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		{% endif %}
+	{% endfor %}
+	</form>
+</div>

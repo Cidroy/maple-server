@@ -1,0 +1,38 @@
+{#
+	@filter admin-dashboard|user-view
+	@bug on-click cancel it still submits
+#}
+{% import "import.twig.html" as imports %}
+{% embed "element/row.html" with {"class":["padding-10"]} %}
+	{% block content %}
+	{{ permission(null,{"maple/login":"user|edit"})?imports.button({"href":url("maple/login/dashboard","user|edit",{"id":maple.request.id}),"icon":"edit","class":["btn-large","white-text","right","blue","btn-floating"]}):false }}
+	{{ permission(null,{"maple/login":"user|delete"})?imports.button({"href":"#modal-user-delete","icon":"delete","class":["btn-large","white-text","right","black","btn-floating"]}):false }}
+	{{ imports.page_title(2,"User",theme.color.primary) }}
+	{% embed "element/card.html" with {"class":"","title":"Details"} %}
+		{% block content %}
+		{{ imports.input({"label":"Username","value":user.username,"readonly":true,"icon":"person"}) }}
+		{{ imports.input({"label":"Name","value":user.name,"readonly":true,"icon":"person"}) }}
+		{{ imports.input({"label":"E-Mail","value":user.email,"readonly":true,"icon":"email"}) }}
+		{{ imports.input({"label":"Registered","value":user.registered,"readonly":true,"icon":"calender"}) }}
+		{{ imports.input({"label":"User Group","value":user_group[user.access|int]|capitalize,"readonly":true,"icon":"settings"}) }}
+		{% endblock %}
+	{% endembed %}
+	{{ filter("admin-dashboard|user-view",{"id":user.id|int}) }}
+	{% endblock %}
+{% endembed %}
+{% if permission(null,{"maple/login":"user|delete"}) %}
+{% embed "element/modal.html" with {"id":"modal-user-delete","class":["grey lighten-2","overlay","bottom-sheet"]} %}
+	{% block content %}
+		{{ imports.page_title(3,imports.icon("warning","prefix")~"Delete this User?","tex-darken-2 red") }}
+	{% endblock %}
+	{% block footer %}
+	<form action="{{ url("%API%") }}" method="post">
+		{{ ajax("maple/login","user|delete") }}
+		{{ nonce() }}
+		<input type="text" name="id" value="{{ user.id }}" hidden="true">
+		{{ imports.button({"label":"Cancel","type":"cancel","icon":"cancel","class":["white-text","right","green","modal-action","modal-close"]}) }}
+		{{ imports.button({"label":"Delete","type":"submit","icon":"delete","class":["white-text","left","black"]}) }}
+	</form>
+	{% endblock %}
+{% endembed %}
+{% endif %}

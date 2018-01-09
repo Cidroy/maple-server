@@ -1,0 +1,104 @@
+{
+	"permission" : {
+		"hotel-admin":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"hotel-admin-rooms":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"hotel-admin-category":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"hotel-admin-reservation":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"hotel-admin-client":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"hotel-admin-prices":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"hotel-admin-dashboard":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"hotel-category-add":{
+			"description":"",
+			"default" : "Author+"
+		},
+		"hotel-category-edit":{
+			"description":"",
+			"default" : "Editor+"
+		},
+		"hotel-category-delete":{
+			"description":"",
+			"default" : "Author+"
+		},
+		"hotel-rooms-add":{
+			"description":"",
+			"default" : "Author+"
+		},
+		"hotel-rooms-edit":{
+			"description":"",
+			"default" : "Editor+"
+		},
+		"hotel-rooms-delete":{
+			"description":"",
+			"default" : "Author+"
+		},
+		"hotel-rooms-book":{
+			"description":"",
+			"default" : "Author+"
+		},
+		"hotel-rooms-book-any":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"hotel-reservation-detail":{
+			"description":"",
+			"default" : "Author+"
+		},
+		"hotel-reservation-detail-any":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"hotel-reservation-checkout":{
+			"description":"",
+			"default" : "Author+"
+		},
+		"hotel-reservation-checkout-any":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"hotel-reservation-cancel":{
+			"description":"",
+			"default" : "Author+"
+		},
+		"hotel-reservation-cancel-any":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"hotel-client-edit":{
+			"description":"",
+			"default" : "Administrator+"
+		},
+		"hotel-prices-add":{
+			"description":"",
+			"default" : "Author+"
+		},
+		"hotel-prices-edit":{
+			"description":"",
+			"default" : "Author+"
+		},
+		"hotel-prices-delete":{
+			"description":"",
+			"default" : "Author+"
+		}
+	}
+}

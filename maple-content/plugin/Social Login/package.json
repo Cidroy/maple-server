@@ -1,0 +1,56 @@
+{
+    "name": "Social Plugin",
+    "version": "1.0.0",
+    "description": "DESCRIPTION",
+    "author": "kundan",
+    "namespace": "kundan\/social",
+    "Maple": {
+        "ID": "df4e68f563264cae9185377fa66c8f42",
+        "Name": "Social Plugin",
+        "Active": false,
+        "Autoload": {
+            "kundan\\FB": "class-fb.php"
+        },
+        "Shortcode": [],
+        "Filter": [],
+        "app-route": [
+            "route-fb.json"
+        ],
+		"template" : "templates",
+        "Client": [],
+        "Admin": {
+            "Dashboard": [],
+            "Plugin": [
+                {
+                    "Bind": "facebook",
+                    "Name": "Facebook",
+                    "To": "kundan\\FB::show_all",
+                    "icon": "book",
+                    "Permission": "maple-dashboard",
+                    "More": [
+                        {
+                            "Bind": "app-info",
+                            "Name": "App Info",
+                            "To": "kundan\\FB::show_all",
+                            "Permission": "maple-dashboard"
+                        },
+                        {
+                            "Bind": "app-edit",
+                            "Name": "App Edit",
+                            "To": "kundan\\FB::show_edit",
+                            "Permission": "maple-dashboard"
+                        }
+                    ]
+                }
+            ]
+        },
+        "Path": "%ROOT%%PLG%Social Login"
+    },
+    "AJAX": {
+        "fb-edit-app": {
+            "function": "kundan\\FB::ah_edit_app",
+            "permission": "maple-dashboard",
+            "extention": "json"
+        }
+    }
+}

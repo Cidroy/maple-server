@@ -1,0 +1,62 @@
+{
+	"namespace" : "user",
+	"app-route" : [
+		{
+			"name" 		 : "profile",
+			"description": "Full page Profile",
+			"method"	 : "GET",
+			"route"		 : "/profile",
+			"handler"	 : "USER::r_profile"
+		},
+		{
+			"parent" 	 : "profile",
+			"name" 		 : "settings",
+			"description": "Full page Edit Profile",
+			"method"	 : "GET",
+			"route"		 : "/edit",
+			"handler"	 : "USER::r_profile_edit"
+		},
+		{
+			"name" 		 : "edit",
+			"description": "Full page Edit User",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "%CURRENT%",
+			"handler"	 : "USER::r_profile_edit",
+			"query"		 : {
+				"edit"				: ""
+			}
+		},
+		{
+			"name" 		 : "delete",
+			"description": "Delete a user",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "%ROOT%",
+			"handler"	 : "",
+			"query"		 : {
+				"maple_ajax" : "user",
+				"maple_ajax_action" : "delete_user",
+				"user"	: ""
+			}
+		},
+		{
+			"name" 		 : "all-users",
+			"description": "admin user base",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"url"		 : "%ADMIN%",
+			"route" 	 : "/users",
+			"handler"	 : ""
+		},
+		{
+			"parent" 	 : "all-users",
+			"name" 		 : "add-new",
+			"description": "admin user base",
+			"method"	 : "GET",
+			"type"		 : "no-route",
+			"route" 	 : "/add-new",
+			"handler"	 : ""
+		}
+	]
+}

@@ -1,0 +1,47 @@
+{
+	"name":"Mail-Core",
+	"version":"1.0",
+	"description":"Core Mailing Plugin for Maple Framework",
+	"author":"Rinzler",
+	"Maple":{
+		"ID":"00003",
+		"Name":"Mail",
+		"Path":"%PLG%Mail",
+		"Active":true,
+		"Core":true,
+		"Autoload":{
+			"MAIL":"class-mail.php"
+		},
+		"Admin":{
+			"Plugin":[
+				{
+					"Bind":"mail",
+					"Name":"Mail",
+					"To":"MAIL::mail_stat_home",
+					"icon":"mail",
+					"Permission":"mail-dashboard",
+					"More":[
+						{
+							"Bind":"template",
+							"Name":"Template",
+							"To":"MAIL::template_home"
+						},
+						{
+							"Bind":"send-new",
+							"Name":"Send New",
+							"To":"MAIL::send_new_home"
+						},
+						{
+							"Bind":"set-cron",
+							"Name":"New Auto Mail",
+							"To":"MAIL::set_cron_home"
+						}
+					]
+				}
+			]
+		}
+	},
+	"AJAX":{
+		"mail":"MAIL::ajax_handler"
+	}
+}
