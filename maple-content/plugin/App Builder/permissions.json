@@ -1,8 +1,0 @@
-{
-	"permission" : {
-		"builder-admin":{
-			"description":"",
-			"default" : "Administrator+"
-		}
-	}
-}

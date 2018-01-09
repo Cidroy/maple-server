@@ -1,4 +1,0 @@
-{% if type %}
-{% else %}
-<{% if args.href %}a{% else %}button{% endif %} class="btn {% for c in class %}{{ c }} {% endfor %} {{ color }} {% if tooltip %}tooltipped{% endif %}" {% for attr,val in args %}{{ attr }}="{{ val }}"{% endfor %} {% if tooltip %} data-position="{% if tooltip.position %}{{ tooltip.position }}{% else %}bottom{% endif %}" data-delay="{% if tooltip.delay %}{{ tooltip.delay }}{% else %}50{% endif %}" data-tooltip="{{ tooltip.text }}" {% endif %} >{% if icon %}<i class="material-icons {{ icon_position }}">{{ icon }}</i>{% endif %}{{ text|raw }}</{% if args.href %}a{% else %}button{% endif %}>
-{% endif %}
