@@ -75,6 +75,8 @@ class ENVIRONMENT{
 	 */
 	private static $_lock_index = 0;
 
+	private static $_config = [];
+
 	/**
 	 * initialize the environment
 	 * @param  boolean $recursive set true on recursive call to avoid infinite loop
@@ -90,7 +92,10 @@ class ENVIRONMENT{
 			self::$priority 		 = $config["priority"];
 			self::$methods 		 	 = $config["methods"];
 
-			if(isset($config["settings"])) self::$url_control_panel = $config["settings"]["url"]."/";
+			if(isset($config["settings"])){
+				self::$_config = $config["settings"];
+				self::$url_control_panel = $config["settings"]["url"]."/";
+			}
 
 			foreach (self::$environments_list as $key => $value) {
 				if(isset($value["direct"]) && $value["direct"]) self::$direct[] = $key;
@@ -106,12 +111,12 @@ class ENVIRONMENT{
 						"environments"=>[],
 						"priority"=>[],
 						"methods"=>[],
-						"settings" => [
-							"url"		=>	"/setup",
-							"username" 	=> "root",
-							"password" 	=> "41a3d23e04b4c8c17cf049d608295fdf",
-							"updated"	=>	time()
-						],
+						// "settings" => [
+						// 	"url"		=>	"/setup",
+						// 	"username" 	=> "root",
+						// 	"password" 	=> "41a3d23e04b4c8c17cf049d608295fdf",
+						// 	"updated"	=>	time()
+						// ],
 					],JSON_PRETTY_PRINT));
 				}
 				self::initialize(true);
@@ -159,6 +164,12 @@ class ENVIRONMENT{
 			if(!(strrpos(self::url()->current(),self::url()->root(false).self::$url_control_panel) !== false))
 			header("Location: ".self::url()->root(false).self::$url_control_panel);
 		};
+
+		// Test if First Run
+		if(!self::$_config){
+			self::bootup();
+			die();
+		}
 
 	}
 

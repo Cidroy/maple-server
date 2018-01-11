@@ -52,7 +52,7 @@ class __URL{
 	 * @return string         site url
 	 */
 	public function root( $extend = "/" ){
-		return $this->_content["ENCODING"].$this->_content["DOMAIN"].$this->_content["BASE"].$extend;
+		return $this->_content["ENCODING"].$this->_content["DOMAIN"].($_SERVER["SERVER_PORT"]?":".$_SERVER["SERVER_PORT"]:"").$this->_content["BASE"].$extend;
 	}
 	/**
 	 * NOTE : Does not return the queries
