@@ -73,7 +73,8 @@ class PAGE{
 
 		$details["#created"] = "NOW()";
 		$details["author"]	 = USER::id();
-		$id = DB::_()->insert("pages",$details);
+		DB::_()->insert("pages",$details);
+		$id = DB::_()->id();
 		\ENVIRONMENT::url()->register("maple/cms",$details["url"]);
 		MAPLE::do_filters("page|added",$filter = ["page-id" => $id]);
 		return $id;

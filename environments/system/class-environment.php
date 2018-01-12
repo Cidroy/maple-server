@@ -151,20 +151,20 @@ class ENVIRONMENT{
 			http_response_code(503);
 			die();
 		}
-
+		
 		// Test if environments file is optimized
 		if(array_diff(self::$priority,self::$environments)){
 			self::optimize();
 			self::initialize();
 			return;
 		}
-
+		
 		// Test if there are active environments loaded else begin bootup
 		if(!self::$environments){
 			if(!(strrpos(self::url()->current(),self::url()->root(false).self::$url_control_panel) !== false))
 			header("Location: ".self::url()->root(false).self::$url_control_panel);
 		};
-
+		
 		// Test if First Run
 		if(!self::$_config){
 			self::bootup();
@@ -576,6 +576,46 @@ class ENVIRONMENT{
 	public static function reset_lock(){
 	}
 }
+
+/**
+ * do necessary actions for first boot
+ */
+function first_boot_action(){
+	$directory = substr(
+		\ROOT,
+		strlen(str_replace("\\","/",$_SERVER["DOCUMENT_ROOT"]))
+	)."/";
+	$urlpath = $_SERVER["REQUEST_URI"];
+	$htaccess = new FILE(\ROOT."/.htaccess");
+	$config = new FILE(\ENVIRONMENT."/url.json");
+	if(!$htaccess->exists()){
+		$htaccess_template = new FILE(__DIR__."/assets/htaccess");
+		$htaccess_template = $htaccess_template->read();
+		$htaccess_template = str_replace("{{ directory }}",$directory,$htaccess_template);
+		$htaccess->write($htaccess_template);
+	}
+	if (!$config->exists()) {
+		$config_data = [
+			"ENCODING"	=>	$_SERVER["REQUEST_SCHEME"]."://",
+			"DOMAIN"	=>	$_SERVER["SERVER_NAME"],
+			"BASE"		=>	rtrim($_SERVER["REQUEST_URI"],"/"),
+			"DYNAMIC"	=>	true,
+		];
+		$config->write($config_data);
+	}
+	if(!$htaccess->exists() || !$config->exists()){
+		echo "Please make sure the following location are writable<br>";
+		echo "> ".$htaccess->directory()."<br>";
+		echo "> ".$config->directory()."<br>";
+	}
+}
+first_boot_action();
+$URL = new FILE(\ENVIRONMENT."/url.json");
+/**
+ * url details for working of environment
+ * @var must contain "ENCODING","DOMAIN","BASE","DYNAMIC"
+ */
+$URL = json_decode($URL->read(),true);
 
 ENVIRONMENT::url($URL);
 

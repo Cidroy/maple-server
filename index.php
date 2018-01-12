@@ -63,15 +63,5 @@
 	    return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$size[$factor];
 	}
 
-	/**
-	 * url details for working of environment
-	 * @var must contain "ENCODING","DOMAIN","BASE","DYNAMIC"
-	 */
-	$URL = [
-		"ENCODING"	=>	"https://",
-		"DOMAIN"	=>	"localhost",
-		"BASE"		=>	"/mframework",
-		"DYNAMIC"	=>	true,
-	];
 	require( __DIR__.'/environments/index.php' );
 ?>

@@ -23,6 +23,11 @@ class __URL{
 	 */
 	const url_dir = __DIR__."/config/url-registered.json";
 
+	public static function pre_init(){
+		if(!file_exists(__DIR__."/config")) mkdir(__DIR__."/config",0777,true);
+		if(!file_exists(self::url_dir)) file_put_contents(self::url_dir,json_encode([]));
+	}
+
 	/**
 	 * set basic details for further use of this object
 	 * @throws BadMethodCallException if $param does not contain any of the array key "ENCODING","DOMAIN","BASE"
@@ -52,7 +57,7 @@ class __URL{
 	 * @return string         site url
 	 */
 	public function root( $extend = "/" ){
-		return $this->_content["ENCODING"].$this->_content["DOMAIN"].($_SERVER["SERVER_PORT"]?":".$_SERVER["SERVER_PORT"]:"").$this->_content["BASE"].$extend;
+		return $this->_content["ENCODING"].$this->_content["DOMAIN"].$this->_content["BASE"].$extend;
 	}
 	/**
 	 * NOTE : Does not return the queries
@@ -303,16 +308,16 @@ class FILE{
 		];
 		$f = explode('.',$filename);
 		$ext = strtolower(array_pop($f));
-		if (array_key_exists($ext, $mime_types)) {
-			return $mime_types[$ext];
-		}
-		elseif (function_exists('finfo_open')) {
-			$finfo = finfo_open(FILEINFO_MIME);
-			$mimetype = finfo_file($finfo, $filename);
-			finfo_close($finfo);
-			return $mimetype;
-		}
-		else {
+		try{
+			if (array_key_exists($ext, $mime_types)) return $mime_types[$ext];
+			elseif (file_exists($filename) && function_exists('finfo_open')) {
+				$finfo = finfo_open(FILEINFO_MIME);
+				$mimetype = finfo_file($finfo, $filename);
+				finfo_close($finfo);
+				return $mimetype;
+			}
+			else throw new \Exception("none", 1);
+		} catch(\Exception $e){
 			return 'application/octet-stream';
 		}
 	}
@@ -329,13 +334,15 @@ class FILE{
 		$this->details["directory"] = $data["dirname"];
 		$this->details["extension"] = isset($data["extension"])?$data["extension"]:"none";
 		$this->details["mime"] 		= FILE::mime_type($file);
-		$this->details["size"] 		= filesize($file);
-
+		
 		if($this->details["exists"]){
+			$this->details["size"] 		= filesize($file);
 			$this->details["permission"]= fileowner($file);
 			$this->details["owner"] 	= fileperms($file);
 			$this->details["last-access-time"]= fileatime($file);
 			$this->details["modify-time"]= filemtime($file);
+		} else {
+			$this->details["size"] 		= 0;
 		}
 	}
 	/**
@@ -374,7 +381,7 @@ class FILE{
 	/**
 	 * @return string file exists
 	 */
-	public function exists()		{ return $this->details["exists"];  }
+	public function exists()		{ return file_exists($this->details["location"]);  }
 	/**
 	 * // BUG: Not testing for all file permission
 	 * @param array $param file permission to check for
@@ -476,5 +483,6 @@ class FILE{
 }
 
 
+__URL::pre_init();
 require_once __DIR__."/class-environment.php";
 ?>

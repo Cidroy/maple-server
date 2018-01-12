@@ -130,7 +130,7 @@ if(isset($_REQUEST["environment-ajax-action"])){
 	};
 }
 $file = str_replace(\ENVIRONMENT::url()->root(false).\ENVIRONMENT::$url_control_panel,"",\ENVIRONMENT::url()->current());
-if($file == ""){
+if($file == "/" || $file==""){
 	if(BOOT::is_first()){
 		require_once "first-boot.php";
 		die();
