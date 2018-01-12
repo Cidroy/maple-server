@@ -589,7 +589,7 @@ function first_boot_action(){
 	$htaccess = new FILE(\ROOT."/.htaccess");
 	$config = new FILE(\ENVIRONMENT."/url.json");
 	if(!$htaccess->exists()){
-		$htaccess_template = new FILE(__DIR__."/assets/htaccess");
+		$htaccess_template = new FILE(__DIR__."/setup/assets/htaccess");
 		$htaccess_template = $htaccess_template->read();
 		$htaccess_template = str_replace("{{ directory }}",$directory,$htaccess_template);
 		$htaccess->write($htaccess_template);
