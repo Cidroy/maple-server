@@ -1,6 +1,0 @@
-{
-	"rinzler/materialize" : {
-		"load"		: "Materialize-CSS/theme.php",
-		"class"		: "materialize\\THEME"
-	}
-}
