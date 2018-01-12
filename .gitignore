@@ -1,4 +1,5 @@
 .htaccess
+.gitignore
 desktop.ini
 .debris/
 ~$Buffer/
