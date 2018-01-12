@@ -1,7 +1,0 @@
-{
-	"prettify-error":true,
-	"debug" : {
-		"active" : true,
-		"show-debug-bar" : true
-	}
-}
