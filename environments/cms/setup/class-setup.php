@@ -46,6 +46,8 @@ if(\ENVIRONMENT::url()->matches(eMAPLE::install_url)){
 		private static function ajax_handler($task,$param){
 			switch ($task) {
 				case 'install-database':
+					$param["db-password"] = $param["db-password"]?$param["db-password"]:"";
+					$param["db-confirm-password"] = $param["db-confirm-password"]?$param["db-confirm-password"]:"";
 					if(array_diff(["db-type","db-name","db-server","db-username","db-password","db-confirm-password",],array_keys($param)))
 						$_SESSION["maple/cms"]["setup/messages"][]	= "Insufficient Details Given";
 					else if(!in_array($param["db-type"],["mysql"])) $_SESSION["maple/cms"]["setup/messages"][]	= "Incompatible database";

@@ -151,7 +151,7 @@ class UI implements iUI{
 		if(!is_array($param)) $param = [$param];
 		$param = json_encode($param);
 		if($id===null){ $id = $__identifier.$__id; $__id++;}
-		self::js()->add("$('{$id}').DataTable({$param})");
+		self::js()->add("$('{$id}').DataTable({$param});");
 		return "$id";
 	}
 }

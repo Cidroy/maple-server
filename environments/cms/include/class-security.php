@@ -109,10 +109,12 @@ class SECURITY {
 		}
 		self::$token_key = self::generate_key();
 		SESSION::set("maple/security","key",self::$token_key);
-		self::$iv = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND);
+		if(function_exists("mcrypt_create_iv"))
+			self::$iv = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND);
+		else self::$iv = self::generate_key();
 		SESSION::set("maple/security","iv",self::$iv);
 		for ($i=0; $i < $n ; $i++)
-		self::$tokens[$i] = self::generate_key($n);
+			self::$tokens[$i] = self::generate_key($n);
 		SESSION::set("maple/security","tokens",self::$tokens);
 
 
@@ -609,7 +611,7 @@ class SECURITY {
 	 * @param  string $folder    app folder path
 	 */
 	public static function install_permission($namespace,$folder){
-		if(!file_exists("{$folder}/permissions.json")) return;		
+		if(!file_exists("{$folder}/permissions.json")) return;
 		$user_codes=json_decode(file_get_contents(self::_permission_location."/user-type.json"),true);
 		$user_codes = array_flip($user_codes);
 		foreach ($user_codes as $key => $value) $user_codes[$key] = json_decode(file_get_contents(self::_permission_location."/{$key}.json"),true);
