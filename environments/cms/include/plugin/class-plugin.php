@@ -200,9 +200,10 @@ class PLUGIN{
 		}
 		$activation = isset($buffer["maple"]["maple/cms"]["setup"])?$buffer["maple"]["maple/cms"]["setup"]:false;
 		$buffer = json_decode(file_get_contents(self::active_file),true);
+		$data["location_local"] = substr($data["location"],strlen(\ROOT));
 		$buffer[$namespace] = [
 			"version"	=>	$data["version"],
-			"path"		=>	$data["location"],
+			"path"		=>	$data["location_local"],
 		];
 		\ENVIRONMENT::lock("maple/cms : maple/plugin activate");
 			file_put_contents(self::active_file,json_encode($buffer));
@@ -249,7 +250,7 @@ class PLUGIN{
 
 		$buffer = json_decode(file_get_contents(self::active_file),true);
 		$data = $buffer[$namespace];
-		$path = $buffer[$namespace]["path"];
+		$path = \ROOT.$buffer[$namespace]["path"];
 		$version = $buffer[$namespace]["version"];
 		unset($buffer[$namespace]);
 		\ENVIRONMENT::lock("maple/cms : maple/plugin deactivate");
@@ -343,7 +344,7 @@ class PLUGIN{
 		$details["id"] = $details["namespace"]."@".$details["version"];
 		$details["active"] = isset(self::$_buffer[$details["namespace"]]) && self::$_buffer[$details["namespace"]]["version"]==$details["version"];
 		$details["maple/cms"] = $details["maple"]["maple/cms"];
-		$details["path"]	= $path;
+		$details["path"]	= substr($path,strlen(\ROOT));
 		unset($details["maple"]);
 		return $details;
 	}
@@ -406,9 +407,15 @@ class PLUGIN{
 		}
 	}
 
+	/**
+	 * Individually load a plugin
+	 *
+	 * @param string $namespace plugin namespace
+	 * @return void
+	 */
 	private static function _load($namespace){
 		if(in_array($namespace,self::$_loaded)) return true;
-		$plugin = self::$_buffer[$namespace]["path"];
+		$plugin = \ROOT.self::$_buffer[$namespace]["path"];
 		if(!file_exists($plugin."/package.json")) return false;
 		$data = json_decode(file_get_contents($plugin."/package.json"),true);
 		if(!isset($data["maple"]["maple/cms"])) return false;

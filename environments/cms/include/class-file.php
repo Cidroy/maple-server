@@ -44,10 +44,11 @@ class FILE{
 	 * @return array       list of folders
 	 */
 	public static function get_folders($path){
+		$path = str_replace("\\","/",$path);
 		if(is_file($path)) $path = dirname($path);
 		$path = rtrim($path,"/");
 		if(!file_exists($path)) return null;
-		return array_filter(glob("{$path}/*"), 'is_dir');
+		return str_replace("\\","/",array_filter(glob("{$path}/*"), 'is_dir'));
 	}
 
 	/**
