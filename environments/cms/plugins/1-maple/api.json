@@ -1,6 +1,6 @@
 {
 	"plugin" : {
-		"method"	 : "GET",
+		"method"	 : ["GET","POST"],
 		"permission" : { "maple/plugin":"plugin|activate"},
 		"function"	 : "\\maple\\cms\\plugin\\MAPLE::a_plugin"
 	}
