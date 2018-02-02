@@ -21,7 +21,8 @@ class USER{
 		"details"=>	[
 			"access"	=>	false,
 			"permissions"=>	[]
-		]
+		],
+		"author"	=> 0
 	];
 	/**
 	 * Stores initialization status

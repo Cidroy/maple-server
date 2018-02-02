@@ -13,6 +13,7 @@
 			},
 			"autoload"	: {
 				"maple\\cms\\LOGIN" : "/class-login.php",
+				"maple\\cms\\login\\USER" : "/class-user.php",
 				"maple\\cms\\login\\SHORTCODE" : "/class-shortcode.php",
 				"maple\\cms\\login\\PAGE" : "/class-page.php",
 				"maple\\cms\\login\\DASHBOARD" : "/class-dashboard.php"

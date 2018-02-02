@@ -3,7 +3,7 @@ namespace maple\cms;
 
 /**
  * Login Handler
- * @since 1.0
+ * @since 1.0.0
  * @package Maple CMS Login
  * @author Rubixcode
  */
@@ -65,6 +65,7 @@ class LOGIN{
 	}
 
 	/**
+	 * @filter "login|successfull" on successfull login
 	 * @api-handler "maple/login:login"
 	 * @response success array {
 	 *           string "type" : "success",
@@ -85,18 +86,19 @@ class LOGIN{
 	 */
 	public static function a_login(){
 		if(!URL::has_request(["username","password"])) return self::_error("insufficient-parameters");
-		if(USER::login($_POST["username"],$_POST["password"])) return [
+		if(USER::login($_POST["username"],$_POST["password"])) return MAPLE::do_filters("login|successfull",[
 			"type"	=>	"success",
 			"user"	=>	[
 				"id"	=>	USER::id(),
 				"name"	=>	USER::details("name"),
+				"username"	=>	USER::details("username"),
 			],
 			"credentials"	=>	[
 				"key"		=>	SESSION::token(),
 				"request"	=>	SESSION::token_request
 			],
 			"redirect_to" => isset($_REQUEST["redirect_to"])?$_REQUEST["redirect_to"]:(SECURITY::permission("maple/cms","dashboard")?URL::name("maple/cms","dashboard"):URL::http("%ROOT%")),
-		];
+		])->content[0];
 		else return self::_error("invalid-credentials");
 	}
 
