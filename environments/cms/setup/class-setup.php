@@ -20,6 +20,7 @@ if(\ENVIRONMENT::url()->matches(eMAPLE::install_url)){
 				"registered"=>	[ "type" => "datetime", ],
 				"access"	=>	[ "type" => "int", "default" => 0 ],
 				"permissions"=>	[ "type" => "text",],
+				"author"	=>	[ "type" => "int", "default" => 0 ]
 			],
 		];
 
