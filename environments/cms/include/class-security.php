@@ -394,7 +394,7 @@ class SECURITY {
 	 * @return string       group name
 	 */
 	public static function get_user_group_name($code){
-		if(!is_array($name)) throw new \InvalidArgumentException("Argument #1 should be of type 'array'", 1);
+		if(!is_int($code)) throw new \InvalidArgumentException("Argument #1 should be of type 'integer'", 1);
 		return array_search($code,self::$_user_group);
 	}
 

@@ -8,6 +8,25 @@
 		"method"	 : ["POST","GET"],
 		"function"	 : "\\maple\\cms\\LOGIN::a_logout"
 	},
+	"user|add":{
+		"method"	: "POST",
+		"permission": { "maple/login":"user|add" },
+		"function"	:"\\maple\\cms\\login\\USER::a_add"
+	},
+	"user|all":{
+		"method"	: "POST",
+		"permission": { "maple/login":"user|view" },
+		"function"	:"\\maple\\cms\\login\\USER::a_user_all"
+	},
+	"user|view":{
+		"method"	: "POST",
+		"permission": { "maple/login":"user|view" },
+		"function"	:"\\maple\\cms\\login\\USER::a_user_view"
+	},
+	"user-group|list": {
+		"method"	: "POST",
+		"function"	: "\\maple\\cms\\login\\USER::a_usergroup_list"
+	},
 	"*" : {
 		"method"	 : ["POST","GET","HEAD","PUT","DELETE"],
 		"function"	 : "\\maple\\cms\\LOGIN::a_default"
