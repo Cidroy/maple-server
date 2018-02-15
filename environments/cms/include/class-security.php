@@ -20,6 +20,7 @@ class SECURITY {
 	 */
 	const primary_user_groups = [
 		"default"		=>	0,
+		"subscriber"	=>	500,
 		"editor"		=>	1000,
 		"author"		=>	2000,
 		"administrator"	=>	3000,
@@ -74,6 +75,13 @@ class SECURITY {
 	private static $_user_group = [];
 
 	/**
+	 * Buffer for user group aliases based on namespace
+	 * namespace : { alias-name : access-code }
+	 * @var array
+	 */
+	private static $_user_group_alias = [];
+
+	/**
 	 * load from session
 	 * @uses SESSION::get
 	 */
@@ -86,7 +94,6 @@ class SECURITY {
 
 	/**
 	 * Initialize
-	 * @api
 	 * @uses SESSION::active
 	 * @throws \RuntimeException if session not active
 	 */
@@ -98,7 +105,9 @@ class SECURITY {
 			foreach (self::primary_user_groups as $name => $code) file_put_contents(self::_permission_location."/{$code}.json",json_encode([]));
 			file_put_contents(self::_permission_location."/user-type.json",json_encode(self::primary_user_groups));
 		}
+		if(!file_exists(self::_permission_location."/user-alias.json")) file_put_contents(self::_permission_location."/user-alias.json",json_encode([]));
 		self::$_user_group = json_decode(file_get_contents(self::_permission_location."/user-type.json"),true);
+		self::$_user_group_alias = json_decode(file_get_contents(self::_permission_location."/user-alias.json"),true);
 		asort(self::$_user_group);
 		self::$_initialized = true;
 
@@ -122,14 +131,12 @@ class SECURITY {
 
 	/**
 	 * Return SECURITY initialisation status
-	 * @api
 	 * @return boolean status
 	 */
 	public static function initialized(){ return self::$_initialized; }
 
 	/**
 	 * Generate time bound Nonce
-	 * @api
 	 * @throws \InvalidArgumentException if $life is not of type 'integer'
 	 * @param  integer $life nonce life span
 	 * @return string        nonce
@@ -144,14 +151,12 @@ class SECURITY {
 
 	/**
 	 * Check if Nonce Requested
-	 * @api
 	 * @return boolean status
 	 */
 	public static function is_nonce(){ return isset($_REQUEST[self::nonce_request_name]); }
 
 	/**
 	 * Verify Time bound nonce
-	 * @api
 	 * @throws \InvalidArgumentException if $nonce is not of type 'string'
 	 * @param  string $nonce nonce
 	 * if false autodetects nonce from request
@@ -174,7 +179,6 @@ class SECURITY {
 
 	/**
 	 * Generate n lenght encryption key
-	 * @api
 	 * @param  integer $length     key length
 	 * @param  string  $characters optional. Characters to use
 	 * @return boolean              key
@@ -190,7 +194,6 @@ class SECURITY {
 
 	/**
 	 * encrypt string with key
-	 * @api
 	 * @throws \InvalidArgumentException if $key or $string is not of type 'string'
 	 * @param  string $key    key
 	 * @param  string $string string
@@ -198,14 +201,13 @@ class SECURITY {
 	 */
 	public static function encrypt($key,$string){
 		if(!is_string($key)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
-		if(!is_string($string)) throw new \InvalidArgumentException("Argument #2 must be of type 'string'", 1);
+		if(!is_string($string)) throw new \InvalidArgumentException("Argument #2 must be of type 'string'", 2);
 		// $encrypted_string = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $string, MCRYPT_MODE_CBC, self::$iv);
 		return base64_encode($string);
 	}
 
 	/**
 	 * decrypt string with key
-	 * @api
 	 * @throws \InvalidArgumentException if $key or $string is not of type 'string'
 	 * @param  string $key    key
 	 * @param  string $string string
@@ -213,7 +215,7 @@ class SECURITY {
 	 */
 	public static function decrypt($key,$string){
 		if(!is_string($key)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
-		if(!is_string($string)) throw new \InvalidArgumentException("Argument #2 must be of type 'string'", 1);
+		if(!is_string($string)) throw new \InvalidArgumentException("Argument #2 must be of type 'string'", 2);
 		return base64_decode($string);
 		// $decrypted_string = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $key, $string, MCRYPT_MODE_CBC, self::$iv);
 		return $decrypted_string;
@@ -221,7 +223,6 @@ class SECURITY {
 
 	/**
 	 * test wether the current user has permissions set or not
-	 * @api
 	 * @throws \InvalidArgumentException if $permission is not of type 'array'
 	 * @throws \DomainException if invalid input for $logic
 	 * @param string $namespace 	Permission Namespace
@@ -236,7 +237,7 @@ class SECURITY {
 	public static function permission($namespace,$permissions = [],$logic = 'all'){
 		if(!self::$_USER_PERMISSIONS) self::get_permissions();
 		if($namespace && !is_string($namespace)) throw new \InvalidArgumentException("Argument #1 should be of type 'string'", 1);
-		if(!is_string($permissions) && !is_array($permissions)) throw new \InvalidArgumentException("Argument #2 should be of type 'string' or 'array'", 1);
+		if(!is_string($permissions) && !is_array($permissions)) throw new \InvalidArgumentException("Argument #2 should be of type 'string' or 'array'", 2);
 
 		$flag = false;
 		if(is_array($permissions)) switch ($logic) {
@@ -261,7 +262,6 @@ class SECURITY {
 
 	/**
 	 * Get permissions list for user
-	 * @api
 	 * @uses USER::access_level
 	 * @uses USER::permissions
 	 * @param boolean $reinit re-populate the permissions
@@ -290,21 +290,127 @@ class SECURITY {
 
 	/**
 	 * Get user group code based on name
-	 * @api
+	 * does not check for aliases until a valid namespace is provided
 	 * @throws \InvalidArgumentException if $name is not of type 'string'
 	 * @param  string $name access name
+	 * @param  boolean $namespace check for aliases in namespace
 	 * @return integer        access code
 	 */
-	public static function get_user_group_code($name){
+	public static function get_user_group_code($name,$namespace = false){
 		$name = strtolower($name);
 		if(!is_string($name)) throw new \InvalidArgumentException("Argument #1 should be of type 'string'", 1);
-		return isset(self::$_user_group[$name])?self::$_user_group[$name]:false;
+		return isset(self::$_user_group[$name])?
+					self::$_user_group[$name]:
+					($namespace && isset(self::$_user_group_alias[$namespace]) && isset(self::$_user_group_alias[$namespace][$name]) ?
+						self::$_user_group_alias[$namespace][$name]:
+						false
+					);
+	}
+
+	/**
+	 * get user group name based on code
+	 * if namespace is provided then the check is based on namespace
+	 * @throws \InvalidArgumentException if $code is not of type 'integer'
+	 * @param  integer $code group code
+	 * @param string $namespace plugin namespace
+	 * @return string       group name
+	 */
+	public static function get_user_group_name($code, $namespace = false){
+		if (!is_int($code)) throw new \InvalidArgumentException("Argument #1 should be of type 'integer'", 1);
+		if ($namespace && !is_string($namespace)) throw new \InvalidArgumentException("Argument #2 should be of type 'namespace'", 2);
+		if (!$namespace) return array_search($code, self::$_user_group);
+		else return isset(self::$_user_group_alias[$namespace]) ? array_search($code, self::$_user_group_alias[$namespace]) : false;
+	}
+
+	/**
+	 * Add new user group alias.
+	 * $original must not be an alias user group
+	 * @permission maple/security:user-group-alias|add
+	 * @filter user-group-alias|added
+	 * @maintainance 'maple/security user-group-alias|add
+	 * @throws \maple\cms\exceptions\InsufficientPermissionException if does not have permission maple/security:user-group-alias|add
+	 * @throws \InvalidArgumentException if $namespace,$alias,$original is not of type 'string'
+	 * @throws \DomainException if $alias is already a user group alias in $namespace
+	 * @throws \DomainException if $original is not a user group
+	 * @param string $namespace alias namespace
+	 * @param string $alias alias name
+	 * @param string $original original user group
+	 * @return integer access code
+	 */
+	public static function user_group_alias_add($namespace,$alias,$original){
+		if (!self::permission("maple/security", "user-group-alias|add")) throw new \maple\cms\exceptions\InsufficientPermissionException("insufficient permission", 1);
+		if (!is_string($namespace)) throw new \InvalidArgumentException("Argument #1 should be of type 'string'", 2);
+		if (!is_string($alias)) throw new \InvalidArgumentException("Argument #2 should be of type 'string'", 3);
+		if (!is_string($original)) throw new \InvalidArgumentException("Argument #3 should be of type 'string'", 4);
+		if (self::get_user_group_code($alias,$namespace)!==false) throw new \DomainException("Alias already exists", 5);
+		$code = self::get_user_group_code($original);
+		if ($code!==false) throw new \DomainException("invalid user group", 6);
+
+		self::$_user_group_alias[$namespace][$alias] = $code;
+		self::_save_user_group_alias_changes_save("maple/security user-group-alias|add");
+		MAPLE::do_filters("user-group-alias|added", $filter = ["added" => $code]);
+		return $code;
+	}
+
+	/**
+	 * rename user group alias.
+	 * @permission maple/security:user-group-alias|edit
+	 * @filter user-group-alias|renamed
+	 * @maintainance 'maple/security user-group-alias|renamed
+	 * @throws \maple\cms\exceptions\InsufficientPermissionException if does not have permission maple/security:user-group-alias|edit
+	 * @throws \InvalidArgumentException if $namespace,$alias,$new is not of type 'string'
+	 * @throws \DomainException if $new is already a user group alias in $namespace
+	 * @throws \DomainException if $alias is not already a user group alias in $namespace
+	 * @param string $namespace alias namespace
+	 * @param string $alias alias name
+	 * @param string $new new user group
+	 * @return boolean status
+	 */
+	public static function user_group_alias_rename($namespace, $alias, $new){
+		if (!self::permission("maple/security", "user-group-alias|edit")) throw new \maple\cms\exceptions\InsufficientPermissionException("insufficient permission", 1);
+		if (!is_string($namespace)) throw new \InvalidArgumentException("Argument #1 should be of type 'string'", 2);
+		if (!is_string($alias)) throw new \InvalidArgumentException("Argument #2 should be of type 'string'", 3);
+		if (!is_string($new)) throw new \InvalidArgumentException("Argument #3 should be of type 'string'", 4);
+		if (self::get_user_group_code($new, $namespace) !== false) throw new \DomainException("Alias name already exists", 5);
+		$code = self::get_user_group_code($alias);
+		if ($code === false) throw new \DomainException("Alias does not exists", 6);
+
+		self::$_user_group_alias[$namespace][$new] = $code;
+		unset(self::$_user_group_alias[$namespace][$alias]);
+		self::_save_user_group_alias_changes_save("maple/security user-group-alias|renamed");
+		MAPLE::do_filters("user-group-alias|renamed", $filter = ["edited" => $code]);
+		return true;
+	}
+
+	/**
+	 * rename user group alias.
+	 * @permission maple/security:user-group-alias|delete
+	 * @filter user-group-alias|deleted
+	 * @maintainance 'maple/security user-group-alias|deleted
+	 * @throws \maple\cms\exceptions\InsufficientPermissionException if does not have permission maple/security:user-group-alias|delete
+	 * @throws \InvalidArgumentException if $namespace,$alias,$new is not of type 'string'
+	 * @throws \DomainException if $new is already a user group alias in $namespace
+	 * @throws \DomainException if $alias is not already a user group alias in $namespace
+	 * @param string $namespace alias namespace
+	 * @param string $alias alias name
+	 * @return boolean status
+	 */
+	public static function user_group_alias_delete($namespace, $alias){
+		if (!self::permission("maple/security", "user-group-alias|delete")) throw new \maple\cms\exceptions\InsufficientPermissionException("insufficient permission", 1);
+		if (!is_string($namespace)) throw new \InvalidArgumentException("Argument #1 should be of type 'string'", 2);
+		if (!is_string($alias)) throw new \InvalidArgumentException("Argument #2 should be of type 'string'", 3);
+		$code = self::get_user_group_code($alias);
+		if ($code === false) return false;
+
+		unset(self::$_user_group_alias[$namespace][$alias]);
+		self::_save_user_group_alias_changes_save("maple/security user-group-alias|deleted");
+		MAPLE::do_filters("user-group-alias|deleted", $filter = ["deleted" => $code]);
+		return true;
 	}
 
 	/**
 	 * Add new user group.
 	 * if specified access level already exists then it returns false
-	 * @api
 	 * @permission maple/security:user-group|add
 	 * @filter user-group|added
 	 * @maintainance 'maple/security user-group|add'
@@ -325,11 +431,11 @@ class SECURITY {
 	 * 		       else a \DomainException is thrown.
 	 * @return integer access code
 	 */
-	public static function add_user_group($name,$level = 0){
-		if(!self::permission("maple/security","user-group|add")) throw new \maple\cms\exceptions\InsufficientPermissionException("", 1);
-		if(!is_string($name)) throw new \InvalidArgumentException("Argument #1 should be of type 'string'", 1);
-		if(!is_array($level) && !is_integer($range)) throw new \InvalidArgumentException("Argument #2 should be of type 'integer' or 'array'", 1);
-		if(self::get_user_group_code($name)!==false) throw new \DomainException("User Group '{$name}' already exists, try another.", 1);
+	public static function user_group_add($name,$level = 0){
+		if(!self::permission("maple/security","user-group|add")) throw new \maple\cms\exceptions\InsufficientPermissionException("insufficient permission", 1);
+		if(!is_string($name)) throw new \InvalidArgumentException("Argument #1 should be of type 'string'", 2);
+		if(!is_array($level) && !is_integer($level)) throw new \InvalidArgumentException("Argument #2 should be of type 'integer' or 'array'", 3);
+		if(self::get_user_group_code($name)!==false) throw new \DomainException("User Group '{$name}' already exists, try another.", 4);
 
 		$name = strtolower($name);
 		$permission = 0;
@@ -338,11 +444,11 @@ class SECURITY {
 			$permission = $level;
 		}
 		else if(is_array($level)){
-			if(!isset($level["min"]) && !isset($level["max"])) throw new \DomainException("Invalid Format for Argument #2", 1);
+			if(!isset($level["min"]) && !isset($level["max"])) throw new \DomainException("Invalid Format for Argument #2", 5);
 			if(isset($level["min"]) || isset($level["max"]) && !(isset($level["min"]) && isset($level["max"]))){
 				$buffer = self::$_user_group;
 				if (isset($level["min"])){
-					if( !is_integer($level["min"])) throw new \DomainException("Invalid Format for Argument #2", 1);
+					if( !is_integer($level["min"])) throw new \DomainException("Invalid Format for Argument #2", 6);
 					$min = $level["min"];
 					if(!self::get_user_group_name($min)){
 						$buffer[$name] = $min;
@@ -354,7 +460,7 @@ class SECURITY {
 					$level["max"] = $buffer?$buffer:$min+100;
 				}
 				else {
-					if( !is_integer($level["max"])) throw new \DomainException("Invalid Format for Argument #2", 1);
+					if( !is_integer($level["max"])) throw new \DomainException("Invalid Format for Argument #2", 7);
 					$max = $level["max"];
 					if(!self::get_user_group_name($max)){
 						$buffer[$name] = $max;
@@ -381,26 +487,13 @@ class SECURITY {
 		;
 		self::$_user_group[$name] = $level;
 		file_put_contents(self::_permission_location."/{$permission}.json",json_encode($permission));
-		self::_save_user_group_changes("maple/security user-group|add");
+		self::_user_group_changes_save("maple/security user-group|add");
 		MAPLE::do_filters("user-group|added",$filter = [ "added"	=>	$name ]);
 		return $level;
 	}
 
 	/**
-	 * get user group name based on code
-	 * @api
-	 * @throws \InvalidArgumentException if $code is not of type 'integer'
-	 * @param  integer $code group code
-	 * @return string       group name
-	 */
-	public static function get_user_group_name($code){
-		if(!is_int($code)) throw new \InvalidArgumentException("Argument #1 should be of type 'integer'", 1);
-		return array_search($code,self::$_user_group);
-	}
-
-	/**
 	 * Rename a user group
-	 * @api
 	 * @permission maple/security:user-group|rename
 	 * @filter 'user-group|renamed'
 	 * @maintainance 'maple/security user-group|rename'
@@ -412,7 +505,7 @@ class SECURITY {
 	 * @param  string $new      new name
 	 * @return boolean           change status
 	 */
-	public static function rename_user_group($original,$new){
+	public static function user_group_rename($original,$new){
 		if(!self::permission("maple/security","user-group|rename")) throw new \maple\cms\exceptions\InsufficientPermissionException("", 1);
 		if(!is_string($original)) throw new \InvalidArgumentException("Argument #1 should be of type 'string' and not empty", 1);
 		if(!is_string($new)) throw new \InvalidArgumentException("Argument #2 should be of type 'string' and not empty", 1);
@@ -421,14 +514,13 @@ class SECURITY {
 		if(isset(self::$_user_group[$new])) return false;
 		self::$_user_group[$new] = self::$_user_group[$original];
 		unset(self::$_user_group[$original]);
-		self::_save_user_group_changes("maple/security user-group|rename");
+		self::_user_group_changes_save("maple/security user-group|rename");
 		MAPLE::do_filters("user-group|renamed",$filter = ["original-name" => $original,"new-name" => $new]);
 		return true;
 	}
 
 	/**
 	 * Delete a User group by code
-	 * @api
 	 * @permission maple/security:user-group|delete
 	 * @filter "user-group|deleted"
 	 * @maintainance "maple/security user-group|delete"
@@ -438,15 +530,15 @@ class SECURITY {
 	 * @param  integer $code user group code
 	 * @return boolean       status
 	 */
-	public static function delete_user_group($code){
+	public static function user_group_delete($code){
 		if(!self::permission("maple/security","user-group|delete")) throw new \maple\cms\exceptions\InsufficientPermissionException("", 1);
-		if(!is_integer($range)) throw new \InvalidArgumentException("Argument #1 should be of type 'integer'", 1);
-		if(in_array($code,self::primary_user_groups)) throw new \maple\cms\exceptions\InsufficientPermissionException("Cannot Remove Primary User group", 1);
+		if(!is_integer($range)) throw new \InvalidArgumentException("Argument #1 should be of type 'integer'", 2);
+		if(in_array($code,self::primary_user_groups)) throw new \maple\cms\exceptions\InsufficientPermissionException("Cannot Remove Primary User group", 3);
 		$key = self::get_user_group_name($code);
 		if(!$key) return false;
 		unset(self::$_user_group[$key]);
 		unlink(self::_permission_location."/{$code}.json");
-		self::_save_user_group_changes("maple/security user-group|delete");
+		self::_user_group_changes_save("maple/security user-group|delete");
 		MAPLE::do_filters("user-group|deleted",$filter = ["deleted"=>$code]);
 		return true;
 	}
@@ -458,12 +550,23 @@ class SECURITY {
 	public static function user_groups(){ return array_flip(self::$_user_group); }
 
 	/**
+	 * Return list of aliases for the user group
+	 * @throws \InvalidArgumentException if $namespace not of type 'string'
+	 * @param string $namespace username
+	 * @return array
+	 */
+	public static function user_group_aliases($namespace) {
+		if (!is_string($namespace)) throw new \InvalidArgumentException("Argument #1 should be of type 'string'", 1);
+		return isset(self::$_user_group_alias[$namespace])? self::$_user_group_alias[$namespace]: []; 
+	}
+
+	/**
 	 * Save the User Group Modification made in self::$_user_group
 	 * @maintainance $change
 	 * @throws \InvalidArgumentException if $change not of type 'string'
 	 * @param  string $change task name
 	 */
-	private static function _save_user_group_changes($change){
+	private static function _user_group_changes_save($change){
 		if(!is_string($change) || !$change) throw new \InvalidArgumentException("Argument #1 should be of type 'string' and not empty", 1);
 		asort(self::$_user_group);
 		\ENVIRONMENT::lock("maple/cms : {$change}");
@@ -472,8 +575,21 @@ class SECURITY {
 	}
 
 	/**
+	 * Save the User Group Made Modification made in self::$_user_group_alias
+	 * @maintainance $change
+	 * @throws \InvalidArgumentException if $change not of type 'string'
+	 * @param  string $change task name
+	 */
+	private static function _user_group_alias_changes_save($change){
+		if (!is_string($change) || !$change) throw new \InvalidArgumentException("Argument #1 should be of type 'string' and not empty", 1);
+		asort(self::$_user_group_alias);
+		\ENVIRONMENT::lock("maple/cms : {$change}");
+		file_put_contents(self::_permission_location . "/user-alias.json", json_encode(self::$_user_group_alias));
+		\ENVIRONMENT::unlock();
+	}
+
+	/**
 	 * Grant Permission to User Group with code
-	 * @api
 	 * @filter user-group-permission|modified
 	 * @permission maple/security:user-group-permission|grant
 	 * @maintainance 'maple/security user-group-permission|modified'
@@ -488,11 +604,11 @@ class SECURITY {
 	 * @return boolean             status
 	 */
 	public static function grant_permission($code,$namespace,$permission){
-		if(!self::permission("maple/security","user-group-permission|grant")) throw new \maple\cms\exceptions\InsufficientPermissionException("", 1);
-		if(!is_integer($code)) throw new \InvalidArgumentException("Argument #1 should be of type 'integer'", 1);
-		if(!is_string($namespace)) throw new \InvalidArgumentException("Argument #2 should be of type 'string'", 1);
-		if(!is_string($permission)||!is_array($permission)) throw new \InvalidArgumentException("Argument #3 should be of type 'string' or 'array'", 1);
-		if(!self::get_user_group_name($code)) throw new \DomainException("Invalid User Group Code", 1);
+		if(!self::permission("maple/security","user-group-permission|grant")) throw new \maple\cms\exceptions\InsufficientPermissionException("insufficient permission", 1);
+		if(!is_integer($code)) throw new \InvalidArgumentException("Argument #1 should be of type 'integer'", 2);
+		if(!is_string($namespace)) throw new \InvalidArgumentException("Argument #2 should be of type 'string'", 3);
+		if(!is_string($permission)||!is_array($permission)) throw new \InvalidArgumentException("Argument #3 should be of type 'string' or 'array'", 4);
+		if(!self::get_user_group_name($code)) throw new \DomainException("Invalid User Group Code", 5);
 
 		$permissions = json_decode(file_get_contents(self::_permission_location."/{$code}.json"),true);
 		if(!isset($permissions[$namespace])) $permissions[$namespace] = [];
@@ -514,7 +630,6 @@ class SECURITY {
 
 	/**
 	 * Grant Permission to User Group with code
-	 * @api
 	 * @filter user-group-permission|modified
 	 * @permission maple/security:user-group-permission|deny
 	 * @maintainance 'maple/security user-group-permission|modified'
@@ -529,11 +644,11 @@ class SECURITY {
 	 * @return boolean             status
 	 */
 	public static function deny_permission($code,$namespace,$permission){
-		if(!self::permission("maple/security","user-group-permission|deny")) throw new \maple\cms\exceptions\InsufficientPermissionException("", 1);
-		if(!is_integer($code)) throw new \InvalidArgumentException("Argument #1 should be of type 'integer'", 1);
-		if(!is_string($namespace)) throw new \InvalidArgumentException("Argument #2 should be of type 'string'", 1);
-		if(!is_string($permission)||!is_array($permission)) throw new \InvalidArgumentException("Argument #3 should be of type 'string' or 'array'", 1);
-		if(!self::get_user_group_name($code)) throw new \DomainException("Invalid User Group Code", 1);
+		if(!self::permission("maple/security","user-group-permission|deny")) throw new \maple\cms\exceptions\InsufficientPermissionException("insufficient permission", 1);
+		if(!is_integer($code)) throw new \InvalidArgumentException("Argument #1 should be of type 'integer'", 2);
+		if(!is_string($namespace)) throw new \InvalidArgumentException("Argument #2 should be of type 'string'", 3);
+		if(!is_string($permission)||!is_array($permission)) throw new \InvalidArgumentException("Argument #3 should be of type 'string' or 'array'", 4);
+		if(!self::get_user_group_name($code)) throw new \DomainException("Invalid User Group Code", 5);
 
 		$permissions = json_decode(file_get_contents(self::_permission_location."/{$code}.json"),true);
 		if(is_array($permission)) $permissions[$namespace] = array_diff($permissions[$namespace],$permission);
@@ -556,7 +671,6 @@ class SECURITY {
 	 * String to Permitted Group Codes,
 	 * Get an array of group code by parsing syntax
 	 * accepts type "*","a,b,c"
-	 * @api
 	 * @throws \InvalidArgumentException if $str not of type string
 	 * @throws \DomainException if $str is not in a valid Format
 	 * @param  string $str permission syntax

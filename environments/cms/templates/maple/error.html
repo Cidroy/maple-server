@@ -1,0 +1,10 @@
+{% if html['header'] %} {{ html['header'] }}
+{% else %}
+header
+{% endif %}
+{{ dump() }}
+{{ html['content'] }}
+{% if html['footer'] %} {{ html['footer'] }}
+{% else %}
+footer
+{% endif %}

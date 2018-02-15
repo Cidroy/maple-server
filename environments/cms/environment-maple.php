@@ -9,6 +9,7 @@ class eMAPLE implements iRenderEnvironment{
 	private static $content = null;
 	private static $_initialized = false;
 	private static $_initialized_good = false;
+	private static $_initialization_error = [];
 	private static $output 	= [
 		"header"	=>	"",
 		"content"	=>	"",
@@ -82,32 +83,35 @@ class eMAPLE implements iRenderEnvironment{
 				\maple\cms\SESSION::start();
 				\maple\cms\USER::initialize();
 				\maple\cms\SECURITY::initialize();
-				\maple\cms\SITE::initialize();
 				\maple\cms\CACHE::initialize();
-
+				
 				\maple\cms\PLUGIN::source(\ROOT.\__MAPLE__."/plugins");
 				\maple\cms\PLUGIN::source(self::cms_content."/plugins");
 				\maple\cms\THEME::source(\ROOT.\__MAPLE__."/themes");
 				\maple\cms\THEME::source(self::cms_content."/themes");
-
+				
 				\maple\cms\URL::add("%THEME%",null,\__MAPLE__."/themes");
 				\maple\cms\URL::add("%PLUGIN%",null,\__MAPLE__."/plugins");
 				\maple\cms\URL::add("%ADMIN%",\maple\cms\URL::name("maple/cms","dashboard"),null);
 				self::$_initialized_good = true;
 			}
-		}catch(\Exception $e){ throw $e; }
+		}catch(\Exception $e){
+			self::$_initialization_error[] = $e;
+			throw $e;
+		}
 	}
 
 	public static function load(){
 		if(\ENVIRONMENT::is_allowed("maple-load")){
 			try {
 				self::initialize();
+				\maple\cms\SITE::initialize();
 				\maple\cms\SESSION::active() or \maple\cms\SESSION::start();
-
+				
 				\maple\cms\PLUGIN::load("*");
 				MAPLE::initialize(\maple\cms\PLUGIN::get());
 				\maple\cms\PLUGIN::clear();
-
+				
 				\maple\cms\ROUTER::sources(MAPLE::_get("routers",true));
 				\maple\cms\ROUTER::initialize();
 				\maple\cms\TEMPLATE::add_template_sources(MAPLE::_get("templates",true));
@@ -120,23 +124,35 @@ class eMAPLE implements iRenderEnvironment{
 	}
 
 	public static function execute(){
-		if(\ENVIRONMENT::is_allowed("maple-execute") && self::$_initialized_good){
-			$page = \maple\cms\PAGE::get("url",\maple\cms\PAGE::identify(\maple\cms\URL::http("%CURRENT%")));
-			if($page){
-				MAPLE::hook("\\maple\\cms\\SHORTCODE::execute_all",$page["content"],300);
-				\maple\cms\UI::title()->add($page["title"]);
+		try{
+			if(\ENVIRONMENT::is_allowed("maple-execute") && self::$_initialized_good){
+				$page = \maple\cms\PAGE::get("url",\maple\cms\PAGE::identify(\maple\cms\URL::http("%CURRENT%")));
+				if($page){
+					MAPLE::hook("\\maple\\cms\\SHORTCODE::execute_all",$page["content"],300);
+					\maple\cms\UI::title()->add($page["title"]);
+				}
+				MAPLE::hook("\\maple\\cms\\ROUTER::dispatch",[],250);
+				self::$output["content"] = \maple\cms\THEME::render_content();
+				self::$output["header"]  = \maple\cms\THEME::render_head();
+				self::$output["footer"]  = \maple\cms\THEME::render_footer();
+				if(MAPLE::has_content()){
+					self::$output["content"] = \maple\cms\UI::do_filters([
+						"content"	=> self::$output["content"]
+					]);
+					if(\maple\cms\TEMPLATE::configuration("render")) self::$content = self::$output["header"].self::$output["content"].self::$output["footer"];
+					else self::$content = json_encode([self::$output["header"],self::$output["content"],self::$output["footer"]]);
+				}
 			}
-			MAPLE::hook("\\maple\\cms\\ROUTER::dispatch",[],250);
-			self::$output["content"] = \maple\cms\THEME::render_content();
-			self::$output["header"]  = \maple\cms\THEME::render_head();
-			self::$output["footer"]  = \maple\cms\THEME::render_footer();
-			if(MAPLE::has_content()){
-				self::$output["content"] = \maple\cms\UI::do_filters([
-					"content"	=> self::$output["content"]
-				]);
-				if(\maple\cms\TEMPLATE::configuration("render")) self::$content = self::$output["header"].self::$output["content"].self::$output["footer"];
-				else self::$content = json_encode([self::$output["header"],self::$output["content"],self::$output["footer"]]);
-			}
+			else throw end(self::$_initialization_error);
+			
+		}
+		catch(\Exception $e){
+			return [
+				"type"	=>	"error",
+				"error"	=> 500,
+				"code"	=>	$e->getCode(),
+				"message"=> $e->getMessage(),
+			];
 		}
 	}
 
@@ -187,7 +203,7 @@ class eMAPLE implements iRenderEnvironment{
 		self::$output["content"] = \maple\cms\UI::do_filters([
 			"content"	=> \maple\cms\THEME::render_error($param)
 		]);
-		if(\maple\cms\TEMPLATE::configuration("render")) return self::$output["header"].self::$output["content"].self::$output["footer"];
+		if(\maple\cms\TEMPLATE::configuration("render")) return \maple\cms\TEMPLATE::render_file(\ROOT.\__MAPLE__."/templates/maple/error.html",$param);
 		else return json_encode([self::$output["header"],self::$output["content"],self::$output["footer"]]);
 	}
 

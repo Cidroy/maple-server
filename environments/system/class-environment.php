@@ -220,7 +220,7 @@ class ENVIRONMENT{
 				self::$content = true;
 				return true;
 			}
-			if($code["type"] == "error") self::$errors[] = $code["error"];
+			if($code["type"] === "error") self::$errors[] = $code["error"];
 		}
 		return false;
 	}
@@ -266,6 +266,7 @@ class ENVIRONMENT{
 					return true;
 				}
 			}
+			die();
 		}
 		// if no one takes care then handle here
 		if(file_exists(__DIR__."/setup/error/{$code}.html"))

@@ -33,6 +33,24 @@
 		"namespace"	: "maple/security"
 	},
 	{
+		"name": "user-group-alias|add",
+		"description": "add new user group alias",
+		"access": "administrator+",
+		"namespace": "maple/security"
+	},
+	{
+		"name": "user-group-alias|edit",
+		"description": "edit existing user group alias",
+		"access": "administrator+",
+		"namespace": "maple/security"
+	},
+	{
+		"name": "user-group-alias|delete",
+		"description": "delete a user group alias",
+		"access": "administrator+",
+		"namespace": "maple/security"
+	},	
+	{
 		"name"	: "user-group-permission|grant",
 		"description":"grant permission to a user group",
 		"access"	: "administrator+",

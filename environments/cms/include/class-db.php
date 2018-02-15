@@ -24,7 +24,7 @@ class DB{
 	 * Initialization Status
 	 * @var boolean
 	 */
-	private static $_initialied = false;
+	private static $_initialized = false;
 	/**
 	 * Database Object
 	 * @var Medoo
@@ -39,14 +39,18 @@ class DB{
 	/**
 	 * Connect and Create a static object
 	 * @filter database|initialized when database is connected properly
-	 * BUG : does not test database failure
 	 * @filter database|failed when database does not connected
 	 */
 	private static function connect(){
 		self::$_details = include_once(self::_configuration_file);
 		self::$_object = self::object(self::$_details["database"]);
-		MAPLE::do_filters("databse|initialized");
-		// MAPLE::do_filters("databse|failed");
+		if(isset(self::$_object->pdo)){
+			MAPLE::do_filters("databse|initialized");
+			return true;
+		} else {
+			MAPLE::do_filters("databse|failed");
+			return false;
+		}
 	}
 
 	/**
@@ -55,15 +59,14 @@ class DB{
 	 * @throws \maple\cms\exceptions\SqlConnectionException if SQL connection is not available or not set
 	 */
 	public static function initialize($obj = null){
+		self::$_initialized = false;
 		if($obj instanceof __db and $obj !== false){
 			self::$_object = $obj;
-			self::$_initialied = true;
+			self::$_initialized = true;
 		}
 		else if(!file_exists(self::_configuration_file))	throw new \maple\cms\exceptions\SqlConnectionException("System Not Configured", 1);
-		else {
-			self::connect();
-			self::$_initialied = true;
-		}
+		else self::$_initialized = self::connect();
+		if(!self::$_initialized) throw new \RuntimeException("Database connection failed", 2);
 	}
 
 	/**
@@ -82,7 +85,7 @@ class DB{
 	 * @api
 	 * @return boolean status
 	 */
-	public static function initialized(){ return self::$_initialied; }
+	public static function initialized(){ return self::$_initialized; }
 
 	/**
 	 * @api
