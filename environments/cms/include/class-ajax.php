@@ -47,6 +47,10 @@ class AJAX {
 		"action"	=> "maple-ajax-action"
 	];
 
+	/**
+	 * default CORS config and other headers
+	 * @var array
+	 */
 	const default_configuration = [
 		"Access-Control"	=>	[
 			"Allow-Origin"	=>	"*",
@@ -84,8 +88,6 @@ class AJAX {
 
 	/**
 	 * Return if ajax requested
-	 * BUG : does not check for request point
-	 * @api
 	 * @throws \InvalidArgumentException if $method is not of type 'string'
 	 * @param string $method http request method. Default - "*"
 	 * @return boolean status
@@ -101,11 +103,13 @@ class AJAX {
 			case '*':
 			default: $method = $_REQUEST; break;
 		}
-		return !array_diff_key($buffer,$method);
+		return !array_diff_key($buffer,$method) && URL::http("%API%") === URL::http("%CURRENT%");
 	}
 
 	/**
 	 * Ajax System Initialiation
+	 * @uses \maple\cms\URL::add() to register base api
+	 * @uses \maple\cms\MAPLE::_get() to get all apis registration
 	 */
 	public static function initialize(){
 		if(!file_exists(self::cache) || !file_exists(self::config.self::config_file)) self::diagnose();
@@ -118,6 +122,10 @@ class AJAX {
 		}
 	}
 
+	/**
+	 * run diagnostics
+	 * checks if cache,config folder exists
+	 */
 	private static function diagnose(){
 		if(!file_exists(self::cache)) mkdir(self::cache,0777,true);
 		if(!file_exists(self::config)) mkdir(self::config,0777,true);
@@ -139,31 +147,17 @@ class AJAX {
 			$namespace = $_REQUEST[self::request_parameters["namespace"]];
 			$action = $_REQUEST[self::request_parameters["action"]];
 
-			if(!($ajax = self::get($namespace,$action))) throw new \Exception("invalid-api-file");
-			if(!($ajax = self::allowed($ajax))) throw new \Exception("insufficient-permission");
+			if(!($ajax = self::get($namespace,$action))) throw new \Exception("invalid-api-file",1);
+			if(!($ajax = self::allowed($ajax))) throw new \Exception("insufficient-permission",2);
 			$ajax  = current($ajax);
-			if(((isset($ajax["nonce"]) and $ajax["nonce"]) or SECURITY::is_nonce()) and !SECURITY::verify_nonce()) throw new \Exception("nonce-expired");
-			// $output = self::serve($ajax,$headers);
+			if(((isset($ajax["nonce"]) and $ajax["nonce"]) or SECURITY::is_nonce()) and !SECURITY::verify_nonce()) throw new \Exception("nonce-expired",3);
 		} catch (\Exception $e) {
-			$message = $e->getMessage(); $code = 0; $response_code = 500;
-			if(array_key_exists($message,self::error)){
-				$code = $e->getCode();
-				$response_code = self::error[$message][0];
-				$message = self::error[$message][1];
-			}
-			else {
-				$message = "Something Went Wrong";
-				$code = $e->getCode();
-			}
 			$args = [
-				"type"	=>	"error",
-				"message"=>	$message,
-				"code"	=>	$code,
-				"response-code" => $response_code
-			];
-			if(\DEBUG) $args["error"] = [
-				"message" 	=> $e->getMessage(),
-				"trace" 	=> $e->getTrace()
+				"type"		=>	"error",
+				"message"	=> self::error[$e->getMessage()]!==null ? self::error[$e->getMessage()][1] : "Something Went Wrong",
+				"code"		=>	$e->getCode(),
+				"response-code" => self::error[$e->getMessage()]!==null ? self::error[$e->getMessage()][0]: 500,
+				"error"		=>	\DEBUG?$e->getTrace():false,
 			];
 			$ajax = [
 				"cache"		=>	"default",
@@ -172,13 +166,21 @@ class AJAX {
 				"function"	=>	"json_encode",
 				"arguments"	=>	$args
 			];
-			http_response_code($response_code);
+			http_response_code($args["response-code"]);
 		}
 		try {
 			echo self::serve($ajax,$headers);
 			\ENVIRONMENT::headers($headers);
 		} catch (\Exception $e) {
-			var_dump($e);
+			$args = [
+				"type" 		=> "error",
+				"message" 	=> "Something Went Wrong",
+				"code" 		=> $e->getCode(),
+				"response-code" => 500,
+				"error" 	=> \DEBUG ? $e->getTrace() : false,
+			];
+			http_response_code(500);
+			echo(json_encode($args,JSON_PRETTY_PRINT));
 		}
 		die();
 	}
