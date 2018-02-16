@@ -123,6 +123,10 @@ class URL{
 		return false;
 	}
 
+	/**
+	 * initialize url details
+	 * @uses \ENVIRONMENT::url()
+	 */
 	public static function initialize() {
 		try {
 			if(!file_exists(self::src)) self::diagnose();

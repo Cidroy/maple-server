@@ -201,7 +201,7 @@ class eMAPLE implements iRenderEnvironment{
 			"error"	=>	$param
 		];
 		self::$output["content"] = \maple\cms\UI::do_filters([
-			"content"	=> \maple\cms\THEME::render_error($param)
+			"content"	=> \maple\cms\THEME::render_error($param),
 		]);
 		if(\maple\cms\TEMPLATE::configuration("render")) return \maple\cms\TEMPLATE::render_file(\ROOT.\__MAPLE__."/templates/maple/error.html",$param);
 		else return json_encode([self::$output["header"],self::$output["content"],self::$output["footer"]]);

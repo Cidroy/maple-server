@@ -17,7 +17,6 @@ class FILE{
 	 * get the mime type for file
 	 * returns null if file does not exists
 	 * returns default mime tye if file does not has any extention or is not listed
-	 * @api
 	 * @uses \maple\environment\FILE if mime-types file is missing
 	 * @param  file-path $file path to FILE
 	 * @return mixed[null,string]       mime type
@@ -39,7 +38,6 @@ class FILE{
 	/**
 	 * Get list of all folders in the directory or directory of the file path
 	 * returns null if $path is not a valid directory or file path
-	 * @api
 	 * @param  folder-path $path path to the directory
 	 * @return array       list of folders
 	 */
@@ -54,7 +52,6 @@ class FILE{
 	/**
 	 * Get list of all files in the directory or directory of the file path
 	 * returns null if $path is not a valid directory or file path
-	 * @api
 	 * @param  folder-path $path path to the directory
 	 * @return array       list of files
 	 */
@@ -67,7 +64,6 @@ class FILE{
 
 	/**
 	 * Read all content in file
-	 * @api
 	 * @throws \maple\cms\exceptions\FileNotFoundException if $report set to false and file does not exists
 	 * @throws \maple\cms\exceptions\FilePermissionException if $report set to false and Maple CMS does not has permission to read file
 	 * @param  file-path  $path   path to FILE
@@ -98,7 +94,6 @@ class FILE{
 	/**
 	 * Write content to file
 	 * if content is not of type string then it is converted to json and stored.
-	 * @api
 	 * @throws \maple\cms\exceptions\FilePermissionException if $report set to false and Maple CMS does not has permission to read write
 	 * @param  file-path $path    path to destination
 	 * @param  mixed[] $content content to be written
@@ -121,7 +116,6 @@ class FILE{
 	/**
 	 * Append content to file
 	 * if content is not of type string then it is converted to json and stored.
-	 * @api
 	 * @throws \maple\cms\exceptions\FilePermissionException if $report set to false and Maple CMS does not has permission to read write
 	 * @param  file-path $path    path to destination
 	 * @param  mixed[] $content content to be written
@@ -143,7 +137,6 @@ class FILE{
 
 	/**
 	 * Parse the PHP file and get the string contents
-	 * @api
 	 * @uses __CLASS__::safe_require
 	 * @throws \maple\cms\exceptions\FileNotFoundException if file does not exists
 	 * @param  file-path $path Path to file
@@ -185,7 +178,6 @@ class FILE{
 
 	/**
 	 * delete folder
-	 * @api
 	 * @throws \maple\cms\exceptions\FilePermissionException if $dir is not deleteable or contains non deleteable files
 	 * @param  file-path $dir folder path
 	 * @return boolean      status
@@ -206,7 +198,6 @@ class FILE{
 	/**
 	 * Copy contents of folder from source to destination
 	 * NOTE : removes any existsing occurence of folder if $merge is false
-	 * @api
 	 * @throws \maple\cms\exceptions\FilePermissionException if source or destination is not readable or writeable respectively
 	 * @throws \maple\cms\exceptions\FileNotFoundException if source does not exists
 	 * @param  file-path $src source
@@ -233,7 +224,6 @@ class FILE{
 
 	/**
 	 * Takes in the absolute path to the file and returns an image thumbnail for it
-	 * @api
 	 * @throws \InvalidArgumentException if Argument #1 & #2 are not of type string and integer respectively
 	 * @throws \maple\cms\exceptions\FileNotFoundException if $path does not exists;
 	 * @throws \DomainException if $size is less than 32
@@ -254,7 +244,6 @@ class FILE{
 
 	/**
 	 * Safely 'require_once' file to avoid abrupt termination
-	 * @api
 	 * @throws \maple\cms\exceptions\FileNotFoundException if $file does not exists
 	 * @param  file-path  $file         file path
 	 * @param  boolean $critical     is the file critical for execution
@@ -275,7 +264,6 @@ class FILE{
 
 	/**
 	 * Safely 'require' file to avoid abrupt termination
-	 * @api
 	 * @throws \maple\cms\exceptions\FileNotFoundException if $file does not exists
 	 * @param  file-path  $file         file path
 	 * @param  boolean $critical     is the file critical for execution
@@ -296,7 +284,6 @@ class FILE{
 
 	/**
 	 * Safely include_once' file to avoid abrupt termination
-	 * @api
 	 * @throws \maple\cms\exceptions\FileNotFoundException if $file does not exists
 	 * @param  file-path  $file         file path
 	 * @param  boolean $critical     is the file critical for execution
@@ -316,7 +303,6 @@ class FILE{
 
 	/**
 	 * Safely 'include' file to avoid abrupt termination
-	 * @api
 	 * @throws \maple\cms\exceptions\FileNotFoundException if $file does not exists
 	 * @param  file-path  $file         file path
 	 * @param  boolean $critical     is the file critical for execution
@@ -389,7 +375,6 @@ class FILE{
 
 	/**
 	 * Remove File or folders
-	 * @api
 	 * @throws \InvalidArgumentException if $path is not of type 'string'
 	 * @param  string $path path
 	 * @return boolean status
