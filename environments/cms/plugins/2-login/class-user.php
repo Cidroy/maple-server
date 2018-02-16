@@ -124,7 +124,45 @@ class USER{
 	 * @author Rubixcode
 	 */
 	public static function a_usergroup_list(){
-		return SECURITY::user_groups();
+		try {
+			return [
+				"type" => "success",
+				"groups" => SECURITY::user_groups(),
+			];
+		} catch (\Exception $e) {
+			return [
+				"type" => "error",
+				"message" => $e->getMessage(),
+				"code" => $e->getCode(),
+				"error" => \DEBUG ? $e->getTrace() : false
+			];
+		}
+	}
+
+	/**
+	 * get user group aliases based on namespace
+	 * @api
+	 * @api-handler "maple/login:user-group-alias|list"
+	 * @response success array usergroups
+	 * @return array response
+	 * @author Rubixcode
+	 */
+	public static function a_usergroup_alias_list(){
+		try{
+			if (!isset($_REQUEST["namespace"])) throw new \Exception("namespace is requied", 1);
+			return [
+				"type"	=>	"success",
+				"aliases"=> SECURITY::user_group_aliases($_REQUEST["namespace"]),
+				"namespace" => $_REQUEST["namespace"]
+			]; 
+		} catch(\Exception $e){
+			return [
+				"type" => "error",
+				"message" => $e->getMessage(),
+				"code" => $e->getCode(),
+				"error"=> \DEBUG?$e->getTrace():false
+			];
+		}
 	}
 
 	/**

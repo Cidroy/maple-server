@@ -27,6 +27,10 @@
 		"method"	: "POST",
 		"function"	: "\\maple\\cms\\login\\USER::a_usergroup_list"
 	},
+	"user-group-alias|list": {
+		"method"	: "POST",
+		"function"	: "\\maple\\cms\\login\\USER::a_usergroup_alias_list"
+	},
 	"*" : {
 		"method"	 : ["POST","GET","HEAD","PUT","DELETE"],
 		"function"	 : "\\maple\\cms\\LOGIN::a_default"

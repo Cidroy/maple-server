@@ -308,6 +308,16 @@ class SECURITY {
 	}
 
 	/**
+	 * Proxy function to validate if a usergroup exists
+	 * if a $namespace is not provided then it is checked in primary user group
+	 *
+	 * @param string $name group name
+	 * @param string $namespace user group namespace
+	 * @return boolean status
+	 */
+	public static function user_group_exists($name,$namespace = false){ return self::get_user_group_code($name,$namespace)!==false; }
+
+	/**
 	 * get user group name based on code
 	 * if namespace is provided then the check is based on namespace
 	 * @throws \InvalidArgumentException if $code is not of type 'integer'
@@ -344,10 +354,10 @@ class SECURITY {
 		if (!is_string($original)) throw new \InvalidArgumentException("Argument #3 should be of type 'string'", 4);
 		if (self::get_user_group_code($alias,$namespace)!==false) throw new \DomainException("Alias already exists", 5);
 		$code = self::get_user_group_code($original);
-		if ($code!==false) throw new \DomainException("invalid user group", 6);
+		if ($code===false) throw new \DomainException("invalid user group", 6);
 
 		self::$_user_group_alias[$namespace][$alias] = $code;
-		self::_save_user_group_alias_changes_save("maple/security user-group-alias|add");
+		self::_user_group_alias_changes_save("maple/security user-group-alias|add");
 		MAPLE::do_filters("user-group-alias|added", $filter = ["added" => $code]);
 		return $code;
 	}
@@ -377,7 +387,7 @@ class SECURITY {
 
 		self::$_user_group_alias[$namespace][$new] = $code;
 		unset(self::$_user_group_alias[$namespace][$alias]);
-		self::_save_user_group_alias_changes_save("maple/security user-group-alias|renamed");
+		self::_user_group_alias_changes_save("maple/security user-group-alias|renamed");
 		MAPLE::do_filters("user-group-alias|renamed", $filter = ["edited" => $code]);
 		return true;
 	}
@@ -403,7 +413,7 @@ class SECURITY {
 		if ($code === false) return false;
 
 		unset(self::$_user_group_alias[$namespace][$alias]);
-		self::_save_user_group_alias_changes_save("maple/security user-group-alias|deleted");
+		self::_user_group_alias_changes_save("maple/security user-group-alias|deleted");
 		MAPLE::do_filters("user-group-alias|deleted", $filter = ["deleted" => $code]);
 		return true;
 	}
@@ -481,12 +491,12 @@ class SECURITY {
 		asort($buffer);
 		while(current($buffer)!==$buffer[array_search($permission,$buffer)]) next($buffer);
 		$permission = prev($buffer);
-		$permission = self::get_user_group_code($permission)!==false?
+		$permission = $permission!==false?
 			json_decode(file_get_contents(self::_permission_location."/{$permission}.json"),true):
 			[]
 		;
 		self::$_user_group[$name] = $level;
-		file_put_contents(self::_permission_location."/{$permission}.json",json_encode($permission));
+		file_put_contents(self::_permission_location."/{$level}.json",json_encode($permission));
 		self::_user_group_changes_save("maple/security user-group|add");
 		MAPLE::do_filters("user-group|added",$filter = [ "added"	=>	$name ]);
 		return $level;
@@ -752,6 +762,7 @@ class SECURITY {
 		$user_codes = array_flip($user_codes);
 		foreach ($user_codes as $key => $value) $user_codes[$key] = json_decode(file_get_contents(self::_permission_location."/{$key}.json"),true);
 		$plugin_permissions = json_decode(file_get_contents("{$folder}/permissions.json"),true);
+		if(!$plugin_permissions) return;
 		foreach ($plugin_permissions as $permission) {
 			$permission["namespace"] = isset($permission["namespace"])?$permission["namespace"]:$namespace;
 			foreach ($user_codes as $key => $value) {
