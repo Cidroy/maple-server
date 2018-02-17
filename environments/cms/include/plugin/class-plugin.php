@@ -153,7 +153,6 @@ class PLUGIN{
 	public static function activate($namespace,$param = []){
 		if(!is_string($namespace))	throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
 		if(!SECURITY::permission("maple/plugin","plugin|activate")) throw new \maple\cms\exceptions\InsufficientPermissionException("Insufficient Permission", 1);
-
 		$namespace = explode("@",$namespace);
 		$version = isset($namespace[1])?$namespace[1]:"*";
 		$namespace = $namespace[0];
@@ -212,13 +211,15 @@ class PLUGIN{
 				if(isset($activation["load"])){
 					if(!is_array($activation["load"])) $activation["load"] = [$activation["load"]];
 					foreach ($activation["load"] as $file){
-						if(file_exists($data["location"].$file)) require_once $data["location"].$file;
+						if(file_exists($data["location"].$file))
+							try{ require_once $data["location"] . $file; }
+							catch(\Exception $e){ }
 					}
 				}
 				if(isset($param["install"]) && $param["install"] && $activation["install"]) call_user_func($activation["install"]);
 				if(isset($activation["activate"])) call_user_func($activation["activate"]);
 			}
-			SECURITY::install_permission($namespace,$buffer[$namespace]["path"]);
+			SECURITY::install_permission($namespace,\ROOT.$buffer[$namespace]["path"]);
 			MAPLE::do_filters("plugin|activated",$filter = [
 				"namespace"	=>	$namespace,
 				"version"	=>	$version,

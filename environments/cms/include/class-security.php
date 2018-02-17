@@ -680,7 +680,14 @@ class SECURITY {
 	/**
 	 * String to Permitted Group Codes,
 	 * Get an array of group code by parsing syntax
-	 * accepts type "*","a,b,c"
+	 * accepts type 
+	 * "*"		=> all,
+	 * "group+" => all group above and including,
+	 * "group-" => all group below and excluding,
+	 * "group1-group2" => all groups in range,
+	 * "group1,group2,group3" => specifically these,
+	 * "~groupX"=> exclude group, can be used in combination. eg: "group(+|-),~groupX",
+	 * "namespace:group" => to use alias use this format
 	 * @throws \InvalidArgumentException if $str not of type string
 	 * @throws \DomainException if $str is not in a valid Format
 	 * @param  string $str permission syntax
@@ -703,26 +710,44 @@ class SECURITY {
 			# match "*"
 			if($access=="*") $_group[$mode] = array_merge(array_values(self::$_user_group),$_group[$mode]);
 			# match "a_z+"
-			else if(preg_match("/^[a-zA-Z0-9_]+\+$/",$access)){
-				$min_code = self::get_user_group_code(rtrim($access,"+"));
+			else if(preg_match("/^[a-zA-Z0-9_\/:]+\+$/",$access)){
+				$access = explode(":",$access);
+				$namespace = isset($access[1])?$access[0]:null;
+				$access = rtrim(isset($access[1]) ? $access[1] : $access[0],"+");
+				$min_code = self::get_user_group_code($access,$namespace);
 				if($min_code===false) continue;
 				foreach (self::$_user_group as $name => $code) if($code >= $min_code) $_group[$mode][] = $code;
 			}
 			# match "a_z-"
-			else if(preg_match("/^[a-zA-Z0-9_]+\-$/",$access)){
-				$min_code = self::get_user_group_code(rtrim($access,"-"));
+			else if(preg_match("/^[a-zA-Z0-9_\/:]+\-$/",$access)){
+				$access = explode(":", $access);
+				$namespace = isset($access[1]) ? $access[0] : null;
+				$access = rtrim(isset($access[1]) ? $access[1] : $access[0], "-");
+				$min_code = self::get_user_group_code($access, $namespace);
 				if($min_code===false) continue;
 				foreach (self::$_user_group as $name => $code) if($code <= $min_code) $_group[$mode][] = $code;
 			}
 			# match "a-b"
-			else if(preg_match("/^[a-zA-Z0-9_]+\-[a-zA-Z0-9_]+$/",$access)){
+			else if(preg_match("/^[a-zA-Z0-9_\/:]+\-[a-zA-Z0-9_\/:]+$/",$access)){
 				$access = explode("-",$access);
-				$min_code = self::get_user_group_code($access[0]);
-				$max_code = self::get_user_group_code($access[1]);
+				$access[0] = explode(":",$access[0]);
+				$access[1] = explode(":",$access[1]);
+				$groups = [[],[]];
+				$groups[0]["namespace"] = isset($access[0][1]) ? $access[0][0] : null;
+				$groups[0]["access"]	= isset($access[0][1]) ? $access[0][1] : $access[0][0];
+				$groups[1]["namespace"] = isset($access[1][1]) ? $access[1][0] : null;
+				$groups[1]["access"]	= isset($access[1][1]) ? $access[1][1] : $access[1][0];
+				$min_code = self::get_user_group_code($groups[0]["access"],$groups[0]["namespace"]);
+				$max_code = self::get_user_group_code($groups[1]["access"],$groups[1]["namespace"]);
 				foreach (self::$_user_group as $name => $code) if($min_code <= $code && $code <= $max_code) $_group[$mode][] = $code;
 			}
 			# match "a"
-			else if(($code = self::get_user_group_code($access))!==false) $_group[$mode][] = $code;
+			else{
+				$access = explode(":", $access);
+				$namespace = isset($access[1]) ? $access[0] : null;
+				$access = isset($access[1]) ? $access[1] : $access[0];
+				if(($code = self::get_user_group_code($access,$namespace))!==false) $_group[$mode][] = $code;
+			}
 		}
 		$allowed = array_diff(array_unique($_group["allow"]),array_unique($_group["deny"]));
 		sort($allowed);
