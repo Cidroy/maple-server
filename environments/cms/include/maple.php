@@ -233,18 +233,20 @@ class MAPLE{
 	public static function do_filters($filter,$args=[]){
 		if(!is_string($filter)) throw new \InvalidArgumentException("Argument #1 must be of type 'string'", 1);
 		if(!is_array($args)) throw new \InvalidArgumentException("Argument #2 must be of type 'array'", 1);
-		$content = [];
+		$errors = [];
 		if(isset(self::$_FILTERS[$filter])){
 			reset(self::$_FILTERS[$filter]);
-			#BUG : start buffer
-			// ob_start();
+			ob_start();
 			while ($f = current(self::$_FILTERS[$filter])) {
-				$content[] = call_user_func($f["function"],array_merge($f["args"],$args));
+				try{
+					$result = call_user_func($f["function"], array_merge($f["args"], $args));
+					if (is_array($result)) $args = array_merge($args, $result);
+				} catch(\Exception $e){ $errors[] = $e; }
 				next(self::$_FILTERS[$filter]);
 			}
-			// ob_end_clean();
+			ob_end_clean();
 		}
-		return new __filter_content($content);
+		return new __filter_content($args,$errors);
 	}
 
 	/**
@@ -352,7 +354,11 @@ class MAPLE{
  */
 class __filter_content{
 	public $content = [];
-	public function __construct($data){ $this->content = $data; }
+	public $errors = [];
+	public function __construct($data,$errors = []){ 
+		$this->content = $data;
+		$this->errors  = $errors; 
+	}
 	public function __toString(){
 		$string = "";
 		foreach ($this->content as $value) {

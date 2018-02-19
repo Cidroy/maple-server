@@ -98,7 +98,7 @@ class LOGIN{
 				"request"	=>	SESSION::token_request
 			],
 			"redirect_to" => isset($_REQUEST["redirect_to"])?$_REQUEST["redirect_to"]:(SECURITY::permission("maple/cms","dashboard")?URL::name("maple/cms","dashboard"):URL::http("%ROOT%")),
-		])->content[0];
+		])->content;
 		else return self::_error("invalid-credentials");
 	}
 

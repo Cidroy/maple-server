@@ -327,7 +327,7 @@ class SECURITY {
 	 */
 	public static function get_user_group_name($code, $namespace = false){
 		if (!is_int($code)) throw new \InvalidArgumentException("Argument #1 should be of type 'integer'", 1);
-		if ($namespace && !is_string($namespace)) throw new \InvalidArgumentException("Argument #2 should be of type 'namespace'", 2);
+		if ($namespace && !is_string($namespace)) throw new \InvalidArgumentException("Argument #2 should be of type 'string'", 2);
 		if (!$namespace) return array_search($code, self::$_user_group);
 		else return isset(self::$_user_group_alias[$namespace]) ? array_search($code, self::$_user_group_alias[$namespace]) : false;
 	}

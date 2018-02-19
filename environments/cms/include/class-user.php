@@ -142,7 +142,7 @@ class USER{
 	 * @api
 	 * @return integer access level
 	 */
-	public static function access_level(){ return self::$_user["details"]["access"]; }
+	public static function access_level(){ return intval(self::$_user["details"]["access"]); }
 	/**
 	 * return special permissions
 	 * @api
