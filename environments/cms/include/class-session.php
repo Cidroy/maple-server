@@ -211,6 +211,17 @@
 			)
 			unset($_SESSION["storage"][$owner][$var]);
 		}
+
+		/**
+		 * Initialize important stuff
+		 * @return void
+		 */
+		public static function initialize(){
+			$token = md5(\ENVIRONMENT::url()->root());
+			self::$_data["name"] = self::$_data["name"]."_".$token;
+		}
 	}
+
+	SESSION::initialize();
 
 ?>
