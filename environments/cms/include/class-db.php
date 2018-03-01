@@ -96,6 +96,17 @@ class DB{
 	public static function object($param = null){ return new __db($param); }
 
 	/**
+	 * Return an alternative version of same database
+	 *
+	 * @param array $param additional modifications
+	 * @return Medoo object
+	 */
+	public static function modified($param = []){
+		if(!is_array($param)) throw new \InvalidArgumentException("Argument #1 must be of type 'array'", 1);
+		return self::object(array_merge(self::$_details["database"],$param));
+	}
+
+	/**
 	 * Return \PDO Object with passed SQL Query
 	 * @api
 	 * @param  string $query sql query

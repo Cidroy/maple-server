@@ -1,0 +1,26 @@
+{
+	"name": "Rangholic Scanner",
+	"version": "1.0",
+	"description": "Requires WP on Same Server",
+	"author": "Rubixcode",
+	"namespace": "eventninjaz/rangholic",
+	"maple": {
+		"maple/cms": {
+			"setup": {
+				"load": "/class-setup.php",
+				"install": "eventninjaz\\SETUP::install"
+			},
+			"autoload": {
+				"eventninjaz\\RANGHOLIC": "/class-rangholic.php"
+			},
+			"filters": [],
+			"shortcodes": [],
+			"routers": [],
+			"template": "/templates",
+			"dashboard": [],
+			"menus": [],
+			"widgets": [],
+			"api": "/api.json"
+		}
+	}
+}

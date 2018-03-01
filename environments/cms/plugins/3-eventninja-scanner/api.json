@@ -1,0 +1,15 @@
+{
+	"verify":{
+		"method"	:	"POST",
+		"function"	:	"eventninjaz\\RANGHOLIC::a_verify"
+	},
+	"register":{
+		"method"	:	"POST",
+		"function"	:	"eventninjaz\\RANGHOLIC::a_register"
+	},
+	"login":{
+		"method"	:	"POST",
+		"function"	:	"eventninjaz\\RANGHOLIC::a_login"
+	}
+
+}
