@@ -1,0 +1,1 @@
+{"Access-Control":{"Allow-Origin":"*","Allow-Credentials":true,"Allow-Methods":["GET","POST","HEAD"],"Allow-Headers":"Content-Type, *"},"base":"%ROOT%\/ajax"}

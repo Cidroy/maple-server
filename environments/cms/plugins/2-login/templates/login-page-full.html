@@ -16,7 +16,7 @@
 			{{ filter("login-page|errors") }}
 			{% embed "element/card.html" ignore missing with {"type":"row","size":[],"offset":[]}%}
 				{% block content %}
-				<form action="{{ url("%ROOT%/") }}" method="post" data-form="login" name="login">
+				<form action="{{ url("%API%/") }}" method="post" data-form="login" name="login">
 					{{ imports.input({ "icon":"person", "size":["s12"], "label":lang(namespace,"Username / E-Mail"), "required": "true", "autofocus": "true", "id" : "username", "name" : "username" }) }}
 					{{ imports.input({ "type":"password", "icon":"lock", "size":["s12"], "label":lang(namespace,"Password"), "required": "true", "id" : "password", "name" : "password" }) }}
 					{{ imports.switch({ "label":"Remember Me","side":"right","name":"remember-me" }) }}

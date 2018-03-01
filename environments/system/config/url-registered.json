@@ -1,0 +1,9 @@
+{
+    "url": {
+        "\/env": "maple\/environment",
+        "\/login": "maple\/cms",
+        "\/sign-up": "maple\/cms",
+        "\/profile": "maple\/cms",
+        "\/dashboard": "maple\/cms"
+    }
+}

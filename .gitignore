@@ -1,0 +1,6 @@
+.htaccess
+environments/url.json
+environments/cms/cache/
+environments/cms/configurations/url.json
+environments/cms/configurations.php
+environments/environments.json
